@@ -1,7 +1,7 @@
-# test_solar_UAV_mission.py
+# tut_solar_UAV.py
 # 
 # Created:  Jul 2014, E. Botero
-# Modified: May 2015, E. Botero
+# Modified: Jun 2015, E. Botero
 
 #----------------------------------------------------------------------
 #   Imports
@@ -95,8 +95,7 @@ def vehicle_setup():
     vehicle.envelope.ultimate_load            = 2.0
     vehicle.envelope.limit_load               = 1.5
     vehicle.envelope.maximum_dynamic_pressure = 0.5*1.225*(40.**2.) #Max q
-    vehicle.length_tail_boom                  = 10.0 # Tail boom length
-    
+
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------   
@@ -680,35 +679,3 @@ def plot_mission(results):
     plt.show()     
     
     return     
-  
-
-# ---------------------------------------------------------------------- 
-#   Module Tests
-# ----------------------------------------------------------------------
-
-if __name__ == '__main__':
-    
-    profile_module = False
-        
-    if not profile_module:
-        main()
-        
-    else:
-        profile_file = 'log_Profile.out'
-        
-        import cProfile
-        cProfile.run('import tut_mission_Boeing_737800 as tut; tut.profile()', profile_file)
-        
-        import pstats
-        p = pstats.Stats(profile_file)
-        p.sort_stats('time').print_stats(20)        
-        
-        import os
-        os.remove(profile_file)
-
-def profile():
-    t0 = time.time()
-    vehicle = define_vehicle()
-    mission = define_mission(vehicle)
-    results = evaluate_mission(vehicle,mission)
-    print 'Run Time:' , (time.time()-t0)    
