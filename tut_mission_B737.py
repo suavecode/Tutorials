@@ -23,6 +23,7 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 
 # ----------------------------------------------------------------------
 #   Main
@@ -521,10 +522,21 @@ def vehicle_setup():
     thrust.compressor_nondimensional_massflow = 49.7272495725
     thrust.reference_temperature              = 288.15
     thrust.reference_pressure                 = 1.01325*10**5
-    thrust.number_of_engines                  = turbofan.number_of_engines   
+    thrust.number_of_engines                  = turbofan.number_of_engines  
+    
+    #total design thrust (includes all the engines)
+    thrust.total_design             = 2*24000. * Units.N #Newtons    
     
     # add to network
-    turbofan.thrust = thrust
+    turbofan.thrust = thrust    
+    
+    #design sizing conditions
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78 
+    isa_deviation = 0.
+
+    #size the turbofan
+    turbofan_sizing(turbofan,mach_number,altitude)       
     
     
     # add turbofan to vehicle
