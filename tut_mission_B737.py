@@ -175,8 +175,6 @@ def vehicle_setup():
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     
-    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
-    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
     
     # envelope properties
     vehicle.envelope.ultimate_load = 3.5
@@ -770,14 +768,14 @@ def plot_mission(results,line_style='bo-'):
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
         cdp = drag_breakdown.parasite.total[:,0]
         cdi = drag_breakdown.induced.total[:,0]
-        #cdc = drag_breakdown.compressible.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
 
         if line_style == 'bo-':
             axes.plot( time , cdp , 'ko-', label='CD_P' )
             axes.plot( time , cdi , 'bo-', label='CD_I' )
-            #axes.plot( time , cdc , 'go-', label='CD_C' )
+            axes.plot( time , cdc , 'go-', label='CD_C' )
             axes.plot( time , cdm , 'yo-', label='CD_M' )
             axes.plot( time , cd  , 'ro-', label='CD'   )
             if i == 0:
@@ -785,7 +783,7 @@ def plot_mission(results,line_style='bo-'):
         else:
             axes.plot( time , cdp , line_style )
             axes.plot( time , cdi , line_style )
-            #axes.plot( time , cdc , line_style )
+            axes.plot( time , cdc , line_style )
             axes.plot( time , cdm , line_style )
             axes.plot( time , cd  , line_style )            
 
