@@ -614,6 +614,21 @@ def configs_setup(vehicle):
 # ----------------------------------------------------------------------
 
 def plot_mission(results,line_style='bo-'):
+    
+    # ------------------------------------------------------------------
+    #   Distance Traveled
+    # ------------------------------------------------------------------
+    plt.figure("Distance Traveled")
+    axes = plt.gca()
+    for i in range(len(results.segments)):
+        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
+        distance  = results.segments[i].conditions.frames.inertial.position_vector[:,0] / Units.nmi
+        axes.plot(time, distance, line_style)
+    axes.set_xlabel('Time (mins)')
+    axes.set_ylabel('Distance (NM)')
+    axes.get_yaxis().get_major_formatter().set_scientific(False)
+    axes.get_yaxis().get_major_formatter().set_useOffset(False)      
+    axes.grid(True)    
 
     # ------------------------------------------------------------------
     #   Throttle

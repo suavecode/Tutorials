@@ -1088,10 +1088,10 @@ def check_results(new_results,old_results):
 
     
 def load_results():
-    return SUAVE.Input_Output.SUAVE.load('results_mission_B737.res')
+    return SUAVE.Input_Output.SUAVE.load('concorde.res')
     
 def save_results(results):
-    SUAVE.Input_Output.SUAVE.archive(results,'results_mission_B737.res')
+    SUAVE.Input_Output.SUAVE.archive(results,'concorde.res')
     return
     
 if __name__ == '__main__': 
