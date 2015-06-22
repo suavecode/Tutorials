@@ -171,7 +171,7 @@ def vehicle_setup():
 
     # mass properties
     vehicle.mass_properties.max_takeoff               = 79015.8   # kg
-    vehicle.mass_properties.operating_empty           = 62746.4   # kg
+    #vehicle.mass_properties.operating_empty           = 62746.4   # kg
     vehicle.mass_properties.takeoff                   = 79015.8   # kg
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     
