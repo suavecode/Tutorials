@@ -172,10 +172,7 @@ def vehicle_setup():
     vehicle.mass_properties.operating_empty           = 78700.   # kg
     vehicle.mass_properties.takeoff                   = 185000.   # kg
     vehicle.mass_properties.cargo                     = 1000.  * Units.kilogram   
-    
-    vehicle.mass_properties.center_of_gravity         = [35.0 * Units.feet, 0, 0] 
-    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
-    
+        
     # envelope properties
     vehicle.envelope.ultimate_load = 3.5
     vehicle.envelope.limit_load    = 1.5
@@ -288,9 +285,6 @@ def vehicle_setup():
     fuselage.width                 = 2.87
     
     fuselage.heights.maximum       = 3.3    #
-    fuselage.heights.at_quarter_length          = 4. # Not correct
-    fuselage.heights.at_three_quarters_length   = 4. # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
 
     fuselage.areas.side_projected  = 160.
     fuselage.areas.wetted          = 581.
@@ -342,7 +336,7 @@ def vehicle_setup():
     inlet_nozzle.tag = 'inlet_nozzle'
     
     # setup
-    inlet_nozzle.polytropic_efficiency = 1.0
+    inlet_nozzle.polytropic_efficiency = 0.98
     inlet_nozzle.pressure_ratio        = 1.0
     
     # add to network
@@ -357,7 +351,7 @@ def vehicle_setup():
     compressor.tag = 'low_pressure_compressor'
 
     # setup
-    compressor.polytropic_efficiency = 1.0
+    compressor.polytropic_efficiency = 0.91
     compressor.pressure_ratio        = 3.1    
     
     # add to network
@@ -372,7 +366,7 @@ def vehicle_setup():
     compressor.tag = 'high_pressure_compressor'
     
     # setup
-    compressor.polytropic_efficiency = 1.0
+    compressor.polytropic_efficiency = 0.91
     compressor.pressure_ratio        = 5.0  
     
     # add to network
@@ -387,8 +381,8 @@ def vehicle_setup():
     turbine.tag='low_pressure_turbine'
     
     # setup
-    turbine.mechanical_efficiency = 1.0
-    turbine.polytropic_efficiency = 1.0     
+    turbine.mechanical_efficiency = 0.99
+    turbine.polytropic_efficiency = 0.93     
     
     # add to network
     turbojet.append(turbine)
@@ -402,8 +396,8 @@ def vehicle_setup():
     turbine.tag='high_pressure_turbine'
 
     # setup
-    turbine.mechanical_efficiency = 1.0
-    turbine.polytropic_efficiency = 1.0     
+    turbine.mechanical_efficiency = 0.99
+    turbine.polytropic_efficiency = 0.93     
     
     # add to network
     turbojet.append(turbine)
@@ -417,7 +411,7 @@ def vehicle_setup():
     combustor.tag = 'combustor'
     
     # setup
-    combustor.efficiency                = 1.0
+    combustor.efficiency                = 0.99
     combustor.alphac                    = 1.0     
     combustor.turbine_inlet_temperature = 1450.
     combustor.pressure_ratio            = 1.0
@@ -435,8 +429,8 @@ def vehicle_setup():
     nozzle.tag = 'core_nozzle'
     
     # setup
-    nozzle.polytropic_efficiency = 1.0
-    nozzle.pressure_ratio        = 1.0    
+    nozzle.polytropic_efficiency = 0.95
+    nozzle.pressure_ratio        = 0.99    
     
     # add to network
     turbojet.append(nozzle)
