@@ -679,3 +679,7 @@ def plot_mission(results):
     plt.show()     
     
     return     
+
+if __name__ == '__main__': 
+    main()    
+    plt.show()
