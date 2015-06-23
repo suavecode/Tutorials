@@ -894,7 +894,7 @@ def plot_mission(results,configs,line_style='bo-'):
     # ------------------------------------------------------------------
     #   Flight Conditions
     # ------------------------------------------------------------------
-    fig = plt.figure("Flight Conditions")
+    fig = plt.figure("Flight Conditions",figsize=(6.5,10))
     for segment in results.segments.values():
 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -915,15 +915,17 @@ def plot_mission(results,configs,line_style='bo-'):
         axes.set_ylabel('Mach Number (-)')
         axes.grid(True)    
     
+    #plt.savefig('flight_conditions.png',dpi=300)
     
     # ------------------------------------------------------------------    
     #  Mass, State of Charge, Power
     # ------------------------------------------------------------------
-    battery=configs.base.energy_network['battery']
+    try:
+        battery=configs.base.energy_network['battery']
+    except:
+        return
     
-    fig = plt.figure("Electric Aircraft Outputs")
-    fig.set_figheight(10)
-    fig.set_figwidth(6.5)
+    fig = plt.figure("Electric Aircraft Outputs",figsize=(6.5,10))
     for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -932,21 +934,23 @@ def plot_mission(results,configs,line_style='bo-'):
         battery_power=-segment.conditions.propulsion.battery_draw[:,0]/Units.MW
 
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , mass , 'bo-' )
+        axes.plot( time , mass , line_style )
         axes.set_ylabel('Vehicle Mass (kg)')
         axes.grid(True)
         
         axes = fig.add_subplot(3,1,2)
-        axes.plot( time , state_of_charge , 'bo-' )
+        axes.plot( time , state_of_charge , line_style )
         axes.set_ylabel('State of Charge (-)')
         axes.set_ylim([-0.005,1.005])
         axes.grid(True)
         
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , battery_power , 'bo-' )
+        axes.plot( time , battery_power , line_style )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Discharge Power (MW)')
         axes.grid(True)    
+
+    #plt.savefig('battery_conditions.png',dpi=300)
 
     return
 
