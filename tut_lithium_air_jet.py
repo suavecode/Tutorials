@@ -51,6 +51,10 @@ def main():
     # plot the results
     plot_mission(results,configs)
     
+    
+    old_results = SUAVE.Input_Output.SUAVE.load('results_mission_E190_constThr.res')
+    plot_mission(old_results,configs,'k-')
+    
     return
 
 
@@ -209,14 +213,10 @@ def vehicle_setup():
     
     # basic parameters
     vehicle.reference_area         = 100.0
-    vehicle.passengers             = 110
+    vehicle.passengers             = 114
     vehicle.systems.control        = "partially powered"
     vehicle.systems.accessories    = "medium range"
     
-    # tail sizing
-    vehicle.w2h                    = 16.     * Units.meters    # Length from the mean aerodynamic center of wing to mean aerodynamic center of the horizontal tail
-    vehicle.w2v                    = 20.     * Units.meters    # Length from the mean aerodynamic center of wing to mean aerodynamic center of the vertical tail    
-
     # ------------------------------------------------------------------
     #   Main Wing
     # ------------------------------------------------------------------
@@ -638,7 +638,7 @@ def mission_setup(analyses):
     segment.planet     = planet
 
     segment.air_speed  = 230.
-    segment.distance   = 2238. * Units.nmi
+    segment.distance   = 1947. * Units.nmi
 
     # add to mission
     mission.append_segment(segment)
@@ -723,6 +723,11 @@ def mission_setup(analyses):
 # ----------------------------------------------------------------------
 
 def plot_mission(results,configs,line_style='bo-'):
+    
+    if line_style == 'k-':
+        line_width = 2.
+    else:
+        line_width = 1.
 
     # ------------------------------------------------------------------
     #   Throttle
@@ -902,55 +907,57 @@ def plot_mission(results,configs,line_style='bo-'):
         mach     = segment.conditions.freestream.mach_number[:,0]
 
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , time , line_style )
+        axes.plot( time , time , line_style , lw=line_width )
 
         axes = fig.add_subplot(3,1,2)
-        axes.plot( time , altitude , line_style )
+        axes.plot( time , altitude , line_style , lw=line_width )
         axes.set_ylabel('Altitude (km)')
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , mach, line_style )
+        axes.plot( time , mach, line_style , lw=line_width )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Mach Number (-)')
         axes.grid(True)    
     
-    #plt.savefig('flight_conditions.png',dpi=300)
+    plt.savefig('flight_conditions.png',dpi=300)
     
     # ------------------------------------------------------------------    
     #  Mass, State of Charge, Power
     # ------------------------------------------------------------------
-    try:
-        battery=configs.base.energy_network['battery']
-    except:
-        return
+
     
     fig = plt.figure("Electric Aircraft Outputs",figsize=(6.5,10))
     for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         mass = segment.conditions.weights.total_mass[:,0]
-        state_of_charge=segment.conditions.propulsion.battery_energy[:,0]/battery.max_energy
-        battery_power=-segment.conditions.propulsion.battery_draw[:,0]/Units.MW
 
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , mass , line_style )
+        axes.plot( time , mass , line_style , lw=line_width )
         axes.set_ylabel('Vehicle Mass (kg)')
         axes.grid(True)
         
+        try:
+            battery=configs.base.energy_network['battery']
+            state_of_charge=segment.conditions.propulsion.battery_energy[:,0]/battery.max_energy
+            battery_power=-segment.conditions.propulsion.battery_draw[:,0]/Units.MW            
+        except:
+            continue        
+        
         axes = fig.add_subplot(3,1,2)
-        axes.plot( time , state_of_charge , line_style )
+        axes.plot( time , state_of_charge , line_style , lw=line_width )
         axes.set_ylabel('State of Charge (-)')
         axes.set_ylim([-0.005,1.005])
         axes.grid(True)
         
         axes = fig.add_subplot(3,1,3)
-        axes.plot( time , battery_power , line_style )
+        axes.plot( time , battery_power , line_style , lw=line_width )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Discharge Power (MW)')
         axes.grid(True)    
 
-    #plt.savefig('battery_conditions.png',dpi=300)
+    plt.savefig('battery_conditions.png',dpi=300)
 
     return
 
