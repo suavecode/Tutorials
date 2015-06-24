@@ -681,7 +681,7 @@ def plot_mission(results):
     # ------------------------------------------------------------------
     #   Flight Conditions
     # ------------------------------------------------------------------
-    fig = plt.figure("Flight Conditions",figsize=(6.5,10))
+    fig = plt.figure("Flight Conditions")
     for segment in results.segments.values():
 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -709,7 +709,7 @@ def plot_mission(results):
     # ------------------------------------------------------------------
 
     
-    fig = plt.figure("Electric Outputs",figsize=(6.5,10))
+    fig = plt.figure("Electric Outputs")
     for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -739,4 +739,4 @@ def plot_mission(results):
 if __name__ == '__main__':
     main()
     
-    plt.show(block=True)
+    plt.show()
