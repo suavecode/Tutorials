@@ -46,7 +46,7 @@ def main():
     
     # mission analysis
     mission = analyses.missions
-    results = mission.evaluate()    
+    results = evaluate_mission(configs,mission)  
     
     # plot the results
     plot_mission(results,configs)
@@ -198,10 +198,10 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
     # mass properties
-    vehicle.mass_properties.max_takeoff               = 92110.
+    vehicle.mass_properties.max_takeoff               = 92110. #use landing mass as 
     vehicle.mass_properties.operating_empty           = 34551. 
     vehicle.mass_properties.takeoff                   = 80721. 
-    vehicle.mass_properties.max_zero_fuel             = 92110. 
+    vehicle.mass_properties.max_zero_fuel             = 92110. #equivalent landing mass
     vehicle.mass_properties.cargo                     = 0.0 
     vehicle.mass_properties.max_payload               = 0.0 
     vehicle.mass_properties.max_fuel                  = 0.0
@@ -716,7 +716,32 @@ def mission_setup(analyses):
 
 #: def define_mission()
 
-
+# ----------------------------------------------------------------------
+#   Evaluate the Mission
+# ----------------------------------------------------------------------
+def evaluate_mission(configs,mission):
+    
+    # ------------------------------------------------------------------    
+    #   Run Mission
+    # ------------------------------------------------------------------
+    
+    results = mission.evaluate()
+    
+    #determine energy characteristiscs
+    e_current_min=1E14
+    Pmax=0.
+    for i in range(len(results.segments)):
+            if np.min(results.segments[i].conditions.propulsion.battery_energy[:,0])<e_current_min:
+                e_current_min=np.min(results.segments[i].conditions.propulsion.battery_energy[:,0])
+            if np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))>Pmax:
+                Pmax=np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))         
+    results.e_total=results.segments[0].conditions.propulsion.battery_energy[0,0]-e_current_min
+    results.Pmax=Pmax
+    print 'e_current_min=',e_current_min
+    print "e_total=", results.e_total
+    print "Pmax=", Pmax
+    print "e_current_min=", e_current_min
+    return results
 # ----------------------------------------------------------------------
 #   Plot Mission
 # ----------------------------------------------------------------------
