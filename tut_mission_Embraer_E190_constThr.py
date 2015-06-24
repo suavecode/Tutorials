@@ -1,7 +1,7 @@
-# full_setup.py
+# tut_mission_Embraer_E190_constThr.py
 #
-# Created:  SUave Team, Aug 2014
-# Modified:
+# Created:  Aug 2014, SUAVE Team
+# Modified: Jun 2015, SUAVE Team
 
 """ setup file for a mission with a E190
 """
