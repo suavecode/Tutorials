@@ -52,9 +52,6 @@ def main():
     plot_mission(results,configs)
     
     
-    old_results = SUAVE.Input_Output.SUAVE.load('results_mission_E190_constThr.res')
-    plot_mission(old_results,configs,'k-')
-    
     return
 
 
@@ -905,9 +902,11 @@ def plot_mission(results,configs,line_style='bo-'):
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         altitude = segment.conditions.freestream.altitude[:,0] / Units.km
         mach     = segment.conditions.freestream.mach_number[:,0]
+        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
 
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , time , line_style , lw=line_width )
+        axes.plot( time , aoa , line_style , lw=line_width )
+        axes.set_ylabel('Angle of Attack (deg)')
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , altitude , line_style , lw=line_width )
@@ -920,12 +919,9 @@ def plot_mission(results,configs,line_style='bo-'):
         axes.set_ylabel('Mach Number (-)')
         axes.grid(True)    
     
-    plt.savefig('flight_conditions.png',dpi=300)
-    
     # ------------------------------------------------------------------    
     #  Mass, State of Charge, Power
     # ------------------------------------------------------------------
-
     
     fig = plt.figure("Electric Aircraft Outputs",figsize=(6.5,10))
     for segment in results.segments.values():
@@ -956,8 +952,6 @@ def plot_mission(results,configs,line_style='bo-'):
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Discharge Power (MW)')
         axes.grid(True)    
-
-    plt.savefig('battery_conditions.png',dpi=300)
 
     return
 
