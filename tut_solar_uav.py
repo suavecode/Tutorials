@@ -466,17 +466,7 @@ def plot_mission(results):
     axes.get_yaxis().get_major_formatter().set_scientific(False)
     axes.get_yaxis().get_major_formatter().set_useOffset(False)
     plt.ylim((0,1))
-    axes.grid(True)
-    
-    plt.figure("Angle of Attack History")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        aoa = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        axes.plot(time, aoa, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Angle of Attack (deg)')
-    axes.grid(True)            
+    axes.grid(True)         
 
     # ------------------------------------------------------------------    
     #   Altitude
@@ -692,6 +682,7 @@ def plot_mission(results):
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , aoa , 'bo-' )
         axes.set_ylabel('Angle of Attack (deg)')
+        axes.grid(True)
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , altitude , 'bo-' )
@@ -705,7 +696,7 @@ def plot_mission(results):
         axes.grid(True)    
     
     # ------------------------------------------------------------------    
-    #  Mass, State of Charge, Power
+    #  Solar Flux, Charging Power, Battery Energy
     # ------------------------------------------------------------------
 
     
@@ -719,7 +710,7 @@ def plot_mission(results):
 
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , flux , 'bo-' )
-        axes.set_ylabel('Solar Fkux (W/m$^2$)')
+        axes.set_ylabel('Solar Flux (W/m$^2$)')
         axes.grid(True)
         
         axes = fig.add_subplot(3,1,2)
