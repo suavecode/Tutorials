@@ -140,7 +140,7 @@ def base_analysis(vehicle):
     #  Weights
     weights = SUAVE.Analyses.Weights.Weights()
     weights.settings.empty_weight_method= \
-           SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng # SEE THIS
+           SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng
     weights.vehicle = vehicle
     analyses.append(weights)
     
@@ -160,7 +160,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Propulsion Analysis
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.energy_network                              # SEE THIS
+    energy.network = vehicle.energy_network                              
     analyses.append(energy)
     
     # ------------------------------------------------------------------
@@ -898,7 +898,7 @@ def plot_mission(results,configs,line_style='bo-'):
     # ------------------------------------------------------------------
     #   Flight Conditions
     # ------------------------------------------------------------------
-    fig = plt.figure("Flight Conditions",figsize=(6.5,10))
+    fig = plt.figure("Flight Conditions")
     for segment in results.segments.values():
 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
@@ -926,7 +926,7 @@ def plot_mission(results,configs,line_style='bo-'):
     #  Mass, State of Charge, Power
     # ------------------------------------------------------------------
     
-    fig = plt.figure("Electric Aircraft Outputs",figsize=(6.5,10))
+    fig = plt.figure("Electric Aircraft Outputs")
     for segment in results.segments.values():
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min

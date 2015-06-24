@@ -134,7 +134,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Propulsion Analysis
     energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.propulsors 
     analyses.append(energy)
     
     # ------------------------------------------------------------------
@@ -321,11 +321,11 @@ def vehicle_setup():
     fuselage.width                 = 4.
     
     fuselage.heights.maximum       = 4.    #
-    fuselage.heights.at_quarter_length          = 4. # Not correct
-    fuselage.heights.at_three_quarters_length   = 4. # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 4. # Not correct
+    fuselage.heights.at_quarter_length          = 4. 
+    fuselage.heights.at_three_quarters_length   = 4. 
+    fuselage.heights.at_wing_root_quarter_chord = 4. 
 
-    fuselage.areas.side_projected  = 4.* 59.8 #  Not correct
+    fuselage.areas.side_projected  = 4.* 59.8 
     fuselage.areas.wetted          = 688.64
     fuselage.areas.front_projected = 12.57
     

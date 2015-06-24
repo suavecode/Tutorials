@@ -179,9 +179,6 @@ def vehicle_setup():
     vehicle.mass_properties.max_payload               = 11786. * Units.kg
     vehicle.mass_properties.max_fuel                  = 12970.
 
-    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
-    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
-
     # envelope properties
     vehicle.envelope.ultimate_load = 3.5
     vehicle.envelope.limit_load    = 1.5
@@ -329,10 +326,10 @@ def vehicle_setup():
 
     fuselage.width                 = 3.0
 
-    fuselage.heights.maximum       = 3.4    #
-    fuselage.heights.at_quarter_length          = 3.4 # Not correct
-    fuselage.heights.at_three_quarters_length   = 3.4 # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 3.4 # Not correct
+    fuselage.heights.maximum       = 3.4   
+    fuselage.heights.at_quarter_length          = 3.4 
+    fuselage.heights.at_three_quarters_length   = 3.4 
+    fuselage.heights.at_wing_root_quarter_chord = 3.4 
 
     fuselage.areas.side_projected  = 239.20
     fuselage.areas.wetted          = 327.01
