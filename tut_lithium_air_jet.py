@@ -1,9 +1,9 @@
-# full_setup.py
+# tut_lithium_air_jet.py
 #
-# Created:  SUave Team, Aug 2014
-# Modified:
+# Created:  Jun 2015, SUAVE Team
+# Modified: 
 
-""" setup file for a mission with a E190
+""" setup file for a mission with an all electric airliner
 """
 
 
@@ -214,8 +214,8 @@ def vehicle_setup():
     vehicle.systems.accessories    = "medium range"
     
     # tail sizing
-    vehicle.w2h                    = 16.     * Units.meters    # Length from the mean aerodynamic center of wing to mean aerodynamic center of the horizontal tail
-    vehicle.w2v                    = 20.     * Units.meters    # Length from the mean aerodynamic center of wing to mean aerodynamic center of the vertical tail    
+    vehicle.w2h                    = 16. * Units.meters # Length from the mean aerodynamic center of wing to mean aerodynamic center of the horizontal tail
+    vehicle.w2v                    = 20. * Units.meters # Length from the mean aerodynamic center of wing to mean aerodynamic center of the vertical tail    
 
     # ------------------------------------------------------------------
     #   Main Wing
@@ -724,6 +724,7 @@ def mission_setup(analyses):
 
 def plot_mission(results,configs,line_style='bo-'):
 
+
     # ------------------------------------------------------------------
     #   Throttle
     # ------------------------------------------------------------------
@@ -754,16 +755,16 @@ def plot_mission(results,configs,line_style='bo-'):
 
 
     # ------------------------------------------------------------------
-    #   Fuel Burn Rate
+    #   Mass Rate
     # ------------------------------------------------------------------
-    plt.figure("Fuel Burn Rate")
+    plt.figure("Mass Rate")
     axes = plt.gca()
     for i in range(len(results.segments)):
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mdot = results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
+        mdot = -results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
         axes.plot(time, mdot, line_style)
     axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Fuel Burn Rate (kg/s)')
+    axes.set_ylabel('Mass Rate (kg/s)')
     axes.grid(True)
 
 
@@ -891,6 +892,7 @@ def plot_mission(results,configs,line_style='bo-'):
     axes.set_ylabel('CD')
     axes.grid(True)
     
+    
     # ------------------------------------------------------------------
     #   Flight Conditions
     # ------------------------------------------------------------------
@@ -900,9 +902,12 @@ def plot_mission(results,configs,line_style='bo-'):
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         altitude = segment.conditions.freestream.altitude[:,0] / Units.km
         mach     = segment.conditions.freestream.mach_number[:,0]
+        distance = segment.conditions.frames.inertial.position_vector[:,0] / Units.km
 
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , time , line_style )
+        axes.plot( time, distance, line_style )
+        axes.set_ylabel('Distance (km)')
+        axes.grid(True)        
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , altitude , line_style )
@@ -914,8 +919,6 @@ def plot_mission(results,configs,line_style='bo-'):
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Mach Number (-)')
         axes.grid(True)    
-    
-    #plt.savefig('flight_conditions.png',dpi=300)
     
     # ------------------------------------------------------------------    
     #  Mass, State of Charge, Power
@@ -950,11 +953,9 @@ def plot_mission(results,configs,line_style='bo-'):
         axes.set_ylabel('Discharge Power (MW)')
         axes.grid(True)    
 
-    #plt.savefig('battery_conditions.png',dpi=300)
-
     return
 
 
 if __name__ == '__main__':
     main()
-    plt.show(block=True)
+    plt.show()
