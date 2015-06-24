@@ -1,9 +1,9 @@
-# full_setup.py
+# tut_lithium_air_jet.py
 #
-# Created:  SUave Team, Aug 2014
-# Modified:
+# Created:  Jun 2015, SUAVE Team
+# Modified: 
 
-""" setup file for a mission with a E190
+""" setup file for a mission with an all electric airliner
 """
 
 
@@ -726,6 +726,7 @@ def plot_mission(results,configs,line_style='bo-'):
     else:
         line_width = 1.
 
+
     # ------------------------------------------------------------------
     #   Throttle
     # ------------------------------------------------------------------
@@ -756,16 +757,16 @@ def plot_mission(results,configs,line_style='bo-'):
 
 
     # ------------------------------------------------------------------
-    #   Fuel Burn Rate
+    #   Mass Rate
     # ------------------------------------------------------------------
-    plt.figure("Fuel Burn Rate")
+    plt.figure("Mass Rate")
     axes = plt.gca()
     for i in range(len(results.segments)):
         time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mdot = results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
+        mdot = -results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
         axes.plot(time, mdot, line_style)
     axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Fuel Burn Rate (kg/s)')
+    axes.set_ylabel('Mass Rate (kg/s)')
     axes.grid(True)
 
 
@@ -893,6 +894,7 @@ def plot_mission(results,configs,line_style='bo-'):
     axes.set_ylabel('CD')
     axes.grid(True)
     
+    
     # ------------------------------------------------------------------
     #   Flight Conditions
     # ------------------------------------------------------------------
@@ -902,11 +904,12 @@ def plot_mission(results,configs,line_style='bo-'):
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         altitude = segment.conditions.freestream.altitude[:,0] / Units.km
         mach     = segment.conditions.freestream.mach_number[:,0]
-        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        distance = segment.conditions.frames.inertial.position_vector[:,0] / Units.km
 
         axes = fig.add_subplot(3,1,1)
-        axes.plot( time , aoa , line_style , lw=line_width )
-        axes.set_ylabel('Angle of Attack (deg)')
+        axes.plot( time, distance, line_style )
+        axes.set_ylabel('Distance (km)')
+        axes.grid(True)        
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , altitude , line_style , lw=line_width )
@@ -958,4 +961,4 @@ def plot_mission(results,configs,line_style='bo-'):
 
 if __name__ == '__main__':
     main()
-    plt.show(block=True)
+    plt.show()
