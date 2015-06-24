@@ -951,4 +951,4 @@ def plot_mission(results,line_style='bo-'):
 
 if __name__ == '__main__':
     main()
-    plt.show(block=True)
+    plt.show()
