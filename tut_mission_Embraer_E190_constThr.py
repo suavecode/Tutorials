@@ -882,7 +882,7 @@ def plot_mission(results,line_style='bo-'):
             pass 
 
     # ------------------------------------------------------------------
-    #   Aerodynamics 2
+    #   Aerodynamics 1
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients")
     for segment in results.segments.values():
