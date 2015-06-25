@@ -1,7 +1,7 @@
-# full_setup.py
+# tut_mission_B737.py
 # 
-# Created:  SUave Team, Aug 2014
-# Modified: 
+# Created:  Aug 2014, SUAVE Team
+# Modified: Jun 2015, SUAVE Team
 
 """ setup file for a mission with a 737
 """
@@ -158,7 +158,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.propulsors 
     analyses.append(energy)
 
     # ------------------------------------------------------------------

@@ -466,17 +466,7 @@ def plot_mission(results):
     axes.get_yaxis().get_major_formatter().set_scientific(False)
     axes.get_yaxis().get_major_formatter().set_useOffset(False)
     plt.ylim((0,1))
-    axes.grid(True)
-    
-    plt.figure("Angle of Attack History")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        aoa = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        axes.plot(time, aoa, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Angle of Attack (deg)')
-    axes.grid(True)            
+    axes.grid(True)         
 
     # ------------------------------------------------------------------    
     #   Altitude
@@ -676,10 +666,68 @@ def plot_mission(results):
     axes.grid(True)      
     plt.ylim((0,1))
 
-    plt.show()     
+    
+    
+    # ------------------------------------------------------------------
+    #   Flight Conditions
+    # ------------------------------------------------------------------
+    fig = plt.figure("Flight Conditions")
+    for segment in results.segments.values():
+
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
+        altitude = segment.conditions.freestream.altitude[:,0] / Units.km
+        mach     = segment.conditions.freestream.mach_number[:,0]
+        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , aoa , 'bo-' )
+        axes.set_ylabel('Angle of Attack (deg)')
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , altitude , 'bo-' )
+        axes.set_ylabel('Altitude (km)')
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , mach, 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Mach Number (-)')
+        axes.grid(True)    
+    
+    # ------------------------------------------------------------------    
+    #  Solar Flux, Charging Power, Battery Energy
+    # ------------------------------------------------------------------
+
+    
+    fig = plt.figure("Electric Outputs")
+    for segment in results.segments.values():
+        
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        flux   = results.segments[i].conditions.propulsion.solar_flux[:,0] 
+        charge = results.segments[i].conditions.propulsion.battery_draw[:,0] 
+        energy = results.segments[i].conditions.propulsion.battery_energy[:,0] / Units.MJ
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , flux , 'bo-' )
+        axes.set_ylabel('Solar Flux (W/m$^2$)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , charge , 'bo-' )
+        axes.set_ylabel('Charging Power (W)')
+        axes.grid(True)
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , energy , 'bo-' )
+        axes.set_xlabel('Time (min)')
+        axes.set_ylabel('Battery Energy (MJ)')
+        axes.grid(True)        
+    
     
     return     
 
-if __name__ == '__main__': 
-    main()    
+if __name__ == '__main__':
+    main()
+    
     plt.show()

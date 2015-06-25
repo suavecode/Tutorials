@@ -23,6 +23,7 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
+from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Performance  import payload_range
 
 
@@ -178,9 +179,6 @@ def vehicle_setup():
     vehicle.mass_properties.max_payload               = 11786. * Units.kg
     vehicle.mass_properties.max_fuel                  = 12970.
 
-    vehicle.mass_properties.center_of_gravity         = [60 * Units.feet, 0, 0]  # Not correct
-    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
-
     # envelope properties
     vehicle.envelope.ultimate_load = 3.5
     vehicle.envelope.limit_load    = 1.5
@@ -328,10 +326,10 @@ def vehicle_setup():
 
     fuselage.width                 = 3.0
 
-    fuselage.heights.maximum       = 3.4    #
-    fuselage.heights.at_quarter_length          = 3.4 # Not correct
-    fuselage.heights.at_three_quarters_length   = 3.4 # Not correct
-    fuselage.heights.at_wing_root_quarter_chord = 3.4 # Not correct
+    fuselage.heights.maximum       = 3.4   
+    fuselage.heights.at_quarter_length          = 3.4 
+    fuselage.heights.at_three_quarters_length   = 3.4 
+    fuselage.heights.at_wing_root_quarter_chord = 3.4 
 
     fuselage.areas.side_projected  = 239.20
     fuselage.areas.wetted          = 327.01
@@ -354,9 +352,9 @@ def vehicle_setup():
     gt_engine.tag               = 'turbo_fan'
     
     gt_engine.number_of_engines = 2.0
-    gt_engine.design_thrust     = 20300.0
-    gt_engine.engine_length     = 3.0
-    gt_engine.nacelle_diameter  = 1.0
+    gt_engine.bypass_ratio      = 5.4
+    gt_engine.engine_length     = 2.71
+    gt_engine.nacelle_diameter  = 2.05
 
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air
@@ -484,17 +482,20 @@ def vehicle_setup():
     #Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
-    
-    thrust.bypass_ratio                       = 5.4
-    thrust.compressor_nondimensional_massflow = 40.0 #??? #1.0
-    thrust.reference_temperature              = 288.15
-    thrust.reference_pressure                 = 1.01325*10**5
-    thrust.design = 24000.0
-    thrust.number_of_engines                  =gt_engine.number_of_engines   
 
-    
+    #total design thrust (includes all the engines)
+    thrust.total_design             = 37278.0* Units.N #Newtons
+
+    #design sizing conditions
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78 
+    isa_deviation = 0.
+
     # add thrust to the network
     gt_engine.thrust = thrust
+
+    #size the turbofan
+    turbofan_sizing(gt_engine,mach_number,altitude)  
 
     # add  gas turbine network gt_engine to the vehicle
     vehicle.append_component(gt_engine)      
@@ -881,7 +882,7 @@ def plot_mission(results,line_style='bo-'):
             pass 
 
     # ------------------------------------------------------------------
-    #   Aerodynamics 2
+    #   Aerodynamics 1
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients")
     for segment in results.segments.values():
