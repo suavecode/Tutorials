@@ -8,6 +8,7 @@ import time
 import matplotlib
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length 
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 matplotlib.interactive(True)
 
 
@@ -484,7 +485,6 @@ def vehicle_setup(m_guess,Ereq, Preq, max_alt,wing_sweep,alpha_rc, alpha_tc, veh
     
 ##################################################################
 def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
-    from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
     
 # ------------------------------------------------------------------
     #   Define New Gross Takeoff Weight
@@ -518,7 +518,7 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
         wing.areas.exposed  = 0.75 * wing.areas.wetted
   
   
-    cruise_altitude= mission['climb_3'].altitude_end
+    cruise_altitude= mission['climb_5'].altitude_end
     conditions = atmo.compute_values(cruise_altitude)
     sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
     sizing_segment.M   = mission['cruise'].air_speed/conditions.speed_of_sound       
