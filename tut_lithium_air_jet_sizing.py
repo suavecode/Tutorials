@@ -23,7 +23,8 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+#from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Methods.Propulsion.engine_sizing_ductedfan import engine_sizing_ductedfan
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
@@ -477,8 +478,9 @@ def evaluate_field_length(configs,analyses,mission,results):
     landing_config = configs.landing
    
     # evaluate
-    TOFL = estimate_take_off_field_length(takeoff_config,analyses,airport)
-    LFL = estimate_landing_field_length (landing_config, analyses,airport)
+    
+    TOFL = estimate_take_off_field_length(takeoff_config,analyses.configs,airport)
+    LFL = estimate_landing_field_length (landing_config, analyses.configs,airport)
     
     # pack
     field_length = SUAVE.Core.Data()
@@ -592,7 +594,7 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
   
     cruise_altitude= mission['climb_5'].altitude_end
     conditions = atmo.compute_values(cruise_altitude)
-    sizing_segment = SUAVE.Components.Propulsors.Segments.Segment()
+    sizing_segment = SUAVE.Core.Data()
     sizing_segment.M   = mission['cruise'].air_speed/conditions.speed_of_sound       
     sizing_segment.alt = cruise_altitude
     sizing_segment.T   = conditions.temperature        
