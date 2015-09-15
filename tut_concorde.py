@@ -200,6 +200,7 @@ def vehicle_setup():
     wing.spans.projected         = 25.6    
     
     wing.chords.root             = 25.0
+    wing.total_length            = 25.0
     wing.chords.tip              = 0.0
     wing.chords.mean_aerodynamic = 14.0
     
@@ -239,6 +240,7 @@ def vehicle_setup():
     wing.spans.projected         = 5.0      #    
 
     wing.chords.root             = 11.0
+    wing.total_length            = 11.0
     wing.chords.tip              = 3.0
     wing.chords.mean_aerodynamic = 8.0
     
