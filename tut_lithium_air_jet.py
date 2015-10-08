@@ -731,11 +731,11 @@ def evaluate_mission(configs,mission):
     e_current_min=1E14
     Pmax=0.
     for i in range(len(results.segments)):
-            if np.min(results.segments[i].conditions.propulsion.battery_energy[:,0])<e_current_min:
-                e_current_min=np.min(results.segments[i].conditions.propulsion.battery_energy[:,0])
-            if np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))>Pmax:
-                Pmax=np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw[:,0]))         
-    results.e_total=results.segments[0].conditions.propulsion.battery_energy[0,0]-e_current_min
+            if np.min(results.segments[i].conditions.propulsion.battery_energy)<e_current_min:
+                e_current_min=np.min(results.segments[i].conditions.propulsion.battery_energy)
+            if np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw))>Pmax:
+                Pmax=np.max(np.abs(results.segments[i].conditions.propulsion.battery_draw))         
+    results.e_total=results.segments[0].conditions.propulsion.battery_energy[0]-e_current_min
     results.Pmax=Pmax
     print 'e_current_min=',e_current_min
     print "e_total=", results.e_total
@@ -966,8 +966,8 @@ def plot_mission(results,configs,line_style='bo-'):
         
         try:
             battery=configs.base.energy_network['battery']
-            state_of_charge=segment.conditions.propulsion.battery_energy[:,0]/battery.max_energy
-            battery_power=-segment.conditions.propulsion.battery_draw[:,0]/Units.MW            
+            state_of_charge=segment.conditions.propulsion.battery_energy/battery.max_energy
+            battery_power=-segment.conditions.propulsion.battery_draw/Units.MW            
         except:
             continue        
         
