@@ -51,7 +51,7 @@ def main():
     Ereq=[Ereq_guess]
     Preq=[]
     mass=[ m_guess ] 
-    cruise_alt=6.255*Units.km #cruise altitude
+    cruise_alt=10.255*Units.km #cruise altitude
     j=0
    
    
