@@ -23,8 +23,8 @@ from SUAVE.Core import (
 Data, Container, Data_Exception, Data_Warning,
 )
 
-from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-
+from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_ducted_fan_geometry import compute_ducted_fan_geometry
 from SUAVE.Methods.Performance  import payload_range
 
 
@@ -142,7 +142,7 @@ def base_analysis(vehicle):
     #  Weights
     weights = SUAVE.Analyses.Weights.Weights()
     weights.settings.empty_weight_method= \
-           SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng # SEE THIS
+           SUAVE.Methods.Weights.Correlations.Tube_Wing.empty
     weights.vehicle = vehicle
     analyses.append(weights)
     
@@ -372,32 +372,87 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Propulsion
     # ------------------------------------------------------------------
-        
+    cruise_altitude = 6.255*Units.km
+    mach_number = .729
     atm = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p1, T1, rho1, a1, mew1 = atm.compute_values(0.)
-    p2, T2, rho2, a2, mew2 = atm.compute_values(6.255*Units.km)
-  
+    conditions0  = atm.compute_values(0.)
+    conditions   = atm.compute_values(cruise_altitude)
     
-    sizing_segment = SUAVE.Core.Data()
-    sizing_segment.M   = 0.729      
-    sizing_segment.alt = 6.255
-    sizing_segment.T   = T2           
-    sizing_segment.p   = p2     
+    conditions.mach_number = mach_number
+    conditions.gravity     = 9.81
+    conditions.velocity    = 230.
+    
+    #attributes
+    ducted_fan= SUAVE.Components.Energy.Networks.Ducted_Fan()
+    ducted_fan.tag                       ='ducted_fan'
+    
+    #assign components
+    working_fluid               = SUAVE.Attributes.Gases.Air
+
+    #add working fluid to the network
+    ducted_fan.working_fluid    = working_fluid
+    
+   
+    #Component 1 : ram,  to convert freestream static to stagnation quantities
+    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram.tag = 'ram'
+
+    #add ram to the network
+    ducted_fan.ram = ram
+
+
+    #Component 2 : inlet nozzle
+    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle.tag = 'inlet nozzle'
+
+    inlet_nozzle.polytropic_efficiency = 0.98
+    inlet_nozzle.pressure_ratio        = 0.98 #	turbofan.fan_nozzle_pressure_ratio     = 0.98     #0.98
+
+    #add inlet nozzle to the network
+    ducted_fan.inlet_nozzle = inlet_nozzle
+
+
+    #Component 8 :fan nozzle
+    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    fan_nozzle.tag = 'fan nozzle'
+
+    fan_nozzle.polytropic_efficiency = 0.95
+    fan_nozzle.pressure_ratio        = 0.99
+
+    #add the fan nozzle to the network
+    ducted_fan.fan_nozzle = fan_nozzle
+
+
+
+    #Component 9 : fan   
+    fan = SUAVE.Components.Energy.Converters.Fan()   
+    fan.tag = 'fan'
+
+    fan.polytropic_efficiency = 0.93
+    fan.pressure_ratio        = 1.5    
+
+    #add the fan to the network
+    ducted_fan.fan = fan    
+
+    #Component 10 : thrust (to compute the thrust)
+    thrust                    = SUAVE.Components.Energy.Processes.Thrust()  
+    thrust.tag                ='compute_thrust'
+    thrust.total_design       = 121979.18 # Preq*1.5/V_cruise 
+    ducted_fan.thrust         = thrust
+    
     
     #create battery
     battery = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
     battery.tag = 'battery'
    
-    # attributes
-    ducted_fan= SUAVE.Components.Propulsors.Ducted_Fan()
-    ducted_fan.tag                       ='ducted_fan'
-    ducted_fan.diffuser_pressure_ratio   = 0.98
-    ducted_fan.fan_pressure_ratio        = 1.65
-    ducted_fan.fan_nozzle_pressure_ratio = 0.99
-    ducted_fan.design_thrust             = 121979.18 # Preq*1.5/V_cruise 
-    ducted_fan.number_of_engines         = 2.0    
-    ducted_fan.engine_sizing_ducted_fan(sizing_segment)   #calling the engine sizing method 
+    ducted_fan.number_of_engines = 2.
     
+    #size geometry
+    prop_conditions=SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics() 
+    prop_conditions.freestream=conditions 
+    
+    ducted_fan_sizing(ducted_fan, mach_number,cruise_altitude)  #sizes mass flow
+    compute_ducted_fan_geometry(ducted_fan, prop_conditions)
     # ------------------------------------------------------------------
     #  Energy Network
     # ------------------------------------------------------------------ 
