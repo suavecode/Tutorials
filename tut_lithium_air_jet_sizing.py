@@ -12,23 +12,20 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-from SUAVE.Core import Units
+from SUAVE.Core import Units, Data
 
 import numpy as np
+import copy, time
+
+import matplotlib
 import pylab as plt
 
-import copy, time
-import matplotlib
-from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
-)
 
-#from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Propulsion.engine_sizing_ductedfan import engine_sizing_ductedfan
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
-from SUAVE.Methods.Performance  import payload_range
+from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_ducted_fan_geometry import compute_ducted_fan_geometry
 matplotlib.interactive(True)
 
 # ----------------------------------------------------------------------
@@ -41,7 +38,7 @@ def main():
     #initial guesses
     m_guess    = 64204.6490117
     Ereq_guess =251.58 * 10.**9.
-    Pmotor     =18.67 * 10.**6.
+    Pmotor     =13.78 * 10.**6.
  
     tol=.01 #percentage difference in mass and energy between iterations
     dm=10000. #initialize error
@@ -102,10 +99,10 @@ def main():
 #   Analysis Setup
 # ----------------------------------------------------------------------
 
-def full_setup(m_guess, Ereq_guess, Preq_guess, cruise_alt):
+def full_setup(m_guess, Ereq_guess, Preq_guess, cruise_altitude):
 
     # vehicle data
-    vehicle  = vehicle_setup(cruise_alt)
+    vehicle  = vehicle_setup(cruise_altitude)
     configs  = configs_setup(vehicle)
     
     # vehicle analyses
@@ -155,10 +152,10 @@ def analyses_setup(configs, Ereq, Preq):
     
     # initialize the battery
     battery = configs.base.energy_network['battery']
-    battery.specific_energy=2000*Units.Wh/Units.kg
-    battery.specific_power =.67*Units.kW/Units.kg
+    battery.specific_energy= 2000*Units.Wh/Units.kg
+    battery.specific_power = .67*Units.kW/Units.kg
     SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
-    battery.current_energy=[battery.max_energy] 
+    battery.current_energy= [battery.max_energy] 
     configs.base.store_diff()
 
     # Update all configs with new base data    
@@ -184,7 +181,7 @@ def base_analysis(vehicle):
     #  Weights
     weights = SUAVE.Analyses.Weights.Weights()
     weights.settings.empty_weight_method= \
-           SUAVE.Methods.Weights.Correlations.Tube_Wing.empty_custom_eng # SEE THIS
+           SUAVE.Methods.Weights.Correlations.Tube_Wing.empty 
     weights.vehicle = vehicle
     analyses.append(weights)
     
@@ -226,7 +223,7 @@ def base_analysis(vehicle):
 #   Define the Vehicle
 # ----------------------------------------------------------------------
 
-def vehicle_setup(cruise_alt):
+def vehicle_setup(cruise_altitude):
 
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
@@ -416,31 +413,95 @@ def vehicle_setup(cruise_alt):
     # ------------------------------------------------------------------
     #  Propulsion
     # ------------------------------------------------------------------
-        
+    
     atm = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p1, T1, rho1, a1, mew1 = atm.compute_values(0.)
-    p2, T2, rho2, a2, mew2 = atm.compute_values(6.255*Units.km)
-  
+    p1, T1, rho1, a1, mu1 = atm.compute_values(0.)
+    p2, T2, rho2, a2, mu2 = atm.compute_values(cruise_altitude)
     
-    sizing_segment = SUAVE.Core.Data()
-    sizing_segment.M   = 0.729      
-    sizing_segment.alt = cruise_alt
-    sizing_segment.T   = T2           
-    sizing_segment.p   = p2     
     
+    mach_number           = .729
+    #Create Energy Network
     #create battery
     battery = SUAVE.Components.Energy.Storages.Batteries.Variable_Mass.Lithium_Air()
     battery.tag = 'battery'
    
-    # attributes
-    ducted_fan= SUAVE.Components.Propulsors.Ducted_Fan()
+    ducted_fan      = SUAVE.Components.Energy.Networks.Ducted_Fan()
+    network         = SUAVE.Components.Energy.Networks.Battery_Ducted_Fan()
+    working_fluid   = SUAVE.Attributes.Gases.Air
+
+    #add working fluid to the network
+    ducted_fan.working_fluid    = working_fluid
+    
+   
+    #Component 1 : ram,  to convert freestream static to stagnation quantities
+    ram = SUAVE.Components.Energy.Converters.Ram()
+    ram.tag = 'ram'
+
+    #add ram to the network
+    ducted_fan.ram = ram
+
+
+    #Component 2 : inlet nozzle
+    inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
+    inlet_nozzle.tag = 'inlet nozzle'
+
+    inlet_nozzle.polytropic_efficiency = 0.98
+    inlet_nozzle.pressure_ratio        = 0.98 #	turbofan.fan_nozzle_pressure_ratio     = 0.98     #0.98
+
+    #add inlet nozzle to the network
+    ducted_fan.inlet_nozzle = inlet_nozzle
+
+
+    #Component 8 :fan nozzle
+    fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
+    fan_nozzle.tag = 'fan nozzle'
+
+    fan_nozzle.polytropic_efficiency = 0.95
+    fan_nozzle.pressure_ratio        = 0.99
+
+    #add the fan nozzle to the network
+    ducted_fan.fan_nozzle = fan_nozzle
+
+
+
+    #Component 9 : fan   
+    fan = SUAVE.Components.Energy.Converters.Fan()   
+    fan.tag = 'fan'
+
+    fan.polytropic_efficiency = 0.93
+    fan.pressure_ratio        = 1.5    
+
+    #add the fan to the network
+    ducted_fan.fan = fan    
+
+    #Component 10 : thrust (to compute the thrust)
+    thrust                               = SUAVE.Components.Energy.Processes.Thrust()  
+    thrust.tag                           ='compute_thrust'
+    thrust.total_design                  = 121979.18 # Preq*1.5/V_cruise 
+    ducted_fan.thrust                    = thrust
     ducted_fan.tag                       ='ducted_fan'
-    ducted_fan.diffuser_pressure_ratio   = 0.98
-    ducted_fan.fan_pressure_ratio        = 1.65
-    ducted_fan.fan_nozzle_pressure_ratio = 0.99
-    ducted_fan.design_thrust             = 121979.18 # Preq*1.5/V_cruise 
     ducted_fan.number_of_engines         = 2.0    
-    ducted_fan.engine_sizing_ducted_fan(sizing_segment)   #calling the engine sizing method 
+    
+    
+    #compute conditions for engine
+    conditions = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()            
+    conditions.freestream.altitude           = np.atleast_1d(cruise_altitude)
+    conditions.freestream.mach_number        = np.atleast_1d(mach_number)
+    conditions.freestream.pressure           = np.atleast_1d(p2)
+    conditions.freestream.temperature        = np.atleast_1d(T2)
+    conditions.freestream.density            = np.atleast_1d(rho2)
+    conditions.freestream.dynamic_viscosity  = np.atleast_1d(mu2)
+    conditions.freestream.gravity            = np.atleast_1d(9.81)
+    conditions.freestream.gamma              = np.atleast_1d(1.4)
+    conditions.freestream.Cp                 = 1.4*287.87/(1.4-1)
+    conditions.freestream.R                  = 287.87
+    conditions.freestream.speed_of_sound     = np.atleast_1d(a2)
+    conditions.freestream.velocity           = conditions.freestream.mach_number * conditions.freestream.speed_of_sound
+            
+    #size mass flow
+    ducted_fan_sizing(ducted_fan, mach_number, cruise_altitude)
+    #now size geometry
+    compute_ducted_fan_geometry(ducted_fan, conditions)
     
     # ------------------------------------------------------------------
     #  Energy Network
@@ -595,20 +656,21 @@ def simple_sizing(configs, analyses, m_guess, Ereq, Preq):
     cruise_altitude= mission['climb_5'].altitude_end
     conditions = atmo.compute_values(cruise_altitude)
     sizing_segment = SUAVE.Core.Data()
-    sizing_segment.M   = mission['cruise'].air_speed/conditions.speed_of_sound       
-    sizing_segment.alt = cruise_altitude
-    sizing_segment.T   = conditions.temperature        
-    sizing_segment.p   = conditions.pressure
-    conditions0 = atmo.compute_values(12500.*Units.ft) #cabin pressure
-    p0 = conditions0.pressure
-    fuselage_diff_pressure=max(conditions0.pressure-conditions.pressure,0)
+    sizing_segment.M      = mission['cruise'].air_speed/conditions.speed_of_sound       
+    sizing_segment.alt    = cruise_altitude
+    sizing_segment.T      = conditions.temperature        
+    sizing_segment.p      = conditions.pressure
+    conditions0           = atmo.compute_values(12500.*Units.ft) #cabin pressure
+    p0                    = conditions0.pressure
+    fuselage_diff_pressure= max(conditions0.pressure-conditions.pressure,0)
     fuselage.differential_pressure = fuselage_diff_pressure
     
     battery   =base.energy_network['battery']
     ducted_fan=base.propulsors['ducted_fan']
     SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq)
-    battery.current_energy=[battery.max_energy] #initialize list of current energy
-    m_air       =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
+    
+    battery.current_energy =[battery.max_energy] #initialize list of current energy
+    m_air                  =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
     #now add the electric motor weight
     motor_mass=ducted_fan.number_of_engines*SUAVE.Methods.Weights.Correlations.Propulsion.air_cooled_motor((Preq)*Units.watts/ducted_fan.number_of_engines)
     propulsion_mass=SUAVE.Methods.Weights.Correlations.Propulsion.integrated_propulsion(motor_mass/ducted_fan.number_of_engines,ducted_fan.number_of_engines)
