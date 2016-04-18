@@ -24,6 +24,7 @@ Data, Container, Data_Exception, Data_Warning,
 )
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
+from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
      print_compress_drag, \
      print_engine_data,   \
@@ -51,7 +52,7 @@ def main():
     results = mission.evaluate()
 
     # print weight breakdown
-    print_weight_breakdown(configs.base,filename = 'weight_breakdown.dat')
+    print_weight_breakdown(configs.base,filename = 'B737_weight_breakdown.dat')
 
     # print engine data into file
     print_engine_data(configs.base,filename = 'B737_engine_data.dat')
@@ -546,6 +547,12 @@ def vehicle_setup():
 
     #size the turbofan
     turbofan_sizing(turbofan,mach_number,altitude)   
+
+    #computing the engine length and diameter
+    compute_turbofan_geometry(turbofan,None)
+
+    print "sls thrust : ",turbofan.sealevel_static_thrust
+    print "engine length : ",turbofan.engine_length
 
     # add  gas turbine network gt_engine to the vehicle 
     vehicle.append_component(turbofan)      
