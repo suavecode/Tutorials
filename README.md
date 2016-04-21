@@ -1,3 +1,3 @@
 # SUAVE Tutorials
 
-See [suave.stanford.edu/guides](https://www.suave.stanford.edu/guides) for more information
+See [suave.stanford.edu/guides](https://suave.stanford.edu/guides) for more information
