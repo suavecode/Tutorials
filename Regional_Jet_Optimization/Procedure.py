@@ -105,6 +105,31 @@ def simple_sizing(nexus):
     configs=nexus.vehicle_configurations
     base=configs.base
 
+    #find conditions
+    air_speed   = nexus.missions.base.segments['cruise'].air_speed 
+    altitude    = nexus.missions.base.segments['climb_5'].altitude_end
+    atmosphere  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
+    
+    freestream  = atmosphere.compute_values(altitude)
+    freestream0 = atmosphere.compute_values(6000.*Units.ft)  #cabin altitude
+    
+    
+    diff_pressure         = np.max(freestream0.pressure-freestream.pressure,0)
+    fuselage              = base.fuselages['fuselage']
+    fuselage.differential_pressure = diff_pressure 
+    
+    #now size engine
+    mach_number        = air_speed/freestream.speed_of_sound
+    
+    #now add to freestream data object
+    freestream.velocity    = air_speed
+    freestream.mach_number = mach_number
+    freestream.gravity     = 9.81
+    
+    conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
+    conditions.freestream  = freestream
+    
+    
     
     for config in configs:
         config.wings.horizontal_stabilizer.areas.reference = (26.0/92.0)*config.wings.main_wing.areas.reference
@@ -118,30 +143,8 @@ def simple_sizing(nexus):
             
 
 
-        air_speed   = nexus.missions.base.segments['cruise'].air_speed 
-        altitude    = nexus.missions.base.segments['climb_5'].altitude_end
-        atmosphere  = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-        
-        freestream  = atmosphere.compute_values(altitude)
-        freestream0 = atmosphere.compute_values(6000.*Units.ft)  #cabin altitude
-    
-        fuselage              = base.fuselages['fuselage']
-        diff_pressure         = np.max(freestream0.pressure-freestream.pressure,0)
-        
+        fuselage              = config.fuselages['fuselage']
         fuselage.differential_pressure = diff_pressure 
-        
-        #now size engine
-        mach_number        = air_speed/freestream.speed_of_sound
-        
-        #now add to freestream data object
-        freestream.velocity    = air_speed
-        freestream.mach_number = mach_number
-        freestream.gravity     = 9.81
-        
-        conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
-        conditions.freestream  = freestream
-    
-        
         
         turbofan_sizing(config.propulsors['turbofan'], mach_number, altitude)
         compute_turbofan_geometry(config.propulsors['turbofan'], conditions)

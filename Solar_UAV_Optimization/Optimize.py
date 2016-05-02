@@ -61,7 +61,7 @@ def setup():
 
     # [ tag, scaling, units ]
     problem.objective = np.array([
-         [ 'Nothing', 1. , Units.kg],####Optimize.py:
+         [ 'Nothing', 1. , Units.kg],
     ])
     
     # -------------------------------------------------------------------

@@ -20,8 +20,6 @@ import copy, time
 import matplotlib
 import pylab as plt
 
-#from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-#from SUAVE.Methods.Propulsion.engine_sizing_ductedfan import engine_sizing_ductedfan
 
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length 

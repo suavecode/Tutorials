@@ -2,6 +2,7 @@
 # 
 # Created:  Jul 2014, E. Botero
 # Modified: Jun 2015, E. Botero
+#           Apr 2016, E. Botero
 
 #----------------------------------------------------------------------
 #   Imports
@@ -208,6 +209,8 @@ def vehicle_setup():
     net.number_of_engines = 1.
     net.nacelle_diameter  = 0.2
     net.engine_length     = 0.01
+    net.areas             = Data()
+    net.areas.wetted      = 0.01*(2*np.pi*0.01/2)
     
     # Component 1 the Sun?
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
