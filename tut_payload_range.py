@@ -1,11 +1,7 @@
-# tut_mission_Embraer_E190_constThr.py
+# tut_payload_range.py
 #
 # Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2015, SUAVE Team
-
-""" setup file for a mission with a E190
-"""
-
+# Modified: Apr 2016, T. Orra
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -57,7 +53,6 @@ def main():
     plot_mission(results)
 
     return
-
 
 # ----------------------------------------------------------------------
 #   Analysis Setup
@@ -355,7 +350,7 @@ def vehicle_setup():
 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
-    gt_engine.tag               = 'turbo_fan'
+    gt_engine.tag               = 'turbofan'
 
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
@@ -903,16 +898,6 @@ def plot_mission(results,line_style='bo-'):
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Thrust (N)')
         axes.grid(True)
-
-        try:
-            Pitching_moment = segment.conditions.stability.static.cm_alpha[:,0]
-            axes = fig.add_subplot(4,1,4)
-            axes.plot( time , Pitching_moment , line_style )
-            axes.set_xlabel('Time (min)')
-            axes.set_ylabel('Pitching_moment (~)')
-            axes.grid(True)
-        except:
-            pass
 
     # ------------------------------------------------------------------
     #   Aerodynamics 1
