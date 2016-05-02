@@ -881,19 +881,19 @@ def plot_mission(results,line_style='bo-'):
         Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
         Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
 
-        axes = fig.add_subplot(4,1,1)
+        axes = fig.add_subplot(3,1,1)
         axes.plot( time , Lift , line_style )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Lift (N)')
         axes.grid(True)
 
-        axes = fig.add_subplot(4,1,2)
+        axes = fig.add_subplot(3,1,2)
         axes.plot( time , Drag , line_style )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Drag (N)')
         axes.grid(True)
 
-        axes = fig.add_subplot(4,1,3)
+        axes = fig.add_subplot(3,1,3)
         axes.plot( time , Thrust , line_style )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Thrust (N)')
