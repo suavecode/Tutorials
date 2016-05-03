@@ -655,9 +655,9 @@ def plot_mission(results,line_style='bo-'):
         axes.grid(True)
 
         axes = fig.add_subplot(2,1,2)
-        axes.plot( time , sfc , line_style )
+        axes.plot( time , eta , line_style )
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
+        axes.set_ylabel('eta',axis_font)
         axes.grid(True)	
 
         plt.savefig("B737_engine.pdf")
@@ -772,7 +772,45 @@ def plot_mission(results,line_style='bo-'):
 
         plt.savefig("B737_mission.pdf")
         plt.savefig("B737_mission.png")
+        
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Velocities",figsize=(8,10))
+    for segment in results.segments.values():
 
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0] / Units.lbf
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lbf
+        eta  = segment.conditions.propulsion.throttle[:,0]
+        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
+        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
+        sfc    = 3600. * mdot / 0.1019715 / thrust
+        velocity  = segment.conditions.freestream.velocity[:,0]
+        pressure  = segment.conditions.freestream.pressure[:,0]
+        density  = segment.conditions.freestream.density[:,0]
+        EAS = velocity * np.sqrt(density/1.225)
+        mach = segment.conditions.freestream.mach_number[:,0]
+
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , velocity / Units.kts, line_style )
+        axes.set_ylabel('velocity (kts)',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , EAS / Units.kts, line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Equivalent Airspeed',axis_font)
+        axes.grid(True)    
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , mach , line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Mach',axis_font)
+        axes.grid(True)           
+        
     return
 
 def simple_sizing(configs):
