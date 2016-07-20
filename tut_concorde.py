@@ -1,7 +1,7 @@
 # tut_Concorde.py
 # 
 # Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2015, T. MacDonald
+# Modified: Apr 2016, T. MacDonald
 
 """ setup file for a mission with Concorde
 """
@@ -199,15 +199,15 @@ def vehicle_setup():
     
     wing.spans.projected         = 25.6    
     
-    wing.chords.root             = 25.0
-    wing.total_length            = 25.0
+    wing.chords.root             = 27.66
+    wing.total_length            = 27.66
     wing.chords.tip              = 0.0
-    wing.chords.mean_aerodynamic = 14.0
+    wing.chords.mean_aerodynamic = 18.4
     
     wing.areas.reference         = 358.25 
     
     wing.twists.root             = 0.0 * Units.degrees
-    wing.twists.tip              = 3.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
     
     wing.origin                  = [15,0,0]
     wing.aerodynamic_center      = [35,0,0] 
@@ -215,8 +215,8 @@ def vehicle_setup():
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True
-    wing.high_mach               = True
     wing.vortex_lift             = True
+    wing.high_mach               = True
     
     wing.dynamic_pressure_ratio  = 1.0
     
@@ -231,18 +231,18 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'    
     
-    wing.aspect_ratio            = 1.07      #
-    wing.sweep                   = 55 * Units.deg
+    wing.aspect_ratio            = 0.74      #
+    wing.sweep                   = 60 * Units.deg
     wing.thickness_to_chord      = 0.04
-    wing.taper                   = 0.25
+    wing.taper                   = 0.14
     wing.span_efficiency         = 0.9
     
     wing.spans.projected         = 5.0      #    
 
-    wing.chords.root             = 11.0
-    wing.total_length            = 11.0
-    wing.chords.tip              = 3.0
-    wing.chords.mean_aerodynamic = 8.0
+    wing.chords.root             = 12.58 
+    wing.total_length            = 12.58
+    wing.chords.tip              = 2.5 
+    wing.chords.mean_aerodynamic = 8.66
     
     wing.areas.reference         = 33.91    #
     
@@ -274,27 +274,18 @@ def vehicle_setup():
     fuselage.seats_abreast         = 4
     fuselage.seat_pitch            = 1
     
-    fuselage.fineness.nose         = 3.48 # These finenesses are smaller than the real value due to limitations of existing functions
-    fuselage.fineness.tail         = 3.48
+    fuselage.lengths.total         = 61.66  
     
-    fuselage.lengths.nose          = 7.3
-    fuselage.lengths.tail          = 15.0
-    fuselage.lengths.cabin         = 39.4
-    fuselage.lengths.total         = 61.7    
-    fuselage.lengths.fore_space    = 20.83
-    fuselage.lengths.aft_space     = 20.83  
+    fuselage.width                 = 2.88
     
-    fuselage.width                 = 2.87
-    
-    fuselage.heights.maximum       = 3.3    #
+    fuselage.heights.maximum       = 3.32    #
 
-    fuselage.areas.side_projected  = 160.
-    fuselage.areas.wetted          = 581.
-    fuselage.areas.front_projected = 7.0
+    fuselage.areas.wetted          = 523.
+    fuselage.areas.front_projected = 7.55
     
-    fuselage.effective_diameter    = 3.0
+    fuselage.effective_diameter    = 3.1
     
-    fuselage.differential_pressure = 50**5 * Units.pascal    # Maximum differential pressure
+    fuselage.differential_pressure = 7.4e4 * Units.pascal    # Maximum differential pressure
     
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -310,8 +301,8 @@ def vehicle_setup():
     
     # setup
     turbojet.number_of_engines = 4.0
-    turbojet.engine_length     = 11.5
-    turbojet.nacelle_diameter  = 1.50
+    turbojet.engine_length     = 12.5
+    turbojet.nacelle_diameter  = 1.60
     
     # working fluid
     turbojet.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -453,8 +444,8 @@ def vehicle_setup():
  
     # Note: Sizing builds the propulsor. It does not actually set the size of the turbojet
     #design sizing conditions
-    altitude      = 35000.0*Units.ft
-    mach_number   = 2.02
+    altitude      = 0.0*Units.ft
+    mach_number   = 0.01
     isa_deviation = 0.
     
     # add to network
