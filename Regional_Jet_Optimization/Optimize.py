@@ -120,9 +120,9 @@ def setup():
     #  Vehicles
     # -------------------------------------------------------------------
    
-    import Vehicle_TASOPT
-    nexus.vehicle_configurations = Vehicle_TASOPT.setup()
-    #nexus.vehicle_configurations = Vehicles.setup()
+    #import Vehicle_TASOPT
+    #nexus.vehicle_configurations = Vehicle_TASOPT.setup()
+    nexus.vehicle_configurations = Vehicles.setup()
     
     
     # -------------------------------------------------------------------

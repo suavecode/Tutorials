@@ -128,8 +128,6 @@ def simple_sizing(nexus):
     
     conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
     conditions.freestream  = freestream
-    print 'altitude = ', altitude/Units.km
-    print 'conditions.freestream = ', conditions.freestream
     
     
     for config in configs:
