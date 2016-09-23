@@ -17,7 +17,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_tur
 from SUAVE.Methods.Center_of_Gravity.compute_component_centers_of_gravity import compute_component_centers_of_gravity
 from SUAVE.Methods.Center_of_Gravity.compute_aircraft_center_of_gravity import compute_aircraft_center_of_gravity
 from SUAVE.Methods.Aerodynamics.Fidelity_Zero.Lift.compute_max_lift_coeff import compute_max_lift_coeff
-
+from SUAVE.Optimization.write_optimization_outputs import write_optimization_outputs
 
 # ----------------------------------------------------------------------        
 #   Setup
@@ -30,7 +30,7 @@ def setup():
     # ------------------------------------------------------------------ 
     
     # size the base config
-    procedure = Data()
+    procedure = Process()
     procedure.simple_sizing = simple_sizing
     
     # find the weights
@@ -128,7 +128,8 @@ def simple_sizing(nexus):
     
     conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
     conditions.freestream  = freestream
-    
+    print 'altitude = ', altitude/Units.km
+    print 'conditions.freestream = ', conditions.freestream
     
     
     for config in configs:
@@ -146,7 +147,7 @@ def simple_sizing(nexus):
         fuselage              = config.fuselages['fuselage']
         fuselage.differential_pressure = diff_pressure 
         
-        turbofan_sizing(config.propulsors['turbofan'], mach_number, altitude)
+        turbofan_sizing(config.propulsors['turbofan'], mach_number = mach_number, altitude = altitude)
         compute_turbofan_geometry(config.propulsors['turbofan'], conditions)
         # diff the new data
         config.store_diff()
@@ -258,11 +259,11 @@ def finalize(nexus):
 def post_process(nexus):
     
     # Unpack data
-    vehicle               = nexus.vehicle_configurations.base  
-    results               = nexus.results
-    summary = nexus.summary
-    missions              = nexus.missions  
-    
+    vehicle                           = nexus.vehicle_configurations.base  
+    results                           = nexus.results
+    summary                           = nexus.summary
+    missions                          = nexus.missions  
+    nexus.total_number_of_iterations +=1
     # Static stability calculations
     CMA = -10.
     for segment in results.base.segments.values():
@@ -309,8 +310,11 @@ def post_process(nexus):
     lh = vehicle.wings.horizontal_stabilizer.origin[0] + vehicle.wings.horizontal_stabilizer.aerodynamic_center[0] - vehicle.mass_properties.center_of_gravity[0]
     lv = vehicle.wings.vertical_stabilizer.origin[0] + vehicle.wings.vertical_stabilizer.aerodynamic_center[0] - vehicle.mass_properties.center_of_gravity[0]
 
-    '''
+    
     #when you run want to output results to a file
+    filename = 'results.txt'
+    write_optimization_outputs(nexus, filename)
+    '''
     unscaled_inputs = nexus.optimization_problem.inputs[:,1] #use optimization problem inputs here
     input_scaling   = nexus.optimization_problem.inputs[:,3]
     scaled_inputs   = unscaled_inputs/input_scaling
@@ -319,7 +323,8 @@ def post_process(nexus):
     for value in unscaled_inputs:
         problem_inputs.append(value) 
     file=open('results.txt' , 'ab')
-
+    file.write('iteration = ')
+    file.write(str(nexus.iteration_number))
     file.write('fuel weight = ')
     file.write(str( summary.base_mission_fuelburn))
   
