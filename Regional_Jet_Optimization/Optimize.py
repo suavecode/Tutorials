@@ -34,12 +34,12 @@ def main():
     problem.optimization_problem.inputs[:,1] = scaled_inputs
     '''
     
-    
+    #optimize
     #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
     #print output
- 
+  
     
-    variable_sweep(problem)  #uncomment this to view some contours of the problem
+    #variable_sweep(problem)  #uncomment this to view some contours of the problem
     print 'fuel burn=', problem.summary.base_mission_fuelburn
     print 'fuel margin=', problem.all_constraints()
     
@@ -150,7 +150,7 @@ def setup():
     return nexus
     
 def variable_sweep(problem):    
-    number_of_points=20
+    number_of_points = 5
     outputs=carpet_plot(problem, number_of_points, 0, 0)  #run carpet plot, suppressing default plots
     inputs =outputs.inputs
     objective=outputs.objective

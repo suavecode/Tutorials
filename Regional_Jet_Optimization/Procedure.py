@@ -104,7 +104,7 @@ def design_mission(nexus):
 def simple_sizing(nexus):
     configs=nexus.vehicle_configurations
     base=configs.base
-
+    
     #find conditions
     air_speed   = nexus.missions.base.segments['cruise'].air_speed 
     altitude    = nexus.missions.base.segments['climb_5'].altitude_end
@@ -163,10 +163,11 @@ def simple_sizing(nexus):
     # Landing CL_max
     altitude = nexus.missions.base.segments[-1].altitude_end
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(altitude)
+    freestream_landing  = atmosphere.compute_values(0.)
+    #p, T, rho, a, mu = atmosphere.compute_values(0.)
     landing_conditions.freestream.velocity           = nexus.missions.base.segments['descent_3'].air_speed
-    landing_conditions.freestream.density            = rho
-    landing_conditions.freestream.dynamic_viscosity  = mu/rho
+    landing_conditions.freestream.density            = freestream_landing.density
+    landing_conditions.freestream.dynamic_viscosity  = freestream_landing.dynamic_viscosity
     CL_max_landing,CDi = compute_max_lift_coeff(landing,landing_conditions)
     landing.maximum_lift_coefficient = CL_max_landing
     # diff the new data
@@ -178,11 +179,12 @@ def simple_sizing(nexus):
     takeoff_conditions = Data()
     takeoff_conditions.freestream = Data()    
     altitude = nexus.missions.base.airport.altitude
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(altitude)
+    freestream_takeoff  = atmosphere.compute_values(altitude)
+   
+    #p, T, rho, a, mu = atmosphere.compute_values(altitude)
     takeoff_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
-    takeoff_conditions.freestream.density            = rho
-    takeoff_conditions.freestream.dynamic_viscosity  = mu/rho 
+    takeoff_conditions.freestream.density            = freestream_takeoff.density
+    takeoff_conditions.freestream.dynamic_viscosity  = freestream_takeoff.dynamic_viscosity 
     max_CL_takeoff,CDi = compute_max_lift_coeff(takeoff,takeoff_conditions) 
     takeoff.maximum_lift_coefficient = max_CL_takeoff
     
@@ -193,13 +195,7 @@ def simple_sizing(nexus):
     #Base config CL_max
     base = nexus.vehicle_configurations.base
     base_conditions = Data()
-    base_conditions.freestream = Data()    
-    altitude = nexus.missions.base.airport.altitude
-    atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu = atmosphere.compute_values(altitude)
-    base_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
-    base_conditions.freestream.density            = rho
-    base_conditions.freestream.dynamic_viscosity  = mu/rho 
+    base_conditions.freestream = takeoff_conditions.freestream   
     max_CL_base,CDi = compute_max_lift_coeff(base,base_conditions) 
     base.maximum_lift_coefficient = max_CL_base    
     base.store_diff()
@@ -225,6 +221,7 @@ def weight(nexus):
    
     
     weights = nexus.analyses.cruise.weights.evaluate()
+    vehicle.mass_properties.breakdown = weights
     weights = nexus.analyses.landing.weights.evaluate()
     weights = nexus.analyses.takeoff.weights.evaluate()
     weights = nexus.analyses.short_field_takeoff.weights.evaluate()
@@ -235,6 +232,7 @@ def weight(nexus):
         #config.mass_properties.max_zero_fuel                = empty_weight+passenger_weight
         config.mass_properties.zero_fuel_center_of_gravity  = vehicle.mass_properties.zero_fuel_center_of_gravity
         config.fuel                                         = vehicle.fuel
+       
     return nexus
 
 
@@ -257,7 +255,13 @@ def finalize(nexus):
 def post_process(nexus):
     
     # Unpack data
-    vehicle                           = nexus.vehicle_configurations.base  
+    vehicle                           = nexus.vehicle_configurations.base
+    
+    '''
+    print 'base.mass_properties.takeoff = ', vehicle.mass_properties.takeoff
+    print 'takeoff.mass_properties.takeoff = ',  nexus.vehicle_configurations.takeoff.mass_properties.takeoff
+    print 'vehicle.mass_properties.empty = ', vehicle.mass_properties.operating_empty
+    '''
     results                           = nexus.results
     summary                           = nexus.summary
     missions                          = nexus.missions  
@@ -284,7 +288,6 @@ def post_process(nexus):
     summary.max_throttle = max_throttle
     
     # Fuel margin and base fuel calculations
-
     operating_empty          = vehicle.mass_properties.operating_empty
     payload                  = vehicle.passenger_weights.mass_properties.mass 
     design_landing_weight    = results.base.segments[-1].conditions.weights.total_mass[-1]
