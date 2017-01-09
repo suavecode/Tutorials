@@ -1,7 +1,7 @@
 # tut_mission_B737.py
 # 
 # Created:  Aug 2014, SUAVE Team
-# Modified: Jun 2015, SUAVE Team
+# Modified: Jan 2017, SUAVE Team
 
 """ setup file for a mission with a 737
 """
@@ -20,7 +20,7 @@ import pylab as plt
 import copy, time
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container
 )
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
@@ -187,7 +187,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------    
 
     vehicle = SUAVE.Vehicle()
-    vehicle.tag = 'Boeing_737800'    
+    vehicle.tag = 'Boeing_737_800'    
 
 
     # ------------------------------------------------------------------
@@ -218,25 +218,26 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
 
-    wing.aspect_ratio            = 10.18
-    wing.sweep                   = 25 * Units.deg
-    wing.thickness_to_chord      = 0.1
-    wing.taper                   = 0.16
+    wing.aspect_ratio            = 10.18 # Not set
+    wing.thickness_to_chord      = 0.1 # Not set
+    wing.taper                   = 0.782/7.7760
     wing.span_efficiency         = 0.9
 
-    wing.spans.projected         = 35.66    
+    wing.spans.projected         = 34.32    
 
-    wing.chords.root             = 6.81
-    wing.chords.tip              = 1.09
-    wing.chords.mean_aerodynamic = 4.235
+    wing.chords.root             = 7.760 * Units.meter
+    wing.chords.tip              = 0.782 * Units.meter
+    wing.chords.mean_aerodynamic = 4.235 * Units.meter
 
-    wing.areas.reference         = 124.862 
+    wing.areas.reference         = 124.862  # Not set
+    wing.sweeps.quarter_chord    = 25. * Units.degrees
 
     wing.twists.root             = 4.0 * Units.degrees
-    wing.twists.tip              = -4.0 * Units.degrees
+    wing.twists.tip              = 0.0 * Units.degrees
+    wing.dihedral                = 2.5 * Units.degrees
 
-    wing.origin                  = [20,0,0]
-    wing.aerodynamic_center      = [3,0,0] 
+    wing.origin                  = [13.61,0,-1.27]
+    wing.aerodynamic_center      = [0,0,0] 
 
     wing.vertical                = False
     wing.symmetric               = True
@@ -255,30 +256,32 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
 
-    wing.aspect_ratio            = 6.16
-    wing.sweep                   = 30 * Units.deg
-    wing.thickness_to_chord      = 0.08
-    wing.taper                   = 0.4
+    wing.aspect_ratio            = 6.16 # Not set
+    wing.thickness_to_chord      = 0.08 # Not set
+    wing.taper                   = 0.955/4.70
     wing.span_efficiency         = 0.9
 
-    wing.spans.projected         = 14.146
+    wing.spans.projected         = 14.2
 
-    wing.chords.root             = 3.28
-    wing.chords.tip              = 1.31    
-    wing.chords.mean_aerodynamic = 8.0
+    wing.chords.root             = 4.70
+    wing.chords.tip              = 0.955   
+    wing.chords.mean_aerodynamic = 2.5
 
-    wing.areas.reference         = 32.488
+    wing.areas.reference         = 42.65
 
-    wing.twists.root             = 3.0 * Units.degrees
-    wing.twists.tip              = 3.0 * Units.degrees  
+    wing.twists.root             = 0.0 * Units.degrees # Not set
+    wing.twists.tip              = 0.0 * Units.degrees # Not set
 
-    wing.origin                  = [50,0,0]
-    wing.aerodynamic_center      = [2,0,0]
+    wing.sweeps.quarter_chord    = 40.0 * Units.degrees
+
+    wing.origin                  = [32.83,0,1.14]
+    wing.aerodynamic_center      = [0,0,0]
+    wing.dihedral                = 8.63 * Units.degrees
 
     wing.vertical                = False 
     wing.symmetric               = True
 
-    wing.dynamic_pressure_ratio  = 0.9  
+    wing.dynamic_pressure_ratio  = 0.9        
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -292,24 +295,24 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
-    wing.sweep                   = 25 * Units.deg
+    wing.sweep                   = 25. * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9
 
-    wing.spans.projected         = 7.877
+    wing.spans.projected         = 7.77
 
-    wing.chords.root             = 6.60
-    wing.chords.tip              = 1.65
-    wing.chords.mean_aerodynamic = 8.0
+    wing.chords.root             = 8.19
+    wing.chords.tip              = 0.95
+    wing.chords.mean_aerodynamic = 4.0
 
-    wing.areas.reference         = 32.488
+    wing.areas.reference         = 27.316
 
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
 
-    wing.origin                  = [50,0,0]
-    wing.aerodynamic_center      = [2,0,0]    
+    wing.origin                  = [28.79,0,1.54]
+    wing.aerodynamic_center      = [0,0,0]    
 
     wing.vertical                = True 
     wing.symmetric               = False
@@ -331,30 +334,31 @@ def vehicle_setup():
     fuselage.seats_abreast         = 6
     fuselage.seat_pitch            = 1
 
-    fuselage.fineness.nose         = 1.6
-    fuselage.fineness.tail         = 2.
+    fuselage.fineness.nose         = 1.57
+    fuselage.fineness.tail         = 3.2
 
-    fuselage.lengths.nose          = 6.4
-    fuselage.lengths.tail          = 8.0
+    fuselage.lengths.nose          = 8.0
+    fuselage.lengths.tail          = 12.
     fuselage.lengths.cabin         = 28.85
     fuselage.lengths.total         = 38.02
     fuselage.lengths.fore_space    = 6.
     fuselage.lengths.aft_space     = 5.    
 
-    fuselage.width                 = 3.74
+    fuselage.width                 = 3.76
 
-    fuselage.heights.maximum       = 3.74
-    fuselage.heights.at_quarter_length          = 3.74
-    fuselage.heights.at_three_quarters_length   = 3.74
-    fuselage.heights.at_wing_root_quarter_chord = 3.74
+    fuselage.heights.maximum       = 3.76
+    fuselage.heights.at_quarter_length          = 3.76
+    fuselage.heights.at_three_quarters_length   = 3.65
+    fuselage.heights.at_wing_root_quarter_chord = 3.76
 
     fuselage.areas.side_projected  = 142.1948
     fuselage.areas.wetted          = 446.718
     fuselage.areas.front_projected = 12.57
 
-    fuselage.effective_diameter    = 3.74 #4.0
+    fuselage.effective_diameter    = 3.76
 
     fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
+
 
     # add to vehicle
     vehicle.append_component(fuselage)
@@ -371,8 +375,9 @@ def vehicle_setup():
     # setup
     turbofan.number_of_engines = 2.0
     turbofan.bypass_ratio      = 5.4
-    turbofan.engine_length     = 2.71
-    turbofan.nacelle_diameter  = 2.05
+    turbofan.engine_length     = 4.1
+    turbofan.nacelle_diameter  = 0.85
+    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
 
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
@@ -565,6 +570,7 @@ def vehicle_setup():
     return vehicle
 
 
+
 # ----------------------------------------------------------------------
 #   Define the Configurations
 # ---------------------------------------------------------------------
@@ -664,7 +670,7 @@ def plot_mission(results,line_style='bo-'):
         axes = fig.add_subplot(2,1,2)
         axes.plot( time , eta , line_style )
         axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('eta',axis_font)
+        axes.set_ylabel('Throttle',axis_font)
         axes.grid(True)	
 
         plt.savefig("B737_engine.pdf")

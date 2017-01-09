@@ -58,7 +58,7 @@ def base_setup():
     wing.areas.reference         = vehicle.reference_area
     wing.spans.projected         = 40.0
     wing.aspect_ratio            = (wing.spans.projected**2)/wing.areas.reference 
-    wing.sweep                   = 0.0 * Units.deg
+    wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.symmetric               = True
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 1.0
@@ -89,18 +89,18 @@ def base_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
 
-    wing.aspect_ratio       = 10. 
-    wing.sweep              = 0 * Units.deg
-    wing.thickness_to_chord = 0.12
-    wing.taper              = 1.0
-    wing.span_efficiency    = 0.95 
-    wing.areas.reference    = vehicle.reference_area * .15
-    wing.areas.wetted       = 2.0 * wing.areas.reference
-    wing.areas.exposed      = 0.8 * wing.areas.wetted
-    wing.areas.affected     = 0.6 * wing.areas.wetted       
-    wing.spans.projected    = np.sqrt(wing.aspect_ratio*wing.areas.reference)
-    wing.twists.root        = 0.0 * Units.degrees
-    wing.twists.tip         = 0.0 * Units.degrees      
+    wing.aspect_ratio         = 10. 
+    wing.sweeps.quarter_chord = 0 * Units.deg
+    wing.thickness_to_chord   = 0.12
+    wing.taper                = 1.0
+    wing.span_efficiency      = 0.95 
+    wing.areas.reference      = vehicle.reference_area * .15
+    wing.areas.wetted         = 2.0 * wing.areas.reference
+    wing.areas.exposed        = 0.8 * wing.areas.wetted
+    wing.areas.affected       = 0.6 * wing.areas.wetted       
+    wing.spans.projected      = np.sqrt(wing.aspect_ratio*wing.areas.reference)
+    wing.twists.root          = 0.0 * Units.degrees
+    wing.twists.tip           = 0.0 * Units.degrees      
 
     wing.vertical                = False 
     wing.symmetric               = True
@@ -122,13 +122,13 @@ def base_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'    
 
-    wing.aspect_ratio       = 10.       
-    wing.sweep              = 0 * Units.deg
-    wing.thickness_to_chord = 0.12
-    wing.taper              = 1.0
-    wing.span_efficiency    = 0.97
-    wing.areas.reference    = vehicle.reference_area * 0.1
-    wing.spans.projected    = np.sqrt(wing.aspect_ratio*wing.areas.reference)
+    wing.aspect_ratio         = 10.       
+    wing.sweeps.quarter_chord = 0 * Units.deg
+    wing.thickness_to_chord   = 0.12
+    wing.taper                = 1.0
+    wing.span_efficiency      = 0.97
+    wing.areas.reference      = vehicle.reference_area * 0.1
+    wing.spans.projected      = np.sqrt(wing.aspect_ratio*wing.areas.reference)
 
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected

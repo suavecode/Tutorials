@@ -147,8 +147,7 @@ def simple_sizing(nexus):
         
         turbofan_sizing(config.propulsors['turbofan'], mach_number = mach_number, altitude = altitude)
         compute_turbofan_geometry(config.propulsors['turbofan'], conditions)
-        # diff the new data
-        config.store_diff()
+
 
     # ------------------------------------------------------------------
     #   Landing Configuration
@@ -170,9 +169,6 @@ def simple_sizing(nexus):
     landing_conditions.freestream.dynamic_viscosity  = freestream_landing.dynamic_viscosity
     CL_max_landing,CDi = compute_max_lift_coeff(landing,landing_conditions)
     landing.maximum_lift_coefficient = CL_max_landing
-    # diff the new data
-    landing.store_diff()
-    
     
     #Takeoff CL_max
     takeoff = nexus.vehicle_configurations.takeoff
@@ -188,18 +184,12 @@ def simple_sizing(nexus):
     max_CL_takeoff,CDi = compute_max_lift_coeff(takeoff,takeoff_conditions) 
     takeoff.maximum_lift_coefficient = max_CL_takeoff
     
-    takeoff.store_diff()
-    
-   
-
     #Base config CL_max
     base = nexus.vehicle_configurations.base
     base_conditions = Data()
     base_conditions.freestream = takeoff_conditions.freestream   
     max_CL_base,CDi = compute_max_lift_coeff(base,base_conditions) 
     base.maximum_lift_coefficient = max_CL_base    
-    base.store_diff()
-    
     # done!
     
     return nexus
