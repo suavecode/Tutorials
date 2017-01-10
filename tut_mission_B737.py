@@ -220,7 +220,7 @@ def vehicle_setup():
 
     wing.aspect_ratio            = 10.18 # Not set
     wing.thickness_to_chord      = 0.1 # Not set
-    wing.taper                   = 0.782/7.7760
+    wing.taper                   = 0.1
     wing.span_efficiency         = 0.9
 
     wing.spans.projected         = 34.32    
@@ -258,7 +258,7 @@ def vehicle_setup():
 
     wing.aspect_ratio            = 6.16 # Not set
     wing.thickness_to_chord      = 0.08 # Not set
-    wing.taper                   = 0.955/4.70
+    wing.taper                   = 0.2
     wing.span_efficiency         = 0.9
 
     wing.spans.projected         = 14.2
@@ -295,7 +295,7 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
-    wing.sweep                   = 25. * Units.deg
+    wing.sweep.quarter_chord     = 25. * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9

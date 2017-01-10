@@ -14,8 +14,8 @@ import pylab as plt
 
 from SUAVE.Core import Data, Container, Units
 
-from SUAVE.Plugins.OpenVSP import write
-from SUAVE.Plugins.OpenVSP.get_vsp_areas import get_vsp_areas
+from SUAVE.Input_Output.OpenVSP import write
+from SUAVE.Input_Output.OpenVSP.get_vsp_areas import get_vsp_areas
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
@@ -112,7 +112,7 @@ def base_analysis(vehicle):
      
     aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
     aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg
-    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
+    #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -212,13 +212,13 @@ def vehicle_setup():
     segment.twist                 = 0. * Units.deg
     segment.root_chord_percent    = 1.
     segment.dihedral_outboard     = 0. * Units.degrees
-    segment.sweeps.quarter_chord  = 30.0 * Units.degrees
+    segment.sweeps.quarter_chord  = 40.0 * Units.degrees
     segment.thickness_to_chord    = 0.165
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 4.
-    segment.vsp_mesh.outer_radius    = 4.
-    segment.vsp_mesh.inner_length    = .14
-    segment.vsp_mesh.outer_length    = .14    
+    #segment.vsp_mesh              = Data()
+    #segment.vsp_mesh.inner_radius    = 4.
+    #segment.vsp_mesh.outer_radius    = 4.
+    #segment.vsp_mesh.inner_length    = .14
+    #segment.vsp_mesh.outer_length    = .14    
     wing.Segments.append(segment)    
     
     segment = SUAVE.Components.Wings.Segment()
@@ -229,11 +229,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 0.   * Units.degrees
     segment.sweeps.quarter_chord  = 52.5 * Units.degrees
     segment.thickness_to_chord    = 0.167
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 4.
-    segment.vsp_mesh.outer_radius    = 4.
-    segment.vsp_mesh.inner_length    = .14
-    segment.vsp_mesh.outer_length    = .14     
+    #segment.vsp_mesh              = Data()
+    #segment.vsp_mesh.inner_radius    = 4.
+    #segment.vsp_mesh.outer_radius    = 4.
+    #segment.vsp_mesh.inner_length    = .14
+    #segment.vsp_mesh.outer_length    = .14     
     wing.Segments.append(segment)   
 
     segment = SUAVE.Components.Wings.Segment()
@@ -244,11 +244,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 1.85 * Units.degrees
     segment.sweeps.quarter_chord  = 36.9 * Units.degrees  
     segment.thickness_to_chord    = 0.171
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 4.
-    segment.vsp_mesh.outer_radius    = 4.
-    segment.vsp_mesh.inner_length    = .14
-    segment.vsp_mesh.outer_length    = .14     
+    #segment.vsp_mesh              = Data()
+    #segment.vsp_mesh.inner_radius    = 4.
+    #segment.vsp_mesh.outer_radius    = 4.
+    #segment.vsp_mesh.inner_length    = .14
+    #segment.vsp_mesh.outer_length    = .14     
     wing.Segments.append(segment)   
     
     segment = SUAVE.Components.Wings.Segment()
@@ -259,11 +259,11 @@ def vehicle_setup():
     segment.dihedral_outboard     = 1.85 * Units.degrees
     segment.sweeps.quarter_chord  = 30.4 * Units.degrees    
     segment.thickness_to_chord    = 0.175
-    segment.vsp_mesh              = Data()
-    segment.vsp_mesh.inner_radius    = 4.
-    segment.vsp_mesh.outer_radius    = 2.8
-    segment.vsp_mesh.inner_length    = .14
-    segment.vsp_mesh.outer_length    = .14     
+    #segment.vsp_mesh              = Data()
+    #segment.vsp_mesh.inner_radius    = 4.
+    #segment.vsp_mesh.outer_radius    = 2.8
+    #segment.vsp_mesh.inner_length    = .14
+    #segment.vsp_mesh.outer_length    = .14     
     wing.Segments.append(segment)       
     
     segment = SUAVE.Components.Wings.Segment()
