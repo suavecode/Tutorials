@@ -587,7 +587,7 @@ def plot_mission(results,line_style='bo-'):
     axes.grid(True)
 
     # ------------------------------------------------------------------
-    #   Altitude, Vehicle weight, Mach number
+    #   Altitude, Vehicle Weight, Mach Number
     # ------------------------------------------------------------------
 
     fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
