@@ -112,7 +112,7 @@ def base_analysis(vehicle):
      
     aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
     aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg
-    #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
+    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -212,7 +212,7 @@ def vehicle_setup():
     segment.twist                 = 0. * Units.deg
     segment.root_chord_percent    = 1.
     segment.dihedral_outboard     = 0. * Units.degrees
-    segment.sweeps.quarter_chord  = 40.0 * Units.degrees
+    segment.sweeps.quarter_chord  = 30.0 * Units.degrees
     segment.thickness_to_chord    = 0.165
     #segment.vsp_mesh              = Data()
     #segment.vsp_mesh.inner_radius    = 4.
