@@ -106,13 +106,37 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
     aerodynamics.geometry = vehicle
-
+    
+    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh = Data()
+    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh.inner_radius  = 4.
+    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh.outer_radius  = 4.
+    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh.inner_length  = .14
+    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh.outer_length  = .14
+    
+    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh = Data()
+    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh.inner_radius  = 4.
+    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh.outer_radius  = 4.
+    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh.inner_length  = .14
+    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh.outer_length  = .14
+    
+    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh = Data()
+    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh.inner_radius  = 4.
+    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh.outer_radius  = 4.
+    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh.inner_length  = .14
+    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh.outer_length  = .14
+    
+    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh = Data()
+    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh.inner_radius  = 4.
+    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh.outer_radius  = 2.8
+    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh.inner_length  = .14
+    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh.outer_length  = .14      
+    
     #aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
     #aerodynamics.process.compute.lift.inviscid.settings.processors = 12
      
     aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
     aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg
-    aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
+    #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
     
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
@@ -213,12 +237,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 1.
     segment.dihedral_outboard     = 0. * Units.degrees
     segment.sweeps.quarter_chord  = 30.0 * Units.degrees
-    segment.thickness_to_chord    = 0.165
-    #segment.vsp_mesh              = Data()
-    #segment.vsp_mesh.inner_radius    = 4.
-    #segment.vsp_mesh.outer_radius    = 4.
-    #segment.vsp_mesh.inner_length    = .14
-    #segment.vsp_mesh.outer_length    = .14    
+    segment.thickness_to_chord    = 0.165 
     wing.Segments.append(segment)    
     
     segment = SUAVE.Components.Wings.Segment()
@@ -228,12 +247,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 0.921
     segment.dihedral_outboard     = 0.   * Units.degrees
     segment.sweeps.quarter_chord  = 52.5 * Units.degrees
-    segment.thickness_to_chord    = 0.167
-    #segment.vsp_mesh              = Data()
-    #segment.vsp_mesh.inner_radius    = 4.
-    #segment.vsp_mesh.outer_radius    = 4.
-    #segment.vsp_mesh.inner_length    = .14
-    #segment.vsp_mesh.outer_length    = .14     
+    segment.thickness_to_chord    = 0.167    
     wing.Segments.append(segment)   
 
     segment = SUAVE.Components.Wings.Segment()
@@ -243,12 +257,7 @@ def vehicle_setup():
     segment.root_chord_percent    = 0.76
     segment.dihedral_outboard     = 1.85 * Units.degrees
     segment.sweeps.quarter_chord  = 36.9 * Units.degrees  
-    segment.thickness_to_chord    = 0.171
-    #segment.vsp_mesh              = Data()
-    #segment.vsp_mesh.inner_radius    = 4.
-    #segment.vsp_mesh.outer_radius    = 4.
-    #segment.vsp_mesh.inner_length    = .14
-    #segment.vsp_mesh.outer_length    = .14     
+    segment.thickness_to_chord    = 0.171    
     wing.Segments.append(segment)   
     
     segment = SUAVE.Components.Wings.Segment()
@@ -259,11 +268,6 @@ def vehicle_setup():
     segment.dihedral_outboard     = 1.85 * Units.degrees
     segment.sweeps.quarter_chord  = 30.4 * Units.degrees    
     segment.thickness_to_chord    = 0.175
-    #segment.vsp_mesh              = Data()
-    #segment.vsp_mesh.inner_radius    = 4.
-    #segment.vsp_mesh.outer_radius    = 2.8
-    #segment.vsp_mesh.inner_length    = .14
-    #segment.vsp_mesh.outer_length    = .14     
     wing.Segments.append(segment)       
     
     segment = SUAVE.Components.Wings.Segment()
