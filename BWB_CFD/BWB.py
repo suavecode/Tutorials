@@ -107,38 +107,39 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
     aerodynamics.geometry = vehicle
     
-    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh = Data()
-    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh.inner_radius  = 4.
-    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh.outer_radius  = 4.
-    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh.inner_length  = .14
-    aerodynamics.geometry.wings.main_wing.Segments.section_1.vsp_mesh.outer_length  = .14
-    
-    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh = Data()
-    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh.inner_radius  = 4.
-    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh.outer_radius  = 4.
-    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh.inner_length  = .14
-    aerodynamics.geometry.wings.main_wing.Segments.section_2.vsp_mesh.outer_length  = .14
-    
-    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh = Data()
-    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh.inner_radius  = 4.
-    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh.outer_radius  = 4.
-    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh.inner_length  = .14
-    aerodynamics.geometry.wings.main_wing.Segments.section_3.vsp_mesh.outer_length  = .14
-    
-    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh = Data()
-    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh.inner_radius  = 4.
-    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh.outer_radius  = 2.8
-    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh.inner_length  = .14
-    aerodynamics.geometry.wings.main_wing.Segments.section_4.vsp_mesh.outer_length  = .14      
-    
     #aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
-    #aerodynamics.process.compute.lift.inviscid.settings.processors = 12
-     
-    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
-    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg
+    #aerodynamics.process.compute.lift.inviscid.settings.processors = 12  
     #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
-    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
+    
+    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
+    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg    
+    
+    wing_segments = vehicle.wings.main_wing.Segments
+    wing_segments.section_1.vsp_mesh = Data()
+    wing_segments.section_1.vsp_mesh.inner_radius  = 4.
+    wing_segments.section_1.vsp_mesh.outer_radius  = 4.
+    wing_segments.section_1.vsp_mesh.inner_length  = .14
+    wing_segments.section_1.vsp_mesh.outer_length  = .14
+    
+    wing_segments.section_2.vsp_mesh = Data()
+    wing_segments.section_2.vsp_mesh.inner_radius  = 4.
+    wing_segments.section_2.vsp_mesh.outer_radius  = 4.
+    wing_segments.section_2.vsp_mesh.inner_length  = .14
+    wing_segments.section_2.vsp_mesh.outer_length  = .14
+    
+    wing_segments.section_3.vsp_mesh = Data()
+    wing_segments.section_3.vsp_mesh.inner_radius  = 4.
+    wing_segments.section_3.vsp_mesh.outer_radius  = 4.
+    wing_segments.section_3.vsp_mesh.inner_length  = .14
+    wing_segments.section_3.vsp_mesh.outer_length  = .14
+    
+    wing_segments.section_4.vsp_mesh = Data()
+    wing_segments.section_4.vsp_mesh.inner_radius  = 4.
+    wing_segments.section_4.vsp_mesh.outer_radius  = 2.8
+    wing_segments.section_4.vsp_mesh.inner_length  = .14
+    wing_segments.section_4.vsp_mesh.outer_length  = .14      
+    
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
