@@ -16,8 +16,8 @@ import pylab as plt
 #   Plot Mission
 # ----------------------------------------------------------------------
 
-def plot_mission(results,line_style='bo-'):
-    
+def plot_mission(nexus,line_style='bo-'):
+    results=nexus.results
     axis_font = {'fontname':'Arial', 'size':'14'}    
 
 
@@ -51,7 +51,7 @@ def plot_mission(results,line_style='bo-'):
         axes.set_xlabel('Time (min)',axis_font)
         axes.set_ylabel('AOA (deg)',axis_font)
         axes.grid(True)
-
+    
     # ------------------------------------------------------------------
     #   Aerodynamics 2
     # ------------------------------------------------------------------
@@ -121,8 +121,8 @@ def plot_mission(results,line_style='bo-'):
         
     
         
-        
-    plt.show()
+    
+    plt.show(block=True)
 
 
     return

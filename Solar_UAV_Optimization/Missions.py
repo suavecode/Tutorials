@@ -17,15 +17,15 @@ import numpy as np
 #   Define the Mission
 # ----------------------------------------------------------------------
     
-def setup(analyses):
+def setup(analyses,vehicle):
     
     # the mission container
     missions = SUAVE.Analyses.Mission.Mission.Container()   
-    missions.mission = mission(analyses)
+    missions.mission = mission(analyses,vehicle)
 
     return missions  
     
-def mission(analyses):
+def mission(analyses,vehicle):
     
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -41,8 +41,8 @@ def mission(analyses):
     Segments = SUAVE.Analyses.Mission.Segments
     
     # base segment
-    base_segment = Segments.Segment()   
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
+    base_segment = Segments.Segment()     
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery       
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: Constant Dynamic Pressure, Constant Altitude
@@ -57,7 +57,7 @@ def mission(analyses):
     # segment attributes     
     segment.state.numerics.number_control_points = 50
     segment.dynamic_pressure = 115.0 * Units.pascals
-    segment.start_time       = time.strptime("Tue, Jun 21  11:00:00  2016", "%a, %b %d %H:%M:%S %Y",)
+    segment.start_time       = time.strptime("Tue, Jun 21  11:00:00  2017", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude         = 1000.0 * Units.feet
     segment.distance         = 1000.0 * Units.km
     segment.charge_ratio     = 1.0

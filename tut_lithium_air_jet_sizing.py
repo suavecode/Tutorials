@@ -265,7 +265,7 @@ def vehicle_setup(cruise_altitude):
     wing.tag = 'main_wing'
 
     wing.aspect_ratio            = 8.3
-    wing.sweep                   = 0.002 * Units.deg
+    wing.sweeps.quarter_chord    = 0.002 * Units.deg
     wing.thickness_to_chord      = 0.105
     wing.taper                   = 0.28
     wing.span_efficiency         = 1.0
@@ -303,7 +303,7 @@ def vehicle_setup(cruise_altitude):
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio            = 5.5
-    wing.sweep                   = 0.002 * Units.deg
+    wing.sweeps.quarter_chord    = 0.002 * Units.deg
     wing.thickness_to_chord      = 0.11
     wing.taper                   = 0.11
     wing.span_efficiency         = 0.9
@@ -341,7 +341,7 @@ def vehicle_setup(cruise_altitude):
     wing.tag = 'vertical_stabilizer'
 
     wing.aspect_ratio            = 1.7      #
-    wing.sweep                   = 0.001 * Units.deg
+    wing.sweeps.quarter_chord    = 0.001 * Units.deg
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 0.10
     wing.span_efficiency         = 0.9
@@ -415,9 +415,19 @@ def vehicle_setup(cruise_altitude):
     # ------------------------------------------------------------------
     
     atm = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p1, T1, rho1, a1, mu1 = atm.compute_values(0.)
-    p2, T2, rho2, a2, mu2 = atm.compute_values(cruise_altitude)
     
+    conditions1 = atm.compute_values(0.)
+    conditions2 = atm.compute_values(cruise_altitude)
+    p1   = conditions1.pressure
+    p2   = conditions2.pressure
+    T1   = conditions1.temperature
+    T2   = conditions2.temperature
+    rho1 = conditions1.density
+    rho2 = conditions2.density
+    a1   = conditions1.speed_of_sound
+    a2   = conditions2.speed_of_sound
+    mu1  = conditions1.dynamic_viscosity
+    mu2  = conditions2.dynamic_viscosity
     
     mach_number           = .729
     #Create Energy Network

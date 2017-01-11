@@ -1,8 +1,7 @@
 # tut_solar_UAV.py
 # 
 # Created:  Jul 2014, E. Botero
-# Modified: Jun 2015, E. Botero
-#           Apr 2016, E. Botero
+# Modified: Jan 2017, E. Botero
 
 #----------------------------------------------------------------------
 #   Imports
@@ -11,7 +10,7 @@ import SUAVE
 from SUAVE.Core import Units
 
 from SUAVE.Core import (
-Data, Container, Data_Exception, Data_Warning,
+Data, Container
 )
 
 import numpy as np
@@ -107,7 +106,7 @@ def vehicle_setup():
     wing.areas.reference         = vehicle.reference_area
     wing.spans.projected         = 40.0
     wing.aspect_ratio            = (wing.spans.projected**2)/wing.areas.reference 
-    wing.sweep                   = 0.0 * Units.deg
+    wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.symmetric               = True
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 1.0
@@ -138,18 +137,18 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'horizontal_stabilizer'
     
-    wing.aspect_ratio       = 20. 
-    wing.sweep              = 0 * Units.deg
-    wing.thickness_to_chord = 0.12
-    wing.taper              = 1.0
-    wing.span_efficiency    = 0.95 
-    wing.areas.reference    = vehicle.reference_area * .15
-    wing.areas.wetted       = 2.0 * wing.areas.reference
-    wing.areas.exposed      = 0.8 * wing.areas.wetted
-    wing.areas.affected     = 0.6 * wing.areas.wetted       
-    wing.spans.projected    = np.sqrt(wing.aspect_ratio*wing.areas.reference)
-    wing.twists.root        = 0.0 * Units.degrees
-    wing.twists.tip         = 0.0 * Units.degrees      
+    wing.aspect_ratio         = 20. 
+    wing.sweeps.quarter_chord = 0 * Units.deg
+    wing.thickness_to_chord   = 0.12
+    wing.taper                = 1.0
+    wing.span_efficiency      = 0.95 
+    wing.areas.reference      = vehicle.reference_area * .15
+    wing.areas.wetted         = 2.0 * wing.areas.reference
+    wing.areas.exposed        = 0.8 * wing.areas.wetted
+    wing.areas.affected       = 0.6 * wing.areas.wetted       
+    wing.spans.projected      = np.sqrt(wing.aspect_ratio*wing.areas.reference)
+    wing.twists.root          = 0.0 * Units.degrees
+    wing.twists.tip           = 0.0 * Units.degrees      
                
     wing.vertical                = False 
     wing.symmetric               = True
@@ -172,13 +171,13 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'    
     
     
-    wing.aspect_ratio       = 20.       
-    wing.sweep              = 0 * Units.deg
-    wing.thickness_to_chord = 0.12
-    wing.taper              = 1.0
-    wing.span_efficiency    = 0.97
-    wing.areas.reference    = vehicle.reference_area * 0.1
-    wing.spans.projected    = np.sqrt(wing.aspect_ratio*wing.areas.reference)
+    wing.aspect_ratio         = 20.       
+    wing.sweeps.quarter_chord = 0 * Units.deg
+    wing.thickness_to_chord   = 0.12
+    wing.taper                = 1.0
+    wing.span_efficiency      = 0.97
+    wing.areas.reference      = vehicle.reference_area * 0.1
+    wing.spans.projected      = np.sqrt(wing.aspect_ratio*wing.areas.reference)
 
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
@@ -281,7 +280,7 @@ def vehicle_setup():
    
     #Component 9 the system logic controller and MPPT
     logic = SUAVE.Components.Energy.Distributors.Solar_Logic()
-    logic.system_voltage  = 100.0
+    logic.system_voltage  = 40.0
     logic.MPPT_efficiency = 0.95
     net.solar_logic       = logic
     
@@ -404,8 +403,12 @@ def mission_setup(analyses,vehicle):
     
     # base segment
     base_segment = Segments.Segment()   
+    ones_row     = base_segment.state.ones_row
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.network.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.network.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.process.iterate.conditions.planet_position  = SUAVE.Methods.skip
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.network.propeller.prop_attributes.Cp  * ones_row(1)/15.
+    base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
@@ -419,7 +422,7 @@ def mission_setup(analyses,vehicle):
     
     # segment attributes     
     segment.state.numerics.number_control_points = 64
-    segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2015", "%a, %b %d %H:%M:%S %Y",)
+    segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2017", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
@@ -499,12 +502,16 @@ def plot_mission(results):
         axes.plot( time , Lift , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Lift (N)')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
         axes.grid(True)
         
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , Drag , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Drag (N)')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
         axes.grid(True)
         
         axes = fig.add_subplot(3,1,3)
@@ -532,12 +539,16 @@ def plot_mission(results):
         axes.plot( time , CLift , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('CL')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
         axes.grid(True)
         
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , CDrag , 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('CD')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
         axes.grid(True)
         
         axes = fig.add_subplot(3,1,3)
@@ -685,17 +696,23 @@ def plot_mission(results):
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , aoa , 'bo-' )
         axes.set_ylabel('Angle of Attack (deg)')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,2)
         axes.plot( time , altitude , 'bo-' )
         axes.set_ylabel('Altitude (km)')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
         axes.grid(True)
 
         axes = fig.add_subplot(3,1,3)
         axes.plot( time , mach, 'bo-' )
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Mach Number (-)')
+        axes.get_yaxis().get_major_formatter().set_scientific(False)
+        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
         axes.grid(True)    
     
     # ------------------------------------------------------------------    

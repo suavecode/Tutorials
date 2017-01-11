@@ -110,7 +110,7 @@ def setup():
     # -------------------------------------------------------------------
     #  Missions
     # -------------------------------------------------------------------
-    nexus.missions = Missions.setup(nexus.analyses)
+    nexus.missions = Missions.setup(nexus.analyses,nexus.vehicle_configurations)
     
     # -------------------------------------------------------------------
     #  Procedure
