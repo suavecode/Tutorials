@@ -48,7 +48,7 @@ def base_setup():
     
     # basic parameters
     vehicle.reference_area         = 100.0
-    vehicle.thrust_loading         =.25
+    vehicle.thrust_loading         =.2
     vehicle.wing_loading           = 400.*Units.kg/Units.m**2
     vehicle.passengers             = 114
     vehicle.systems.control        = "partially powered"

@@ -20,11 +20,20 @@ import copy, time
 import matplotlib
 import pylab as plt
 
+import Vehicle
+import Analyses
+import Mission
+
+from SUAVE.Optimization.Nexus import Nexus
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length 
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
+from SUAVE.Sizing.Sizing_Loop import Sizing_Loop
+
+
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_ducted_fan_geometry import compute_ducted_fan_geometry
 matplotlib.interactive(True)
 
@@ -33,14 +42,35 @@ matplotlib.interactive(True)
 # ----------------------------------------------------------------------
 
 def main():
- 
-    problem = setup()
-    output  = problem.objective()
-    plot_mission(output)
     
+    #initialize the problem
+    nexus                        = Nexus()
+    nexus.vehicle_configurations = Vehicle.setup()
+    nexus.analyses               = Analyses.setup(nexus.vehicle_configurations)
+    nexus.missions               = Mission.setup(nexus.analyses)
+    
+
    
-
-
+    #problem = Data()
+    #nexus.optimization_problem       = problem
+    nexus.procedure                  = setup()
+    nexus.sizing_loop                = Sizing_Loop()
+    nexus.total_number_of_iterations = 0
+    
+    evaluate_problem(nexus)
+    results = nexus.results
+    plot_mission(results, nexus.vehicle_configurations)
+    #output=nexus._really_evaluate() #run; use optimization setup without inputs
+    return
+    
+def evaluate_problem(nexus):
+    for key,step in nexus.procedure.items():
+        if hasattr(step,'evaluate'):
+            self = step.evaluate(nexus)
+        else:
+            nexus = step(nexus)
+        self = nexus
+    return nexus
 # ----------------------------------------------------------------------        
 #   Setup
 # ----------------------------------------------------------------------   
@@ -52,6 +82,8 @@ def setup():
     # ------------------------------------------------------------------ 
     
     # size the base config
+    
+    
     procedure = Process()
     procedure.run_sizing_loop       = run_sizing_loop #size aircraft and run mission
     procedure.evaluate_field_length = evaluate_field_length
@@ -86,7 +118,7 @@ def run_sizing_loop(nexus):
  
 
 
-    mass          = [ m_guess ] 
+    #mass          = [ m_guess ] 
   
     scaling       = np.array([1E4,1E9,1E6])
     y             = np.array([m_guess, Ereq_guess, Preq_guess])/scaling
@@ -98,30 +130,35 @@ def run_sizing_loop(nexus):
     sizing_loop = nexus.sizing_loop
     #assign to sizing loop
     
-    sizing_loop.tolerance                                      = nexus.tol #percentage difference in mass and energy between iterations
+    sizing_loop.tolerance                                      = 1E-4 #percentage difference in mass and energy between iterations
     sizing_loop.initial_step                                   = 'Default' #Default, Table, SVR
-    sizing_loop.update_method                                  = 'fixed_point' #'fixed_point','newton-raphson', 'broyden'
+    sizing_loop.update_method                                  = 'successive_substitution' #'successive_substitution','newton-raphson', 'broyden'
     sizing_loop.default_y                                      = y
     sizing_loop.min_y                                          = min_y
     sizing_loop.max_y                                          = max_y
     sizing_loop.default_scaling                                = scaling
+    
+    
     sizing_loop.maximum_iterations                             = 50
     sizing_loop.write_threshhold                               = 50.
-    sizing_loop.output_filename                                = 'y_values_%(range)d_nautical_mile_range.txt' %{'range':nexus.target_range/Units.nautical_miles}
+   
+    sizing_loop.output_filename                                = 'sizing_outputs.txt'
     sizing_loop.sizing_evaluation                              = sizing_evaluation
     sizing_loop.iteration_options.h                            = 1E-6
     sizing_loop.iteration_options.min_fix_point_iterations     = 2
-    sizing_loop.iteration_options.initialize_jacobian          = 'newton-raphson' #appr
-    sizing_loop.iteration_options.max_newton_raphson_tolerance = nexus.tol*2 #threshhold at which to switch to fixed point (to prevent overshooting)
-    sizing_loop.iteration_options.min_surrogate_length         = 3   #best for svr =3
-    sizing_loop.iteration_options.min_surrogate_step           = .03 #best for svr =.011 (.02)
-    sizing_loop.iteration_options.min_write_step               = .011#best for svr =.011
+    sizing_loop.iteration_options.initialize_jacobian          = 'newton-raphson' #approximate #option for Broyden's Method, not used here
+    '''
+    #option if using surrogates to inform your initial guess
+    sizing_loop.iteration_options.max_newton_raphson_tolerance = nexus.tol*2 #threshhold at which to switch to successive substitution (to prevent overshooting)
+    sizing_loop.iteration_options.min_surrogate_length         = 3   #default
+    sizing_loop.iteration_options.min_surrogate_step           = .03 
+    sizing_loop.iteration_options.min_write_step               = .011#default
     sizing_loop.iteration_options.n_neighbors                  = 5
-    sizing_loop.iteration_options.neighbors_weighted_distance  = True
-    
+    sizing_loop.iteration_options.neighbors_weighted_distance  = True #option for using K Nearest Neighbors
+    '''
     nexus.max_iter                  = sizing_loop.maximum_iterations  #used to pass it to constraints
-    nexus.update_method             = sizing_loop.update_method
-    nexus.initial_step              = sizing_loop.initial_step
+  
+  
     #nexus.sizing_loop               = sizing_loop
     nexus = sizing_loop(nexus)
     return nexus   
@@ -132,12 +169,12 @@ def run_sizing_loop(nexus):
 # ----------------------------------------------------------------------    
 
 def simple_sizing(nexus):
-    from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
+    
     configs=nexus.vehicle_configurations
     analyses=nexus.analyses
-    m_guess=nexus.m_guess
-    Ereq=nexus.Ereq
-    Preq=nexus.Preq
+    m_guess=configs.base.m_guess
+    Ereq=configs.base.Ereq
+    Preq=configs.base.Preq
     
 # ------------------------------------------------------------------
     #   Define New Gross Takeoff Weight
@@ -149,7 +186,7 @@ def simple_sizing(nexus):
     base.mass_properties.max_takeoff=m_guess
     base.mass_properties.max_zero_fuel=m_guess  #just used for weight calculation
     Sref=m_guess/base.wing_loading
-    design_thrust=base.thrust_loading*m_guess*9.81 #four engines
+    design_thrust=base.thrust_loading*m_guess*9.81 
    
     mission=nexus.missions.base.segments
    
@@ -249,6 +286,7 @@ def simple_sizing(nexus):
     return nexus
     
 def sizing_evaluation(y,nexus, scaling):
+    configs = nexus.vehicle_configurations
     #unpack inputs
     m_guess              = y[0]*scaling[0]
     Ereq_guess           = y[1]*scaling[1]
@@ -260,9 +298,9 @@ def sizing_evaluation(y,nexus, scaling):
     print 'Preq_guess   =', Preq_guess           
     
     
-    nexus.m_guess        = m_guess
-    nexus.Ereq           = Ereq_guess
-    nexus.Preq           = Preq_guess
+    configs.base.m_guess        = m_guess
+    configs.base.Ereq           = Ereq_guess
+    configs.base.Preq           = Preq_guess
    
     configs           = nexus.vehicle_configurations
     analyses          = nexus.analyses
@@ -294,9 +332,9 @@ def sizing_evaluation(y,nexus, scaling):
 
    
    
-    nexus.dm           = dm
-    nexus.dE_total     = dE_total
-    nexus.Preq         = Preq_out
+    configs.base.dm           = dm
+    configs.base.dE_total     = dE_total
+    configs.base.Preq         = Preq_out
 
     
    
@@ -373,12 +411,10 @@ def evaluate_constraints(nexus):
     analyses=nexus.analyses
     mission=nexus.missions.base.segments
     
-    results=nexus.results
-    motor_power=nexus.Preq
-    print 'motor_power=', motor_power
-    print 'results.Pmax=', results.Pmax
+    results     = nexus.results
+    motor_power = vehicle.Preq
     #make sure motor can handle power requirements
-    results.range_margin=results.total_range-nexus.target_range
+
     results.power_margin=motor_power-results.Pmax
     #results.segments[-1].conditions.weights.total_mass[-1,0]+=abs(min(0, motor_power-results.Pmax))
     #make sure there is some washout
@@ -425,7 +461,7 @@ def evaluate_constraints(nexus):
     
     results.max_throttle_constraint=1-max_throttle
     
-    nexus.iteration_constraint=((nexus.max_iter-5)-nexus.number_of_iterations)/(1.*nexus.max_iter) #give it some slack to help constraints converge
+    nexus.iteration_constraint= nexus.sizing_loop.tolerance-nexus.sizing_loop.norm_error#((nexus.max_iter-5)-nexus.number_of_iterations)/(1.*nexus.max_iter) #give it some slack to help constraints converge
    
     return nexus
  
@@ -471,19 +507,6 @@ def plot_mission(results,configs,line_style='bo-'):
     else:
         line_width = 1.
 
-
-    # ------------------------------------------------------------------
-    #   Throttle
-    # ------------------------------------------------------------------
-    plt.figure("Throttle History")
-    axes = plt.gca()
-    for i in range(len(results.segments)):
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        eta  = results.segments[i].conditions.propulsion.throttle[:,0]
-        axes.plot(time, eta, line_style)
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Throttle')
-    axes.grid(True)
 
 
     # ------------------------------------------------------------------

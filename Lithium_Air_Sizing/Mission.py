@@ -118,7 +118,7 @@ def base(analyses):
     segment.analyses.extend( analyses.cruise )
     
     segment.air_speed  = 147.1479 * Units['m/s']
-    segment.distance   = 300 * Units.nautical_miles
+    segment.distance   = 1000 * Units.nautical_miles
     segment.state.numerics.tolerance_solution = sol_tol
     mission.append_segment(segment)
     
