@@ -1,6 +1,6 @@
 # Missions.py
 # 
-# Created:  May 2015, T. Lukaczyk
+# Created:  Jan 2017, M. Vegh
 # Modified: 
 
 
@@ -84,7 +84,7 @@ def base(analyses):
     segment.analyses.extend( analyses.cruise )
     
     segment.altitude_end   = 2.0   * Units.km
-    segment.air_speed      = 80.* Units['m/s']
+    segment.air_speed      = 100.* Units['m/s']
     segment.climb_rate     = 6.0   * Units['m/s']
     segment.state.numerics.tolerance_solution = sol_tol
     # add to mission

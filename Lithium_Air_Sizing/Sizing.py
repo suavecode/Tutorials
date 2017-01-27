@@ -23,8 +23,9 @@ import pylab as plt
 import Vehicle
 import Analyses
 import Mission
+import Plot_Mission
 
-from SUAVE.Optimization.Nexus import Nexus
+
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Performance import estimate_take_off_field_length
 from SUAVE.Methods.Performance import estimate_landing_field_length 
@@ -32,7 +33,8 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Methods.Propulsion.ducted_fan_sizing import ducted_fan_sizing
 from SUAVE.Sizing.Sizing_Loop import Sizing_Loop
-
+from SUAVE.Optimization.Nexus import Nexus
+from SUAVE.Optimization.write_optimization_outputs import write_optimization_outputs
 
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_ducted_fan_geometry import compute_ducted_fan_geometry
 matplotlib.interactive(True)
@@ -59,7 +61,7 @@ def main():
     
     evaluate_problem(nexus)
     results = nexus.results
-    plot_mission(results, nexus.vehicle_configurations)
+    Plot_Mission.plot_mission(nexus)
     #output=nexus._really_evaluate() #run; use optimization setup without inputs
     return
     
@@ -88,7 +90,7 @@ def setup():
     procedure.run_sizing_loop       = run_sizing_loop #size aircraft and run mission
     procedure.evaluate_field_length = evaluate_field_length
     procedure.evaluate_constraints  = evaluate_constraints
-    
+    #procedure.write_optimization    = write_optimization  #only use when writing an optimization problem
     return procedure
 
 
@@ -108,7 +110,7 @@ def run_sizing_loop(nexus):
     Preq_guess=  200000. 
  
   
-    scaling       = np.array([1E4,1E9,1E6])
+    scaling       = np.array([1E4,1E11,1E7])
     y             = np.array([m_guess, Ereq_guess, Preq_guess])/scaling
     min_y         = [.05, 1E-5,10.]
     max_y         = [10., 10., 10.]
@@ -284,7 +286,7 @@ def sizing_evaluation(y,nexus, scaling):
    
     #run size aircraft geometry/mass based on guess
     simple_sizing(nexus)
-    analyses.finalize() #wont run without this
+    analyses.finalize()
     results = evaluate_mission(configs,mission)
     
     
@@ -429,7 +431,7 @@ def evaluate_constraints(nexus):
     
     results.max_throttle_constraint=1-max_throttle
     
-    nexus.iteration_constraint= nexus.sizing_loop.tolerance-nexus.sizing_loop.norm_error#((nexus.max_iter-5)-nexus.number_of_iterations)/(1.*nexus.max_iter) #give it some slack to help constraints converge
+    nexus.iteration_constraint= nexus.sizing_loop.tolerance-nexus.sizing_loop.max_error
    
     return nexus
  
@@ -461,241 +463,12 @@ def evaluate_field_length(nexus):
     
     return nexus
     
-
+def write_optimization(nexus):
+    filename = 'opt_outputs.txt'
+    write_optimization_outputs(nexus, filename)
+    return nexus
     
     
-# ----------------------------------------------------------------------
-#   Plot Mission
-# ----------------------------------------------------------------------
-
-def plot_mission(results,configs,line_style='bo-'):
-    
-    if line_style == 'k-':
-        line_width = 2.
-    else:
-        line_width = 1.
-
-
-
-    # ------------------------------------------------------------------
-    #   Angle of Attack
-    # ------------------------------------------------------------------
-
-    plt.figure("Angle of Attack History")
-    axes = plt.gca()
-    for i in range(len(results.segments)):
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        aoa = results.segments[i].conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        axes.plot(time, aoa, line_style)
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Angle of Attack (deg)')
-    axes.grid(True)
-
-
-    # ------------------------------------------------------------------
-    #   Mass Rate
-    # ------------------------------------------------------------------
-    plt.figure("Mass Rate")
-    axes = plt.gca()
-    for i in range(len(results.segments)):
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mdot = -results.segments[i].conditions.weights.vehicle_mass_rate[:,0]
-        axes.plot(time, mdot, line_style)
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Mass Rate (kg/s)')
-    axes.grid(True)
-
-
-    # ------------------------------------------------------------------
-    #   Altitude
-    # ------------------------------------------------------------------
-    plt.figure("Altitude")
-    axes = plt.gca()
-    for i in range(len(results.segments)):
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        altitude = results.segments[i].conditions.freestream.altitude[:,0] / Units.km
-        axes.plot(time, altitude, line_style)
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Altitude (km)')
-    axes.grid(True)
-
-
-    # ------------------------------------------------------------------
-    #   Vehicle Mass
-    # ------------------------------------------------------------------
-    plt.figure("Vehicle Mass")
-    axes = plt.gca()
-    for i in range(len(results.segments)):
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        mass = results.segments[i].conditions.weights.total_mass[:,0]
-        axes.plot(time, mass, line_style)
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Vehicle Mass (kg)')
-    axes.grid(True)
-
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aerodynamic Forces")
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , Lift , line_style )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Lift (N)')
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , Drag , line_style )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Drag (N)')
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , Thrust , line_style )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Thrust (N)')
-        axes.grid(True)
-
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aerodynamic Coefficients")
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
-        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , CLift , line_style )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('CL')
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , CDrag , line_style )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('CD')
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , Drag   , line_style )
-        axes.plot( time , Thrust , 'ro-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Drag and Thrust (N)')
-        axes.grid(True)
-
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics 3
-    # ------------------------------------------------------------------
-    fig = plt.figure("Drag Components")
-    axes = plt.gca()
-    for i, segment in enumerate(results.segments.values()):
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-        cdp = drag_breakdown.parasite.total[:,0]
-        cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
-        cdm = drag_breakdown.miscellaneous.total[:,0]
-        cd  = drag_breakdown.total[:,0]
-
-        if line_style == 'bo-':
-            axes.plot( time , cdp , 'ko-', label='CD_P' )
-            axes.plot( time , cdi , 'bo-', label='CD_I' )
-            axes.plot( time , cdc , 'go-', label='CD_C' )
-            axes.plot( time , cdm , 'yo-', label='CD_M' )
-            axes.plot( time , cd  , 'ro-', label='CD'   )
-            if i == 0:
-                axes.legend(loc='upper center')            
-        else:
-            axes.plot( time , cdp , line_style )
-            axes.plot( time , cdi , line_style )
-            axes.plot( time , cdc , line_style )
-            axes.plot( time , cdm , line_style )
-            axes.plot( time , cd  , line_style )            
-
-    axes.set_xlabel('Time (min)')
-    axes.set_ylabel('CD')
-    axes.grid(True)
-    
-    
-    # ------------------------------------------------------------------
-    #   Flight Conditions
-    # ------------------------------------------------------------------
-    fig = plt.figure("Flight Conditions",figsize=(6.5,10))
-    for segment in results.segments.values():
-
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        altitude = segment.conditions.freestream.altitude[:,0] / Units.km
-        mach     = segment.conditions.freestream.mach_number[:,0]
-        distance = segment.conditions.frames.inertial.position_vector[:,0] / Units.km
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time, distance, line_style )
-        axes.set_ylabel('Distance (km)')
-        axes.grid(True)        
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , altitude , line_style , lw=line_width )
-        axes.set_ylabel('Altitude (km)')
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , mach, line_style , lw=line_width )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Mach Number (-)')
-        axes.grid(True)    
-    
-    # ------------------------------------------------------------------    
-    #  Mass, State of Charge, Power
-    # ------------------------------------------------------------------
-    
-    fig = plt.figure("Electric Aircraft Outputs",figsize=(6.5,10))
-    for segment in results.segments.values():
-        
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        mass = segment.conditions.weights.total_mass[:,0]
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , mass , line_style , lw=line_width )
-        axes.set_ylabel('Vehicle Mass (kg)')
-        axes.grid(True)
-        
-        try:
-            battery=configs.base.energy_network['battery']
-            state_of_charge=segment.conditions.propulsion.battery_energy/battery.max_energy
-            battery_power=-segment.conditions.propulsion.battery_draw/Units.MW            
-        except:
-            continue        
-        
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , state_of_charge , line_style , lw=line_width )
-        axes.set_ylabel('State of Charge (-)')
-        axes.set_ylim([-0.005,1.005])
-        axes.grid(True)
-        
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , battery_power , line_style , lw=line_width )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Discharge Power (MW)')
-        axes.grid(True)    
-    
-    
-    raw_input('Press Enter To Quit')
-    return
-
 
 if __name__ == '__main__':
     main()

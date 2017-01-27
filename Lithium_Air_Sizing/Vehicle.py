@@ -1,6 +1,6 @@
 # Vehicles.py
 # 
-# Created:  May 2015, E. Botero
+# Created:  Jan 2017, M. Vegh
 # Modified: 
 
 # ----------------------------------------------------------------------        
@@ -281,19 +281,7 @@ def base_setup():
     p1, T1, rho1, a1, mew1 = atm.compute_values(0.)
     p2, T2, rho2, a2, mew2 = atm.compute_values(6.255*Units.km)
   
-    #create sizing segment
-    '''
-    state          = Data()
-    conditions     = Data()
-    numerics       = Data()
-   
-    conditions.M     = 0.729      
-    conditions.alt   = 7*Units.km
-    conditions.T     = T2           
-    conditions.p     = p2     
-    state.conditions = conditions
-    state.numerics   = numerics 
-    '''
+
     mach_number                   =0.729  
     altitude                      = 30000*Units.ft
     
