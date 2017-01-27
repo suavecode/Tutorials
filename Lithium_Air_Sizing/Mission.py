@@ -100,7 +100,7 @@ def base(analyses):
     
     segment.analyses.extend( analyses.cruise )
     
-    segment.altitude_end = 3. * Units.km
+    segment.altitude_end = 10. * Units.km
     segment.air_speed    =140* Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
     segment.state.numerics.tolerance_solution = sol_tol
@@ -117,8 +117,8 @@ def base(analyses):
     
     segment.analyses.extend( analyses.cruise )
     
-    segment.air_speed  = 147.1479 * Units['m/s']
-    segment.distance   = 1000 * Units.nautical_miles
+    segment.air_speed  = 230 * Units['m/s']
+    segment.distance   = 2000 * Units.nautical_miles
     segment.state.numerics.tolerance_solution = sol_tol
     mission.append_segment(segment)
     

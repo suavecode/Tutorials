@@ -100,15 +100,6 @@ def run_sizing_loop(nexus):
     analyses   = nexus.analyses
     mission    = nexus.missions.base
     
-    battery     = configs.base.energy_network['battery']
-    ducted_fan  = configs.base.propulsors['ducted_fan']
-    
-    #make it so all configs handle the exact same battery object
-    configs.cruise.energy_network['battery']   = battery 
-    configs.takeoff.energy_network['battery']  = battery
-    configs.landing.energy_network['battery']  = battery
- 
- 
     
     
     #initial guesses
@@ -116,9 +107,6 @@ def run_sizing_loop(nexus):
     Ereq_guess = 100000000000.  
     Preq_guess=  200000. 
  
-
-
-    #mass          = [ m_guess ] 
   
     scaling       = np.array([1E4,1E9,1E6])
     y             = np.array([m_guess, Ereq_guess, Preq_guess])/scaling
@@ -169,66 +157,72 @@ def run_sizing_loop(nexus):
 # ----------------------------------------------------------------------    
 
 def simple_sizing(nexus):
+    #unpack nexus
+    configs  = nexus.vehicle_configurations
+    analyses = nexus.analyses
+    mission  =  nexus.missions.base.segments
+    airport   = nexus.missions.base.airport
+    atmo     = airport.atmosphere
+   
+   
+    #make it so all configs handle the exact same battery object
+    battery     = configs.base.energy_network['battery']
+    configs.cruise.energy_network['battery']   = battery 
+    configs.takeoff.energy_network['battery']  = battery
+    configs.landing.energy_network['battery']  = battery
     
-    configs=nexus.vehicle_configurations
-    analyses=nexus.analyses
+    #unpack guesses
     m_guess=configs.base.m_guess
     Ereq=configs.base.Ereq
     Preq=configs.base.Preq
     
-# ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     #   Define New Gross Takeoff Weight
     # ------------------------------------------------------------------
-    #now add component weights to the gross takeoff weight of the vehicle
-   
     base = configs.base
-    #base.pull_base()
-    base.mass_properties.max_takeoff=m_guess
-    base.mass_properties.max_zero_fuel=m_guess  #just used for weight calculation
-    Sref=m_guess/base.wing_loading
-    design_thrust=base.thrust_loading*m_guess*9.81 
+    base.mass_properties.max_takeoff   = m_guess
+    base.mass_properties.max_zero_fuel = m_guess  #just used for weight calculation
+    Sref                               = m_guess/base.wing_loading
+    design_thrust                      = base.thrust_loading*m_guess*9.81 
    
-    mission=nexus.missions.base.segments
-   
-    airport=nexus.missions.base.airport
-    atmo            = airport.atmosphere
-    
-    
+    #assign area
     base.reference_area                     = Sref
     base.wings['main_wing'].areas.reference = base.reference_area
     
-    #determine geometry of fuselage as well as wings
-    fuselage=base.fuselages['fuselage']
+    #determine geometry of fuselage, wing, and tail
+    fuselage = base.fuselages['fuselage']
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
-    fuselage.areas.side_projected   = fuselage.heights.maximum*fuselage.lengths.cabin*1.1 #  Not correct
-    base.wings['main_wing'] = wing_planform(base.wings['main_wing'])
-    base.wings['horizontal_stabilizer'] = wing_planform(base.wings['horizontal_stabilizer']) 
+    fuselage.areas.side_projected       = fuselage.heights.maximum*fuselage.lengths.cabin*1.1 #guess
     
+    #create wing platforms based on geometry
+    base.wings['main_wing']             = wing_planform(base.wings['main_wing'])
+    base.wings['horizontal_stabilizer'] = wing_planform(base.wings['horizontal_stabilizer']) 
     base.wings['vertical_stabilizer']   = wing_planform(base.wings['vertical_stabilizer'])
+    
     #calculate position of horizontal stabilizer
-    base.wings['horizontal_stabilizer'].aerodynamic_center[0]= base.w2h- \
+    base.wings['horizontal_stabilizer'].aerodynamic_center[0] = base.w2h- \
     (base.wings['horizontal_stabilizer'].origin[0] + \
     base.wings['horizontal_stabilizer'].aerodynamic_center[0] - \
     base.wings['main_wing'].origin[0] - base.wings['main_wing'].aerodynamic_center[0])
-    #wing areas
+    
+    #wing areas based on correlations
     for wing in base.wings:
         wing.areas.wetted   = 2.00 * wing.areas.reference
         wing.areas.affected = 0.60 * wing.areas.reference
         wing.areas.exposed  = 0.75 * wing.areas.wetted
   
-    #compute conditions for aircraft sizing
-    cruise_altitude= mission['climb_3'].altitude_end
-
-    conditions = atmo.compute_values(cruise_altitude)
+    #compute conditions for aircraft propulsor sizing
+    cruise_altitude     = mission['climb_3'].altitude_end
+    conditions          = atmo.compute_values(cruise_altitude)
     conditions.velocity = mission['cruise'].air_speed
+    mach_number         = conditions.velocity/conditions.speed_of_sound   
     
-    mach_number = conditions.velocity/conditions.speed_of_sound   
-    
+    # assign conditions
     conditions.mach_number = mach_number
     conditions.gravity     = 9.81
     
-    prop_conditions=SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
-    prop_conditions.freestream=conditions 
+    prop_conditions            = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
+    prop_conditions.freestream = conditions 
     
   
     conditions0 = atmo.compute_values(12500.*Units.ft) #cabin pressure

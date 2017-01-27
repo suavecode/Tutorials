@@ -295,7 +295,7 @@ def base_setup():
     state.numerics   = numerics 
     '''
     mach_number                   =0.729  
-    altitude                      = 7*Units.km
+    altitude                      = 30000*Units.ft
     
     ducted_fan.number_of_engines  = 2.0    
     ducted_fan_sizing(ducted_fan, mach_number, altitude)   #calling the engine sizing method 
