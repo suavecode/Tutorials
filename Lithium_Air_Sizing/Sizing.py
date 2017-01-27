@@ -125,25 +125,18 @@ def run_sizing_loop(nexus):
     sizing_loop.min_y                                          = min_y
     sizing_loop.max_y                                          = max_y
     sizing_loop.default_scaling                                = scaling
-    
+    sizing_loop.sizing_evaluation                              = sizing_evaluation
     
     sizing_loop.maximum_iterations                             = 50
     sizing_loop.write_threshhold                               = 50.
    
-    sizing_loop.output_filename                                = 'sizing_outputs.txt'
-    sizing_loop.sizing_evaluation                              = sizing_evaluation
+    sizing_loop.output_filename                                = 'sizing_outputs.txt' #used if you run optimization
+    
+   
     sizing_loop.iteration_options.h                            = 1E-6
     sizing_loop.iteration_options.min_fix_point_iterations     = 2
     sizing_loop.iteration_options.initialize_jacobian          = 'newton-raphson' #approximate #option for Broyden's Method, not used here
-    '''
-    #option if using surrogates to inform your initial guess
-    sizing_loop.iteration_options.max_newton_raphson_tolerance = nexus.tol*2 #threshhold at which to switch to successive substitution (to prevent overshooting)
-    sizing_loop.iteration_options.min_surrogate_length         = 3   #default
-    sizing_loop.iteration_options.min_surrogate_step           = .03 
-    sizing_loop.iteration_options.min_write_step               = .011#default
-    sizing_loop.iteration_options.n_neighbors                  = 5
-    sizing_loop.iteration_options.neighbors_weighted_distance  = True #option for using K Nearest Neighbors
-    '''
+    
     nexus.max_iter                  = sizing_loop.maximum_iterations  #used to pass it to constraints
   
   
@@ -168,17 +161,16 @@ def simple_sizing(nexus):
     battery    = base.energy_network['battery']
     fuselage   = base.fuselages['fuselage']
     
-    #make it so all configs handle the exact same battery object
-    
-    configs.cruise.energy_network['battery']   = battery 
-    configs.takeoff.energy_network['battery']  = battery
-    configs.landing.energy_network['battery']  = battery
-    
-    
     #unpack guesses
     m_guess = base.m_guess
     Ereq    = base.Ereq
     Preq    = base.Preq
+    
+    #make it so all configs handle the exact same battery object
+    configs.cruise.energy_network['battery']   = battery 
+    configs.takeoff.energy_network['battery']  = battery
+    configs.landing.energy_network['battery']  = battery
+    
     
     # ------------------------------------------------------------------
     #   Define New Gross Takeoff Weight
@@ -186,9 +178,9 @@ def simple_sizing(nexus):
     
     base.mass_properties.max_takeoff   = m_guess
     base.mass_properties.max_zero_fuel = m_guess  #just used for weight calculation
-    Sref                               = m_guess/base.wing_loading
     design_thrust                      = base.thrust_loading*m_guess*9.81 
-   
+    Sref                               = m_guess/base.wing_loading
+    
     #assign area
     base.reference_area                     = Sref
     base.wings['main_wing'].areas.reference = base.reference_area
@@ -285,15 +277,14 @@ def sizing_evaluation(y,nexus, scaling):
     mission           = nexus.missions.base
     battery           = configs.base.energy_network['battery']
     
-    #assing guesses to aircraft
+    #assign guesses to aircraft
     configs.base.m_guess = m_guess
     configs.base.Ereq    = Ereq_guess
     configs.base.Preq    = Preq_guess
    
-    #run size aircraft geometry/mass based on buess
+    #run size aircraft geometry/mass based on guess
     simple_sizing(nexus)
     analyses.finalize() #wont run without this
-    
     results = evaluate_mission(configs,mission)
     
     
@@ -359,14 +350,18 @@ def evaluate_mission(configs,mission):
             max_alpha[i]=max(aoa)
             min_alpha[i]=min(aoa)
             
-    max_alpha = max(max_alpha)
-    min_alpha = min(min_alpha)         
-    total_range=results.segments[-1].conditions.frames.inertial.position_vector[-1,0]
-    results.total_range=total_range
-    results.e_total=results.segments[0].conditions.propulsion.battery_energy[0,0]-e_current_min
-    results.Pmax=Pmax
-    results.max_alpha=max_alpha
-    results.min_alpha=min_alpha
+    max_alpha           = max(max_alpha)
+    min_alpha           = min(min_alpha)         
+    total_range         = results.segments[-1].conditions.frames.inertial.position_vector[-1,0]
+    
+    #pack up results
+    results.total_range = total_range
+    results.e_total     = results.segments[0].conditions.propulsion.battery_energy[0,0]-e_current_min
+    results.Pmax        = Pmax
+    results.max_alpha   = max_alpha
+    results.min_alpha   = min_alpha
+    
+    #print to make sure it's working correctly
     print 'e_current_min=',e_current_min
     print "e_total=", results.e_total
     print "Pmax=", Pmax
