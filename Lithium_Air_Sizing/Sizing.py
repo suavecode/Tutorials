@@ -158,28 +158,32 @@ def run_sizing_loop(nexus):
 
 def simple_sizing(nexus):
     #unpack nexus
-    configs  = nexus.vehicle_configurations
-    analyses = nexus.analyses
-    mission  =  nexus.missions.base.segments
-    airport   = nexus.missions.base.airport
-    atmo     = airport.atmosphere
-   
-   
+    configs    = nexus.vehicle_configurations
+    analyses   = nexus.analyses
+    mission    =  nexus.missions.base.segments
+    airport    = nexus.missions.base.airport
+    atmo       = airport.atmosphere
+    base       = configs.base
+    ducted_fan =base.propulsors['ducted_fan']
+    battery    = base.energy_network['battery']
+    fuselage   = base.fuselages['fuselage']
+    
     #make it so all configs handle the exact same battery object
-    battery     = configs.base.energy_network['battery']
+    
     configs.cruise.energy_network['battery']   = battery 
     configs.takeoff.energy_network['battery']  = battery
     configs.landing.energy_network['battery']  = battery
     
+    
     #unpack guesses
-    m_guess=configs.base.m_guess
-    Ereq=configs.base.Ereq
-    Preq=configs.base.Preq
+    m_guess = base.m_guess
+    Ereq    = base.Ereq
+    Preq    = base.Preq
     
     # ------------------------------------------------------------------
     #   Define New Gross Takeoff Weight
     # ------------------------------------------------------------------
-    base = configs.base
+    
     base.mass_properties.max_takeoff   = m_guess
     base.mass_properties.max_zero_fuel = m_guess  #just used for weight calculation
     Sref                               = m_guess/base.wing_loading
@@ -190,7 +194,6 @@ def simple_sizing(nexus):
     base.wings['main_wing'].areas.reference = base.reference_area
     
     #determine geometry of fuselage, wing, and tail
-    fuselage = base.fuselages['fuselage']
     SUAVE.Methods.Geometry.Two_Dimensional.Planform.fuselage_planform(fuselage)
     fuselage.areas.side_projected       = fuselage.heights.maximum*fuselage.lengths.cabin*1.1 #guess
     
@@ -218,48 +221,42 @@ def simple_sizing(nexus):
     mach_number         = conditions.velocity/conditions.speed_of_sound   
     
     # assign conditions
-    conditions.mach_number = mach_number
-    conditions.gravity     = 9.81
-    
-    prop_conditions            = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
-    prop_conditions.freestream = conditions 
-    
-  
-    conditions0 = atmo.compute_values(12500.*Units.ft) #cabin pressure
-    p0 = conditions0.pressure
-    fuselage_diff_pressure=max(conditions0.pressure-conditions.pressure,0)
+    conditions.mach_number         = mach_number
+    conditions.gravity             = 9.81
+    prop_conditions                = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
+    prop_conditions.freestream     = conditions 
+    conditions0                    = atmo.compute_values(12500.*Units.ft) #cabin pressure
+    p0                             = conditions0.pressure
+    fuselage_diff_pressure         = max(conditions0.pressure-conditions.pressure,0)
     fuselage.differential_pressure = fuselage_diff_pressure
-    
-    battery   =base.energy_network['battery']
-    ducted_fan=base.propulsors['ducted_fan']
+   
+    # battery calcs
     SUAVE.Methods.Power.Battery.Sizing.initialize_from_energy_and_power(battery,Ereq,Preq, max='soft')
-    battery.current_energy=[battery.max_energy] #initialize list of current energy
- 
-    
-    m_air                 =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
+    battery.current_energy = [battery.max_energy] #initialize list of current energy
+    m_air                  =SUAVE.Methods.Power.Battery.Variable_Mass.find_total_mass_gain(battery)
     
     #now add the electric motor weight
-    motor_mass=ducted_fan.number_of_engines*SUAVE.Methods.Weights.Correlations.Propulsion.air_cooled_motor((Preq)*Units.watts/ducted_fan.number_of_engines,.1783, .9884 )
-    propulsion_mass=SUAVE.Methods.Weights.Correlations.Propulsion.integrated_propulsion(motor_mass/ducted_fan.number_of_engines,ducted_fan.number_of_engines)
-    
+    motor_mass                      = ducted_fan.number_of_engines*SUAVE.Methods.Weights.Correlations.Propulsion.air_cooled_motor((Preq)*Units.watts/ducted_fan.number_of_engines,.1783, .9884 )
+    propulsion_mass                 = SUAVE.Methods.Weights.Correlations.Propulsion.integrated_propulsion(motor_mass/ducted_fan.number_of_engines,ducted_fan.number_of_engines)
     ducted_fan.mass_properties.mass = propulsion_mass
     ducted_fan.thrust.total_design  = design_thrust
     
+    #compute geometries
     ducted_fan_sizing(ducted_fan, mach_number,cruise_altitude)  
     compute_ducted_fan_geometry(ducted_fan, conditions = prop_conditions)
     
-    # ---------------------------
-    breakdown = analyses.base.weights.evaluate()
-    #breakdown = analyses.configs.base.weights.evaluate()
-    breakdown.battery=battery.mass_properties.mass
-    breakdown.air=m_air
-    base.mass_properties.breakdown=breakdown
-    m_fuel=0.
-    #print breakdown
-    base.mass_properties.operating_empty     = breakdown.empty 
-    m_full=breakdown.empty+battery.mass_properties.mass+breakdown.payload
-    m_end=m_full+m_air
-    base.mass_properties.takeoff                 = m_full
+    #evaluate total mass breakdown
+    breakdown                             = analyses.base.weights.evaluate()
+    breakdown.battery                     = battery.mass_properties.mass
+    breakdown.air                         = m_air
+    base.mass_properties.breakdown        = breakdown
+    m_fuel                                = 0.
+    base.mass_properties.operating_empty  = breakdown.empty 
+    
+    #m_full = GTOW, m_end = GLW
+    m_full                       = breakdown.empty+battery.mass_properties.mass+breakdown.payload
+    m_end                        = m_full+m_air
+    base.mass_properties.takeoff = m_full
     base.store_diff()
 
     # Update all configs with new base data    
@@ -267,40 +264,33 @@ def simple_sizing(nexus):
         config.pull_base()
 
     
-    ##############################################################################
-    # ------------------------------------------------------------------
-    #   Define Configurations
-    # ------------------------------------------------------------------
-    landing_config=configs.landing
-    landing_config.wings['main_wing'].flaps.angle =  20. * Units.deg
-    landing_config.wings['main_wing'].slats.angle  = 25. * Units.deg
-    landing_config.mass_properties.landing = m_end
-    landing_config.store_diff()
-  
+
     return nexus
     
 def sizing_evaluation(y,nexus, scaling):
-    configs = nexus.vehicle_configurations
+
     #unpack inputs
-    m_guess              = y[0]*scaling[0]
-    Ereq_guess           = y[1]*scaling[1]
-    Preq_guess           = y[2]*scaling[2]
+    m_guess     = y[0]*scaling[0]
+    Ereq_guess  = y[1]*scaling[1]
+    Preq_guess  = y[2]*scaling[2]
     
- 
+    #print guesses
     print 'm_guess      =', m_guess              
     print 'Ereq_guess   =', Ereq_guess   
     print 'Preq_guess   =', Preq_guess           
     
-    
-    configs.base.m_guess        = m_guess
-    configs.base.Ereq           = Ereq_guess
-    configs.base.Preq           = Preq_guess
-   
+    #unpack guesses
     configs           = nexus.vehicle_configurations
     analyses          = nexus.analyses
     mission           = nexus.missions.base
     battery           = configs.base.energy_network['battery']
     
+    #assing guesses to aircraft
+    configs.base.m_guess = m_guess
+    configs.base.Ereq    = Ereq_guess
+    configs.base.Preq    = Preq_guess
+   
+    #run size aircraft geometry/mass based on buess
     simple_sizing(nexus)
     analyses.finalize() #wont run without this
     
@@ -310,37 +300,26 @@ def sizing_evaluation(y,nexus, scaling):
     
     #handle outputs
     
-    mass_out           = results.segments[-1].conditions.weights.total_mass[-1,0] 
-    Ereq_out           = results.e_total
-    Preq_out           = results.Pmax
+    mass_out = results.segments[-1].conditions.weights.total_mass[-1,0]  #actual landing weight
+    Ereq_out = results.e_total
+    Preq_out = results.Pmax
+             
+    #errors  
+    dm       = (mass_out-m_guess)/m_guess
+    dE_total = (Ereq_out-Ereq_guess)/Ereq_guess
+    dPower   = (Preq_out-Preq_guess)/Preq_guess
     
- 
-    dm           = (mass_out-m_guess)/m_guess
-    dE_total     = (Ereq_out-Ereq_guess)/Ereq_guess
-    dPower       = (Preq_out-Preq_guess)/Preq_guess
+    #pack up results
+    nexus.results = results 
     
-    #err=(np.abs(dm)+np.abs(dE_primary)+np.abs(dE_auxiliary))/3.
-    #err=(np.abs(dE_primary)+np.abs(dE_auxiliary))/2.
-    #err = np.abs(dE_auxiliary)
-    #handle weird problem where one of the battery energies is ~0; use total energy
-
-   
-   
-    configs.base.dm           = dm
-    configs.base.dE_total     = dE_total
-    configs.base.Preq         = Preq_out
-
-    
-   
-    nexus.results      = results #pack up results
-    
-    f = np.array([dm, dE_total, dPower])
+    # return it to sizing loop (within SUAVE/Sizing/Sizing_Loop.py
+    f     = np.array([dm, dE_total, dPower])
     y_out = np.array([mass_out, Ereq_out, Preq_out ])/scaling
+    
+    #print sizing
     print 'y=', y
     print 'y_out=', y_out
-    print 'scaling=', scaling
     print 'f=', f
-    print 'number_of_surrogate_calls ', nexus.sizing_loop.iteration_options.number_of_surrogate_calls
     return f, y_out
 
 # ----------------------------------------------------------------------
