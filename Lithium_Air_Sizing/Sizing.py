@@ -84,8 +84,6 @@ def setup():
     # ------------------------------------------------------------------ 
     
     # size the base config
-    
-    
     procedure = Process()
     procedure.run_sizing_loop       = run_sizing_loop #size aircraft and run mission
     procedure.evaluate_field_length = evaluate_field_length

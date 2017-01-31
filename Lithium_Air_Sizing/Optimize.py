@@ -16,7 +16,8 @@ import Mission
 import Sizing as Procedure
 import Plot_Mission
 from SUAVE.Optimization.Nexus import Nexus
-import SUAVE.Optimization.Package_Setups.pyopt_setup as pyopt_setup
+#import SUAVE.Optimization.Package_Setups.pyopt_setup as pyopt_setup
+import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
 from SUAVE.Sizing.Sizing_Loop import Sizing_Loop
 # ----------------------------------------------------------------------        
 #   Run the whole thing
@@ -25,7 +26,7 @@ def main():
     
     problem = setup()
 
-    output = pyopt_setup.Pyopt_Solve(problem, sense_step = 1E-2, solver='SNOPT')
+    output = scipy_setup.SciPy_Solve(problem, sense_step = 1E-2, solver = 'SLSQP')
     print output
     
     Plot_Mission.plot_mission(problem)
@@ -52,9 +53,7 @@ def setup():
     problem.inputs = np.array([
         [ 'thrust_loading'            ,   .2          , (.05       ,      .3    ) ,  .1,  'continuous',               Units.less],   
         [  'fan_pressure_ratio'       ,  1.5          , (1.05      ,   2.6    ) ,  1.,  'continuous',               Units.less], 
-        #[  'aspect_ratio'             ,  14.         , (5.        ,    14.     ) ,  10., 'continuous',               Units.less], 
-        [  'wing_loading'             ,  400.         , (200.      ,    800.    ) ,  100.,'continuous', Units.kg/Units.meter**2.],
-        #[  'taper'                    ,  0.1000      , (.1        ,    .3      ) ,  .1,  'continuous',              Units.less ],
+        [  'wing_loading'             ,  400.         , (200.      ,    800.    ) ,  100.,'continuous', Units.kg/Units.meter**2.],,
         [  'wing_thickness'           ,  .105         , (0.07      ,    0.20    ) ,  .1,  'continuous',              Units.less ],
         [  'v_climb_1'                ,  80.          , (50.       ,    230.    ) ,  1E2, 'continuous', Units.meter/Units.second],
         [  'v_climb_2'                ,  100.         , (50.       ,    230    ) ,  1E2, 'continuous', Units.meter/Units.second],
@@ -88,8 +87,6 @@ def setup():
     # [ tag, sense, edge, scaling, units ]
     
     problem.constraints = np.array([
-        #[ 'power_margin'               , '>',  0     ,  1E6   , Units.meters],
-        #['lithium_ion_energy_margin'   , '>',  0      ,   1E0  , Units.less],
         [ 'climb_constraint_1'          , '>',  0     ,  1E2   , Units.meters],
         [ 'climb_constraint_2'         , '>',  0     ,  1E3   , Units.meters], #handled by bounds
         [ 'descent_constraint_1'        , '>',  0     ,  1E2   , Units.meters],
@@ -104,24 +101,7 @@ def setup():
         
     ])
     
-    '''
-    problem.constraints = np.array([
-        [ 'power_margin'           , '>',  0   ,  1E6   , Units.meters],
-        #[ 'range_margin'           , '>',  0   ,  1E6   , Units.meters],
-        [ 'washout'                , '>',  0   ,  1E0   , Units.radians],
-        [ 'climb_constraint_1'     , '>',  0   ,  1E3   , Units.km],
-        [ 'climb_constraint_2'     , '>',  0   ,  1E3   , Units.km],
-        [ 'climb_constraint_3'     , '>',  0   ,  1E3   , Units.km],
-        [ 'climb_constraint_4'     , '>',  0   ,  1E3   , Units.km],
-        [ 'descent_constraint_1'   , '>',  0   ,  1E3   , Units.km],
-        [ 'descent_constraint_2'   , '>',  0   ,  1E3   , Units.km],
-        [ 'min_alpha_constraint'   , '>',  0   , 1E1    , Units.degrees],
-        [ 'max_alpha_constraint'   , '>',  0   , 1E1    , Units.degrees],
-        #[ 'takeoff_field_constraint'   , '>',  0   , 1E3    , Units.ft],
-        #[ 'landing_field_constraint'   , '>',  0   , 1E3    , Units.ft],
-   
-    ])
-    '''
+
     # -------------------------------------------------------------------
     #  Aliases
     # -------------------------------------------------------------------
