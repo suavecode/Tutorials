@@ -17,8 +17,8 @@ import Plot_Mission
 import matplotlib.pyplot as plt
 from SUAVE.Optimization import Nexus, carpet_plot
 import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
-import VyPy
-import pyOpt
+#import VyPy
+#import pyOpt
 # ----------------------------------------------------------------------        
 #   Run the whole thing
 # ----------------------------------------------------------------------  
