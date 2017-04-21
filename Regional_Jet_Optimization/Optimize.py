@@ -17,14 +17,14 @@ import Plot_Mission
 import matplotlib.pyplot as plt
 from SUAVE.Optimization import Nexus, carpet_plot
 import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
-import VyPy
-import pyOpt
+#import VyPy
+#import pyOpt
 # ----------------------------------------------------------------------        
 #   Run the whole thing
 # ----------------------------------------------------------------------  
 def main():
     problem = setup()
-    
+    output = problem.objective()
     #uncomment these lines when you want to start an optimization problem from a different initial guess
     '''
     inputs                                   = [1.28, 1.38]
