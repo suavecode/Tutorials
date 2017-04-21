@@ -24,7 +24,7 @@ import pyOpt
 # ----------------------------------------------------------------------  
 def main():
     problem = setup()
-    
+    output = problem.objective()
     #uncomment these lines when you want to start an optimization problem from a different initial guess
     '''
     inputs                                   = [1.28, 1.38]
