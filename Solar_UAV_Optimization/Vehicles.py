@@ -46,7 +46,7 @@ def base_setup():
     vehicle.reference_area                    = 1.0       
     vehicle.envelope.ultimate_load            = 2.0
     vehicle.envelope.limit_load               = 1.5
-    vehicle.envelope.maximum_dynamic_pressure = 115.*1.25 #Max q
+    vehicle.envelope.maximum_dynamic_pressure = 115.*1.25 * Units.pascals #Max q
 
     # ------------------------------------------------------------------        
     #   Main Wing
@@ -56,7 +56,7 @@ def base_setup():
     wing.tag = 'main_wing'
 
     wing.areas.reference         = vehicle.reference_area
-    wing.spans.projected         = 40.0
+    wing.spans.projected         = 40.0 * Units.meters
     wing.aspect_ratio            = (wing.spans.projected**2)/wing.areas.reference 
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.symmetric               = True
@@ -77,7 +77,6 @@ def base_setup():
     wing.transition_x_upper      = 0.6
     wing.transition_x_lower      = 1.0
     wing.origin                  = [3.0,0.0,0.0]
-    wing.aerodynamic_center      = [3.0,0.0,0.0] 
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -110,7 +109,6 @@ def base_setup():
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  
     wing.origin                  = [10.,0.0,0.0]
-    wing.aerodynamic_center      = [0.5,0.0,0.0]   
 
     # add to vehicle
     vehicle.append_component(wing)    
@@ -132,15 +130,13 @@ def base_setup():
 
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
-    wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected 
-
+    wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.6 * wing.areas.wetted    
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
-    wing.origin                  = [10.,0.0,0.0]
-    wing.aerodynamic_center      = [0.5,0.0,0.0]        
+    wing.origin                  = [10.,0.0,0.0]      
     wing.symmetric               = True          
     wing.vertical                = True 
     wing.t_tail                  = False
