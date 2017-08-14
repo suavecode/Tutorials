@@ -179,7 +179,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights()
+    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
     weights.settings.empty_weight_method= \
            SUAVE.Methods.Weights.Correlations.Tube_Wing.empty 
     weights.vehicle = vehicle
