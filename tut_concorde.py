@@ -240,7 +240,7 @@ def vehicle_setup():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
     fuselage.seats_abreast         = 4
-    fuselage.seat_pitch            = 1
+    fuselage.seat_pitch            = 1     * Units.meter
     fuselage.fineness.nose         = 4.3   * Units.meter   
     fuselage.fineness.tail         = 6.4   * Units.meter   
     fuselage.lengths.total         = 61.66 * Units.meter    
