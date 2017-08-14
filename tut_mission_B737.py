@@ -153,7 +153,6 @@ def base_analysis(vehicle):
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
 
-    # done!
     return analyses    
 
 # ----------------------------------------------------------------------
@@ -821,7 +820,6 @@ def simple_sizing(configs):
     # diff the new data
     landing.store_diff()
 
-    # done!
     return
 
 # ----------------------------------------------------------------------
@@ -1015,7 +1013,6 @@ def missions_setup(base_mission):
 
     missions.base = base_mission
 
-    # done!
     return missions  
 
 if __name__ == '__main__': 

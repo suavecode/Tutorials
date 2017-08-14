@@ -1,22 +1,17 @@
 # tut_solar_UAV.py
 # 
 # Created:  Jul 2014, E. Botero
-# Modified: Jan 2017, E. Botero
+# Modified: Aug 2017, E. Botero
 
 #----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units
-
-from SUAVE.Core import (
-Data, Container
-)
+from SUAVE.Core import Units, Data
 
 import numpy as np
 import pylab as plt
-import matplotlib
-import copy, time
+import time
 
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
@@ -104,7 +99,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
     
     wing.areas.reference         = vehicle.reference_area
-    wing.spans.projected         = 40.0
+    wing.spans.projected         = 40.0 * Units.meter
     wing.aspect_ratio            = (wing.spans.projected**2)/wing.areas.reference 
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.symmetric               = True
@@ -149,7 +144,7 @@ def vehicle_setup():
     wing.spans.projected      = np.sqrt(wing.aspect_ratio*wing.areas.reference)
     wing.twists.root          = 0.0 * Units.degrees
     wing.twists.tip           = 0.0 * Units.degrees      
-               
+    
     wing.vertical                = False 
     wing.symmetric               = True
     wing.dynamic_pressure_ratio  = 0.9      
@@ -182,7 +177,6 @@ def vehicle_setup():
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected 
-
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.6 * wing.areas.wetted    
@@ -209,7 +203,7 @@ def vehicle_setup():
     net.nacelle_diameter  = 0.2
     net.engine_length     = 0.01
     net.areas             = Data()
-    net.areas.wetted      = 0.01*(2*np.pi*0.01/2)
+    net.areas.wetted      = 0.01*(2*np.pi*0.01/2.)
     
     # Component 1 the Sun?
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
@@ -228,18 +222,17 @@ def vehicle_setup():
     net.esc        = esc
     
     # Component 5 the Propeller
-    
     # Design the Propeller
     prop_attributes = Data()
     prop_attributes.number_blades       = 2.0
-    prop_attributes.freestream_velocity = 40.0 # freestream m/s
+    prop_attributes.freestream_velocity = 40.0 * Units['m/s']# freestream
     prop_attributes.angular_velocity    = 150. * Units['rpm']
     prop_attributes.tip_radius          = 4.25
     prop_attributes.hub_radius          = 0.05
     prop_attributes.design_Cl           = 0.7
     prop_attributes.design_altitude     = 14.0 * Units.km
     prop_attributes.design_thrust       = 0.0
-    prop_attributes.design_power        = 3500.0
+    prop_attributes.design_power        = 3500.0 * Units.watts
     prop_attributes                     = propeller_design(prop_attributes)
     
     prop = SUAVE.Components.Energy.Converters.Propeller()
@@ -289,7 +282,6 @@ def vehicle_setup():
 
     return vehicle
 
-
 # ----------------------------------------------------------------------
 #   Define the Configurations
 # ---------------------------------------------------------------------
@@ -315,7 +307,6 @@ def configs_setup(vehicle):
     
     configs.append(config)
     
-    # done!
     return configs
 
 
@@ -576,7 +567,6 @@ def plot_mission(results):
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
         
-        
         axes.plot( time , cdp , 'ko-', label='CD_P' )
         axes.plot( time , cdi , 'bo-', label='CD_I' )
         axes.plot( time , cdc , 'go-', label='CD_C' )
@@ -589,7 +579,6 @@ def plot_mission(results):
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
     axes.grid(True)
-    
     
     # ------------------------------------------------------------------    
     #   Battery Energy
@@ -680,8 +669,6 @@ def plot_mission(results):
     axes.grid(True)      
     plt.ylim((0,1))
 
-    
-    
     # ------------------------------------------------------------------
     #   Flight Conditions
     # ------------------------------------------------------------------
@@ -718,7 +705,6 @@ def plot_mission(results):
     # ------------------------------------------------------------------    
     #  Solar Flux, Charging Power, Battery Energy
     # ------------------------------------------------------------------
-
     
     fig = plt.figure("Electric Outputs")
     for segment in results.segments.values():
@@ -743,7 +729,6 @@ def plot_mission(results):
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Battery Energy (MJ)')
         axes.grid(True)        
-    
     
     return     
 
