@@ -219,14 +219,14 @@ def vehicle_setup():
     wing.thickness_to_chord      = 0.1
     wing.taper                   = 0.1
     wing.span_efficiency         = 0.9
-    wing.spans.projected         = 34.32   
+    wing.spans.projected         = 34.32 * Units.meter
     wing.chords.root             = 7.760 * Units.meter
     wing.chords.tip              = 0.782 * Units.meter
     wing.chords.mean_aerodynamic = 4.235 * Units.meter
     wing.areas.reference         = 124.862 * Units['meters**2']  
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
-    wing.origin                  = [13.61,0,-1.27]
+    wing.origin                  = [13.61,0,-1.27] # meters
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True
@@ -235,10 +235,10 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Flaps
     # ------------------------------------------------------------------
-    wing.flaps.chord      =  0.30   
-    wing.flaps.span_start =  0.10   # ->     wing.flaps.area = 97.1112
+    wing.flaps.chord      =  0.30   # 30% of the chord
+    wing.flaps.span_start =  0.10   # 10% of the span
     wing.flaps.span_end   =  0.75
-    wing.flaps.type       = 'double_slotted'  # -> wing.flaps.number_slots = 2
+    wing.flaps.type       = 'double_slotted'
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -255,7 +255,7 @@ def vehicle_setup():
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.2
     wing.span_efficiency         = 0.9
-    wing.spans.projected         = 14.2 
+    wing.spans.projected         = 14.2 * Units.meter
     wing.chords.root             = 4.7  * Units.meter
     wing.chords.tip              = .955 * Units.meter
     wing.chords.mean_aerodynamic = 8.0  * Units.meter
@@ -264,7 +264,7 @@ def vehicle_setup():
     wing.areas.wetted            = 249.724  * Units['meters**2']  
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
-    wing.origin                  = [32.83,0,1.14]
+    wing.origin                  = [32.83,0,1.14] # meters
     wing.vertical                = False 
     wing.symmetric               = True
     wing.dynamic_pressure_ratio  = 0.9  
@@ -291,7 +291,7 @@ def vehicle_setup():
     wing.areas.reference         = 27.316 * Units['meters**2']  
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
-    wing.origin                  = [28.79,0,1.54] 
+    wing.origin                  = [28.79,0,1.54] # meters
     wing.vertical                = True 
     wing.symmetric               = False
     wing.t_tail                  = False
@@ -346,7 +346,7 @@ def vehicle_setup():
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71 * Units.meter
     turbofan.nacelle_diameter  = 2.05 * Units.meter
-    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
+    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]] # meters
     
     #compute engine areas
     turbofan.areas.wetted      = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
@@ -444,8 +444,7 @@ def vehicle_setup():
     
     # setup
     combustor.efficiency                = 0.99 
-    combustor.alphac                    = 1.0     
-    combustor.turbine_inlet_temperature = 1450
+    combustor.turbine_inlet_temperature = 1450 # K
     combustor.pressure_ratio            = 0.95
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
     
@@ -553,14 +552,6 @@ def configs_setup(vehicle):
     config.wings['main_wing'].flaps.angle = 20. * Units.deg
     config.wings['main_wing'].slats.angle = 25. * Units.deg
     config.max_lift_coefficient_factor    = 1.
-    
-    #Noise input for the landing gear
-    config.landing_gear.gear_condition    = 'up'       
-    config.output_filename                = 'Flyover_' 
-
-    config.propulsors['turbofan'].fan.rotation     = 3470. #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 315.
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 415.
 
     configs.append(config)
     
@@ -572,14 +563,6 @@ def configs_setup(vehicle):
     config.wings['main_wing'].flaps.angle = 20. * Units.deg
     config.wings['main_wing'].slats.angle = 20. * Units.deg
     config.max_lift_coefficient_factor    = 1. #0.95
-    
-    #Noise input for the landing gear
-    config.landing_gear.gear_condition    = 'up'       
-    config.output_filename                = 'Cutback_' 
-
-    config.propulsors['turbofan'].fan.rotation     = 2780. #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 210.
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 360.
 
     configs.append(config)    
 
@@ -593,14 +576,6 @@ def configs_setup(vehicle):
     config.wings['main_wing'].flaps.angle = 30. * Units.deg
     config.wings['main_wing'].slats.angle = 25. * Units.deg  
     config.max_lift_coefficient_factor    = 1. #0.95
-    
-    #Noise input for the landing gear
-    config.landing_gear.gear_condition = 'down'    
-    config.output_filename             = 'Approach_'
-
-    config.propulsors['turbofan'].fan.rotation     = 2030.  #N1 speed
-    config.propulsors['turbofan'].fan_nozzle.noise_speed  = 109.3
-    config.propulsors['turbofan'].core_nozzle.noise_speed = 92.
 
     configs.append(config)
 
