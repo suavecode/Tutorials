@@ -198,7 +198,7 @@ def vehicle_setup():
     wing.areas.affected          = 0.6  * wing.areas.wetted
     wing.twists.root             = 2.0  * Units.degrees
     wing.twists.tip              = 0.0  * Units.degrees
-    wing.origin                  = [20.,0,0]
+    wing.origin                  = [20.,0,0] # meters
     wing.vertical                = False
     wing.symmetric               = True
     wing.dynamic_pressure_ratio  = 1.0
@@ -228,8 +228,8 @@ def vehicle_setup():
     wing.areas.affected          = 0.6  * wing.areas.wetted
     wing.twists.root             = 2.0 * Units.degrees
     wing.twists.tip              = 2.0 * Units.degrees
-    wing.origin                  = [50,0,0]
-    wing.aerodynamic_center      = [2,0,0]
+    wing.origin                  = [50,0,0] # meters
+    wing.aerodynamic_center      = [2,0,0] # meters
     wing.vertical                = False
     wing.symmetric               = True
     wing.dynamic_pressure_ratio  = 0.9
@@ -244,7 +244,7 @@ def vehicle_setup():
     wing = SUAVE.Components.Wings.Wing()
     wing.tag = 'vertical_stabilizer'
 
-    wing.aspect_ratio            = 1.7      #
+    wing.aspect_ratio            = 1.7      
     wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.12
     wing.taper                   = 0.10
@@ -259,8 +259,8 @@ def vehicle_setup():
     wing.areas.affected          = 0.6  * wing.areas.wetted
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
-    wing.origin                  = [50,0,0]
-    wing.aerodynamic_center      = [2,0,0]
+    wing.origin                  = [50,0,0] # meters
+    wing.aerodynamic_center      = [2,0,0] # meters
     wing.vertical                = True
     wing.symmetric               = False
     wing.dynamic_pressure_ratio  = 1.0
@@ -277,7 +277,7 @@ def vehicle_setup():
 
     fuselage.number_coach_seats    = vehicle.passengers
     fuselage.seats_abreast         = 4
-    fuselage.seat_pitch            = 0.7455
+    fuselage.seat_pitch            = 0.7455 * Units.meters
     fuselage.fineness.nose         = 2.0
     fuselage.fineness.tail         = 3.0
     fuselage.lengths.nose          = 6.0   * Units.meter
@@ -305,7 +305,7 @@ def vehicle_setup():
     # ------------------------------------------------------------------
 
 
-    #initialize the gas turbine network
+    # initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
     gt_engine.tag               = 'turbofan'
 
@@ -314,116 +314,116 @@ def vehicle_setup():
     gt_engine.engine_length     = 2.71
     gt_engine.nacelle_diameter  = 2.05
 
-    #set the working fluid for the network
+    # set the working fluid for the network
     gt_engine.working_fluid = SUAVE.Attributes.Gases.Air
 
-    #Component 1 : ram,  to convert freestream static to stagnation quantities
+    # Component 1 : ram,  to convert freestream static to stagnation quantities
     ram = SUAVE.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
 
-    #add ram to the network
+    # add ram to the network
     gt_engine.ram = ram
 
-    #Component 2 : inlet nozzle
+    # Component 2 : inlet nozzle
     inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet nozzle'
 
     inlet_nozzle.polytropic_efficiency = 0.98
     inlet_nozzle.pressure_ratio        = 0.99
 
-    #add inlet nozzle to the network
+    # add inlet nozzle to the network
     gt_engine.inlet_nozzle = inlet_nozzle
 
-    #Component 3 :low pressure compressor
+    # Component 3 :low pressure compressor
     low_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()
     low_pressure_compressor.tag = 'lpc'
 
     low_pressure_compressor.polytropic_efficiency = 0.91
     low_pressure_compressor.pressure_ratio        = 1.9
 
-    #add low pressure compressor to the network
+    # add low pressure compressor to the network
     gt_engine.low_pressure_compressor = low_pressure_compressor
 
-    #Component 4 :high pressure compressor
+    # Component 4 :high pressure compressor
     high_pressure_compressor = SUAVE.Components.Energy.Converters.Compressor()
     high_pressure_compressor.tag = 'hpc'
 
     high_pressure_compressor.polytropic_efficiency = 0.91
     high_pressure_compressor.pressure_ratio        = 10.0
 
-    #add the high pressure compressor to the network
+    # add the high pressure compressor to the network
     gt_engine.high_pressure_compressor = high_pressure_compressor
 
-    #Component 5 :low pressure turbine
+    # Component 5 :low pressure turbine
     low_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()
     low_pressure_turbine.tag='lpt'
 
     low_pressure_turbine.mechanical_efficiency = 0.99
     low_pressure_turbine.polytropic_efficiency = 0.99
 
-    #add low pressure turbine to the network
+    # add low pressure turbine to the network
     gt_engine.low_pressure_turbine = low_pressure_turbine
 
-    #Component 5 :high pressure turbine
+    # Component 5 :high pressure turbine
     high_pressure_turbine = SUAVE.Components.Energy.Converters.Turbine()
     high_pressure_turbine.tag='hpt'
 
     high_pressure_turbine.mechanical_efficiency = 0.99
     high_pressure_turbine.polytropic_efficiency = 0.99
 
-    #add the high pressure turbine to the network
+    # add the high pressure turbine to the network
     gt_engine.high_pressure_turbine = high_pressure_turbine
 
-    #Component 6 :combustor
+    # Component 6 :combustor
     combustor = SUAVE.Components.Energy.Converters.Combustor()
-    combustor.tag = 'Comb'
+    combustor.tag = 'comb'
     combustor.efficiency                = 0.99
     combustor.alphac                    = 1.0
     combustor.turbine_inlet_temperature = 1500
     combustor.pressure_ratio            = 0.95
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()
 
-    #add the combustor to the network
+    # add the combustor to the network
     gt_engine.combustor = combustor
 
-    #Component 7 :core nozzle
+    # Component 7 :core nozzle
     core_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
     core_nozzle.tag = 'core nozzle'
 
     core_nozzle.polytropic_efficiency = 0.95
     core_nozzle.pressure_ratio        = 0.99
 
-    #add the core nozzle to the network
+    # add the core nozzle to the network
     gt_engine.core_nozzle = core_nozzle
 
-    #Component 8 :fan nozzle
+    # Component 8 :fan nozzle
     fan_nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()
     fan_nozzle.tag = 'fan nozzle'
 
     fan_nozzle.polytropic_efficiency = 0.95
     fan_nozzle.pressure_ratio        = 0.98
 
-    #add the fan nozzle to the network
+    # add the fan nozzle to the network
     gt_engine.fan_nozzle = fan_nozzle
 
-    #Component 9 : fan
+    # Component 9 : fan
     fan = SUAVE.Components.Energy.Converters.Fan()
     fan.tag = 'fan'
 
     fan.polytropic_efficiency = 0.93
     fan.pressure_ratio        = 1.7
 
-    #add the fan to the network
+    # add the fan to the network
     gt_engine.fan = fan
 
-    #Component 10 : thrust (to compute the thrust)
+    # Component 10 : thrust (to compute the thrust)
     thrust = SUAVE.Components.Energy.Processes.Thrust()
     thrust.tag ='compute_thrust'
 
-    #total design thrust (includes all the engines)
+    # total design thrust (includes all the engines)
     thrust.total_design             = 37278.0* Units.N #Newtons
 
-    #design sizing conditions
+    # design sizing conditions
     altitude      = 35000.0*Units.ft
     mach_number   = 0.78
     isa_deviation = 0.
@@ -431,7 +431,7 @@ def vehicle_setup():
     # add thrust to the network
     gt_engine.thrust = thrust
 
-    #size the turbofan
+    # size the turbofan
     turbofan_sizing(gt_engine,mach_number,altitude)
 
     # add  gas turbine network gt_engine to the vehicle
