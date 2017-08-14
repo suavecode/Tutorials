@@ -1,16 +1,16 @@
 # Procedure.py
 # 
 # Created:  Mar 2016, M. Vegh
-# Modified: 
+# Modified: Aug 2017, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
 # ----------------------------------------------------------------------    
 
+import numpy as np
+
 import SUAVE
 from SUAVE.Core import Units, Data
-import numpy as np
-import copy
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion.compute_turbofan_geometry import compute_turbofan_geometry
@@ -45,9 +45,7 @@ def setup():
     # post process the results
     procedure.post_process = post_process
         
-    # done!
     return procedure
-
 
 # ----------------------------------------------------------------------        
 #   Target Range Function
@@ -95,8 +93,6 @@ def design_mission(nexus):
     
     return nexus
 
-
-
 # ----------------------------------------------------------------------        
 #   Sizing
 # ----------------------------------------------------------------------    
@@ -113,7 +109,6 @@ def simple_sizing(nexus):
     freestream  = atmosphere.compute_values(altitude)
     freestream0 = atmosphere.compute_values(6000.*Units.ft)  #cabin altitude
     
-    
     diff_pressure         = np.max(freestream0.pressure-freestream.pressure,0)
     fuselage              = base.fuselages['fuselage']
     fuselage.differential_pressure = diff_pressure 
@@ -129,19 +124,15 @@ def simple_sizing(nexus):
     conditions             = SUAVE.Analyses.Mission.Segments.Conditions.Aerodynamics()   #assign conditions in form for propulsor sizing
     conditions.freestream  = freestream
     
-    
     for config in configs:
         config.wings.horizontal_stabilizer.areas.reference = (26.0/92.0)*config.wings.main_wing.areas.reference
             
         for wing in config.wings:
             
             wing = SUAVE.Methods.Geometry.Two_Dimensional.Planform.wing_planform(wing)
-            
             wing.areas.exposed  = 0.8 * wing.areas.wetted
             wing.areas.affected = 0.6 * wing.areas.reference
             
-
-
         fuselage              = config.fuselages['fuselage']
         fuselage.differential_pressure = diff_pressure 
         
@@ -163,7 +154,6 @@ def simple_sizing(nexus):
     altitude = nexus.missions.base.segments[-1].altitude_end
     atmosphere = SUAVE.Analyses.Atmospheric.US_Standard_1976()
     freestream_landing  = atmosphere.compute_values(0.)
-    #p, T, rho, a, mu = atmosphere.compute_values(0.)
     landing_conditions.freestream.velocity           = nexus.missions.base.segments['descent_3'].air_speed
     landing_conditions.freestream.density            = freestream_landing.density
     landing_conditions.freestream.dynamic_viscosity  = freestream_landing.dynamic_viscosity
@@ -177,7 +167,6 @@ def simple_sizing(nexus):
     altitude = nexus.missions.base.airport.altitude
     freestream_takeoff  = atmosphere.compute_values(altitude)
    
-    #p, T, rho, a, mu = atmosphere.compute_values(altitude)
     takeoff_conditions.freestream.velocity           = nexus.missions.base.segments.climb_1.air_speed
     takeoff_conditions.freestream.density            = freestream_takeoff.density
     takeoff_conditions.freestream.dynamic_viscosity  = freestream_takeoff.dynamic_viscosity 
@@ -190,7 +179,6 @@ def simple_sizing(nexus):
     base_conditions.freestream = takeoff_conditions.freestream   
     max_CL_base,CDi = compute_max_lift_coeff(base,base_conditions) 
     base.maximum_lift_coefficient = max_CL_base    
-    # done!
     
     return nexus
 
@@ -219,15 +207,13 @@ def weight(nexus):
     empty_weight    =vehicle.mass_properties.operating_empty
     passenger_weight=vehicle.passenger_weights.mass_properties.mass 
     for config in nexus.vehicle_configurations:
-        #config.mass_properties.max_zero_fuel                = empty_weight+passenger_weight
         config.mass_properties.zero_fuel_center_of_gravity  = vehicle.mass_properties.zero_fuel_center_of_gravity
         config.fuel                                         = vehicle.fuel
        
     return nexus
 
-
 # ----------------------------------------------------------------------
-#   Finalizing Function (make part of optimization nexus)[needs to come after simple sizing doh]
+#   Finalizing Function
 # ----------------------------------------------------------------------    
 
 def finalize(nexus):
@@ -236,8 +222,6 @@ def finalize(nexus):
     
     return nexus         
 
-
-    
 # ----------------------------------------------------------------------
 #   Post Process Results to give back to the optimizer
 # ----------------------------------------------------------------------   
@@ -263,8 +247,6 @@ def post_process(nexus):
         if max_CMA>CMA:
             CMA=max_CMA
             
-
-            
     summary.static_stability = CMA
     
     #throttle in design mission
@@ -273,7 +255,6 @@ def post_process(nexus):
         max_segment_throttle = np.max(segment.conditions.propulsion.throttle[:,0])
         if max_segment_throttle > max_throttle:
             max_throttle = max_segment_throttle
-
             
     summary.max_throttle = max_throttle
     
@@ -287,20 +268,6 @@ def post_process(nexus):
     
     summary.max_zero_fuel_margin    = (design_landing_weight - zero_fuel_weight)/zero_fuel_weight
     summary.base_mission_fuelburn   = design_takeoff_weight - results.base.segments['descent_3'].conditions.weights.total_mass[-1]
- 
-  
-
-    hf = vehicle.fuselages.fuselage.heights.at_wing_root_quarter_chord
-    wf = vehicle.fuselages.fuselage.width
-    Lf = vehicle.fuselages.fuselage.lengths.total
-    Sw = vehicle.wings.main_wing.areas.reference
-    cw = vehicle.wings.main_wing.chords.mean_aerodynamic
-    b  = vehicle.wings.main_wing.spans.projected
-    Sh = vehicle.wings.horizontal_stabilizer.areas.reference
-    Sv = vehicle.wings.vertical_stabilizer.areas.reference
-    lh = vehicle.wings.horizontal_stabilizer.origin[0] + vehicle.wings.horizontal_stabilizer.aerodynamic_center[0] - vehicle.mass_properties.center_of_gravity[0]
-    lv = vehicle.wings.vertical_stabilizer.origin[0] + vehicle.wings.vertical_stabilizer.aerodynamic_center[0] - vehicle.mass_properties.center_of_gravity[0]
-
     
     #when you run want to output results to a file
     filename = 'results.txt'
@@ -325,8 +292,5 @@ def post_process(nexus):
     file.write('\n') 
     file.close()
     '''
-    
-    
-    
     
     return nexus    

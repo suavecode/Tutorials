@@ -25,16 +25,13 @@ def plot_mission(nexus,line_style='bo-'):
     #   Aerodynamics 
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.base.segments.values():
+    for segment in results.segments.values():
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
         CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
         aoa = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
         l_d = CLift/CDrag
-
 
         axes = fig.add_subplot(3,1,1)
         axes.plot( time , CLift , line_style )
@@ -87,43 +84,36 @@ def plot_mission(nexus,line_style='bo-'):
     axes.grid(True)
 
     # ------------------------------------------------------------------
-    #   Altitude, vehicle weight
+    #   Altitude, sfc, vehicle weight
     # ------------------------------------------------------------------
 
-    fig = plt.figure("Altitude, Weight",figsize=(8,10))
-    for segment in results.base.segments.values():
+    fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
+    for segment in results.segments.values():
 
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
-        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
-        aoa    = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        l_d    = CLift/CDrag
-        mass   = segment.conditions.weights.total_mass[:,0] / Units.lb
+        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
+        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        mass     = segment.conditions.weights.total_mass[:,0] / Units.lb
         altitude = segment.conditions.freestream.altitude[:,0] / Units.ft
-        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
-        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc    = 3600. * mdot / 0.1019715 / thrust	
+        mdot     = segment.conditions.weights.vehicle_mass_rate[:,0]
+        thrust   =  segment.conditions.frames.body.thrust_force_vector[:,0]
+        sfc      = (mdot / Units.lb) / (thrust /Units.lbf) * Units.hr
 
-        axes = fig.add_subplot(2,1,1)
+        axes = fig.add_subplot(3,1,1)
         axes.plot( time , altitude , line_style )
         axes.set_ylabel('Altitude (ft)',axis_font)
         axes.grid(True)
 
- 
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , sfc , line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
+        axes.grid(True)
 
-        axes = fig.add_subplot(2,1,2)
+        axes = fig.add_subplot(3,1,2)
         axes.plot( time , mass , 'ro-' )
         axes.set_ylabel('Weight (lb)',axis_font)
         axes.grid(True)
-        
-        
-    
-        
-    
     plt.show(block=True)
-
 
     return
 
