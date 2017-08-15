@@ -1,6 +1,7 @@
 # Optimize.py
 # Created:  Feb 2016, M. Vegh
 # Modified: Aug 2017, E. Botero
+#           Aug 2018, T. MacDonald
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -128,7 +129,7 @@ def setup():
     return nexus
     
 def variable_sweep(problem):    
-    number_of_points = 20
+    number_of_points = 5
     outputs     = carpet_plot(problem, number_of_points, 0, 0)  #run carpet plot, suppressing default plots
     inputs      = outputs.inputs
     objective   = outputs.objective
