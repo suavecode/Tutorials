@@ -367,6 +367,18 @@ def configs_setup(vehicle):
     configs.append(config)
     
     config.maximum_lift_coefficient = 1.2
+    
+    
+    # ------------------------------------------------------------------
+    #   Cruise with Spoilers Configuration
+    # ------------------------------------------------------------------
+
+    config = SUAVE.Components.Configs.Config(base_config)
+    config.tag = 'cruise_spoilers'
+
+    configs.append(config)
+    
+    config.maximum_lift_coefficient = 1.2    
 
 
     # ------------------------------------------------------------------

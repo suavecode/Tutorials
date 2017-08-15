@@ -23,25 +23,23 @@ import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
 # ----------------------------------------------------------------------  
 def main():
     problem = setup()
-    output = problem.objective()
+    #output = problem.objective()
     #uncomment these lines when you want to start an optimization problem from a different initial guess
-    '''
     inputs                                   = [1.28, 1.38]
     scaling                                  = problem.optimization_problem.inputs[:,3] #have to rescale inputs to start problem from here
     scaled_inputs                            = np.multiply(inputs,scaling)
     problem.optimization_problem.inputs[:,1] = scaled_inputs
-    '''
     
     #optimize
-    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    #print output
+    output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    print output
   
     
     #variable_sweep(problem)  #uncomment this to view some contours of the problem
     print 'fuel burn = ', problem.summary.base_mission_fuelburn
     print 'fuel margin = ', problem.all_constraints()
     
-    #Plot_Mission.plot_mission(problem)
+    Plot_Mission.plot_mission(problem)
     
     return
 
