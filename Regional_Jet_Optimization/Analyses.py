@@ -1,7 +1,7 @@
 # Analyses.py
 # 
-# Created:  Mar. 2016, M. Vegh
-# Modified: 
+# Created:  Mar 2016, M. Vegh
+# Modified: Aug 2017, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -20,15 +20,11 @@ def setup(configs):
     # build a base analysis for each config
     for tag,config in configs.items():
         analysis = base(config)
+        if tag == 'cruise_spoilers':
+            # this is done since drag is not sufficient for the desired profile
+            analysis.aerodynamics.settings.spoiler_drag_increment = 0.005       
         analyses[tag] = analysis
 
-    # adjust analyses for configs
-
-    # takeoff_analysis
-    analyses.takeoff.aerodynamics.settings.drag_coefficient_increment = 0.0000
-
-    # landing analysis
-    aerodynamics = analyses.landing.aerodynamics
 
     return analyses
 
@@ -51,7 +47,7 @@ def base(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights()
+    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -59,8 +55,6 @@ def base(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
-
-    aerodynamics.settings.drag_coefficient_increment = 0.0000
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------
@@ -72,7 +66,7 @@ def base(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.propulsors
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -86,5 +80,4 @@ def base(vehicle):
     atmosphere.features.planet = planet.features
     analyses.append(atmosphere)   
 
-    # done!
     return analyses 

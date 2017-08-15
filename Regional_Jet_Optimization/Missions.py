@@ -1,8 +1,7 @@
 # Missions.py
 # 
 # Created:  Mar 2016, M. Vegh
-# Modified: 
-
+# Modified: Aug 2017, E. Botero
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -28,13 +27,7 @@ def setup(analyses):
     base_mission = base(analyses)
     missions.base = base_mission 
  
-
-    
-
-
-
     return missions  
-
     
 def base(analyses):
     
@@ -169,7 +162,7 @@ def base(analyses):
     
     
     # ------------------------------------------------------------------
-    #   Cruise Segment: constant speed, constant altitude
+    #   Cruise Segment: Constant Speed, Constant Altitude
     # ------------------------------------------------------------------
 
     segment = Segments.Cruise.Constant_Speed_Constant_Altitude()
@@ -189,7 +182,7 @@ def base(analyses):
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
-    #   First Descent Segment: consant speed, constant segment rate
+    #   First Descent Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
@@ -209,16 +202,15 @@ def base(analyses):
     # add to mission
     mission.append_segment(segment)
 
-
     # ------------------------------------------------------------------
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
     segment.tag = "descent_2"
 
     # connect vehicle configuration
-    segment.analyses.extend( analyses.cruise )
+    segment.analyses.extend( analyses.cruise_spoilers )
 
     # segment attributes
     segment.atmosphere   = atmosphere
@@ -231,9 +223,8 @@ def base(analyses):
     # append to mission
     mission.append_segment(segment)
 
-
     # ------------------------------------------------------------------
-    #   Third Descent Segment: consant speed, constant segment rate
+    #   Third Descent Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate()
@@ -264,10 +255,6 @@ def base(analyses):
     #------------------------------------------------------------------
     
     # ------------------------------------------------------------------
-    #   First Climb Segment: constant Mach, constant segment angle
-    # ------------------------------------------------------------------
-    
-    # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Throttle
     # ------------------------------------------------------------------
  
@@ -288,8 +275,6 @@ def base(analyses):
  
     # add to misison
     mission.append_segment(segment)
-
-    
     
     # ------------------------------------------------------------------
     #   Cruise Segment: constant speed, constant altitude
@@ -318,7 +303,6 @@ def base(analyses):
     
     mission.append_segment(segment)    
     
-    
     # ------------------------------------------------------------------
     #  Final Descent Segment: consant speed, constant segment rate
     # ------------------------------------------------------------------
@@ -327,13 +311,9 @@ def base(analyses):
     segment.tag = "reserve_descent_1"
     
     segment.analyses.extend( analyses.landing )
-    analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
-    
     
     segment.altitude_end = 0.0   * Units.km
     segment.descent_rate = 3.0   * Units['m/s']
-    
-    
     segment.mach_end    = 0.24
     segment.mach_start  = 0.3
     
@@ -344,12 +324,7 @@ def base(analyses):
     ###         Reserve mission completed
     #------------------------------------------------------------------
     
-
     return mission
-
-
-
-
 
 # ----------------------------------------------------------------------        
 #   Call Main

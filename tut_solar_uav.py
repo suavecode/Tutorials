@@ -1,22 +1,17 @@
 # tut_solar_UAV.py
 # 
 # Created:  Jul 2014, E. Botero
-# Modified: Jan 2017, E. Botero
+# Modified: Aug 2017, E. Botero
 
 #----------------------------------------------------------------------
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
-from SUAVE.Core import Units
-
-from SUAVE.Core import (
-Data, Container
-)
+from SUAVE.Core import Units, Data
 
 import numpy as np
 import pylab as plt
-import matplotlib
-import copy, time
+import time
 
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
@@ -104,7 +99,7 @@ def vehicle_setup():
     wing.tag = 'main_wing'
     
     wing.areas.reference         = vehicle.reference_area
-    wing.spans.projected         = 40.0
+    wing.spans.projected         = 40.0 * Units.meter
     wing.aspect_ratio            = (wing.spans.projected**2)/wing.areas.reference 
     wing.sweeps.quarter_chord    = 0.0 * Units.deg
     wing.symmetric               = True
@@ -119,13 +114,12 @@ def vehicle_setup():
     wing.twists.tip              = 0.0 * Units.degrees
     wing.highlift                = False  
     wing.vertical                = False 
-    wing.eta                     = 1.0
     wing.number_ribs             = 26.
     wing.number_end_ribs         = 2.
     wing.transition_x_upper      = 0.6
     wing.transition_x_lower      = 1.0
-    wing.origin                  = [3.0,0.0,0.0]
-    wing.aerodynamic_center      = [3.0,0.0,0.0] 
+    wing.origin                  = [3.0,0.0,0.0] # meters
+    wing.aerodynamic_center      = [3.0,0.0,0.0] # meters
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -149,7 +143,7 @@ def vehicle_setup():
     wing.spans.projected      = np.sqrt(wing.aspect_ratio*wing.areas.reference)
     wing.twists.root          = 0.0 * Units.degrees
     wing.twists.tip           = 0.0 * Units.degrees      
-               
+    
     wing.vertical                = False 
     wing.symmetric               = True
     wing.dynamic_pressure_ratio  = 0.9      
@@ -157,8 +151,8 @@ def vehicle_setup():
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  
-    wing.origin                  = [10.,0.0,0.0]
-    wing.aerodynamic_center      = [0.5,0.0,0.0]   
+    wing.origin                  = [10.,0.0,0.0] # meters
+    wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
   
     # add to vehicle
     vehicle.append_component(wing)    
@@ -182,14 +176,13 @@ def vehicle_setup():
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected 
-
     wing.areas.wetted            = 2.0 * wing.areas.reference
     wing.areas.exposed           = 0.8 * wing.areas.wetted
     wing.areas.affected          = 0.6 * wing.areas.wetted    
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
-    wing.origin                  = [10.,0.0,0.0]
-    wing.aerodynamic_center      = [0.5,0.0,0.0]        
+    wing.origin                  = [10.,0.0,0.0] # meters
+    wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
     wing.symmetric               = True          
     wing.vertical                = True 
     wing.t_tail                  = False
@@ -206,10 +199,10 @@ def vehicle_setup():
     # build network
     net = Solar()
     net.number_of_engines = 1.
-    net.nacelle_diameter  = 0.2
-    net.engine_length     = 0.01
+    net.nacelle_diameter  = 0.2 * Units.meters
+    net.engine_length     = 0.01 * Units.meters
     net.areas             = Data()
-    net.areas.wetted      = 0.01*(2*np.pi*0.01/2)
+    net.areas.wetted      = 0.01*(2*np.pi*0.01/2.)
     
     # Component 1 the Sun?
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
@@ -228,18 +221,17 @@ def vehicle_setup():
     net.esc        = esc
     
     # Component 5 the Propeller
-    
     # Design the Propeller
     prop_attributes = Data()
     prop_attributes.number_blades       = 2.0
-    prop_attributes.freestream_velocity = 40.0 # freestream m/s
+    prop_attributes.freestream_velocity = 40.0 * Units['m/s']# freestream
     prop_attributes.angular_velocity    = 150. * Units['rpm']
-    prop_attributes.tip_radius          = 4.25
-    prop_attributes.hub_radius          = 0.05
+    prop_attributes.tip_radius          = 4.25 * Units.meters
+    prop_attributes.hub_radius          = 0.05 * Units.meters
     prop_attributes.design_Cl           = 0.7
     prop_attributes.design_altitude     = 14.0 * Units.km
-    prop_attributes.design_thrust       = 0.0
-    prop_attributes.design_power        = 3500.0
+    prop_attributes.design_thrust       = 0.0 
+    prop_attributes.design_power        = 3500.0 * Units.watts
     prop_attributes                     = propeller_design(prop_attributes)
     
     prop = SUAVE.Components.Energy.Converters.Propeller()
@@ -249,31 +241,31 @@ def vehicle_setup():
     # Component 4 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor()
     motor.resistance           = 0.008
-    motor.no_load_current      = 4.5
+    motor.no_load_current      = 4.5  * Units.Ampere
     motor.speed_constant       = 120. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
     motor.propeller_radius     = prop.prop_attributes.tip_radius
     motor.propeller_Cp         = prop.prop_attributes.Cp
     motor.gear_ratio           = 12. # Gear ratio
     motor.gearbox_efficiency   = .98 # Gear box efficiency
     motor.expected_current     = 160. # Expected current
-    motor.mass_properties.mass = 2.0
+    motor.mass_properties.mass = 2.0  * Units.kg
     net.motor                  = motor    
     
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()
-    payload.power_draw           = 50. #Watts 
+    payload.power_draw           = 50. * Units.Watts 
     payload.mass_properties.mass = 5.0 * Units.kg
     net.payload                  = payload
     
     # Component 7 the Avionics
     avionics = SUAVE.Components.Energy.Peripherals.Avionics()
-    avionics.power_draw = 50. #Watts  
+    avionics.power_draw = 50. * Units.Watts
     net.avionics        = avionics      
 
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 55.0 * Units.kg
-    bat.specific_energy      = 450.*Units.Wh/Units.kg
+    bat.specific_energy      = 450. * Units.Wh/Units.kg
     bat.resistance           = 0.05
     initialize_from_mass(bat,bat.mass_properties.mass)
     net.battery              = bat
@@ -288,7 +280,6 @@ def vehicle_setup():
     vehicle.append_component(net)  
 
     return vehicle
-
 
 # ----------------------------------------------------------------------
 #   Define the Configurations
@@ -315,7 +306,6 @@ def configs_setup(vehicle):
     
     configs.append(config)
     
-    # done!
     return configs
 
 
@@ -349,7 +339,7 @@ def base_analysis(vehicle):
     
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights()
+    weights = SUAVE.Analyses.Weights.Weights_UAV()
     weights.settings.empty_weight_method = \
         SUAVE.Methods.Weights.Correlations.Human_Powered.empty
     weights.vehicle = vehicle
@@ -427,8 +417,8 @@ def mission_setup(analyses,vehicle):
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
     segment.battery_energy = vehicle.propulsors.network.battery.max_energy*0.2 #Charge the battery to start
-    segment.latitude       = 37.4300
-    segment.longitude      = -122.1700
+    segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
+    segment.longitude      = -122.1700 # this defaults to degrees
     
     mission.append_segment(segment)    
 
@@ -576,7 +566,6 @@ def plot_mission(results):
         cdm = drag_breakdown.miscellaneous.total[:,0]
         cd  = drag_breakdown.total[:,0]
         
-        
         axes.plot( time , cdp , 'ko-', label='CD_P' )
         axes.plot( time , cdi , 'bo-', label='CD_I' )
         axes.plot( time , cdc , 'go-', label='CD_C' )
@@ -589,7 +578,6 @@ def plot_mission(results):
     axes.set_xlabel('Time (min)')
     axes.set_ylabel('CD')
     axes.grid(True)
-    
     
     # ------------------------------------------------------------------    
     #   Battery Energy
@@ -680,8 +668,6 @@ def plot_mission(results):
     axes.grid(True)      
     plt.ylim((0,1))
 
-    
-    
     # ------------------------------------------------------------------
     #   Flight Conditions
     # ------------------------------------------------------------------
@@ -718,7 +704,6 @@ def plot_mission(results):
     # ------------------------------------------------------------------    
     #  Solar Flux, Charging Power, Battery Energy
     # ------------------------------------------------------------------
-
     
     fig = plt.figure("Electric Outputs")
     for segment in results.segments.values():
@@ -743,7 +728,6 @@ def plot_mission(results):
         axes.set_xlabel('Time (min)')
         axes.set_ylabel('Battery Energy (MJ)')
         axes.grid(True)        
-    
     
     return     
 
