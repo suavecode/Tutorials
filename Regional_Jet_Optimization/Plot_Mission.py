@@ -17,7 +17,7 @@ import pylab as plt
 # ----------------------------------------------------------------------
 
 def plot_mission(nexus,line_style='bo-'):
-    results=nexus.results.base
+    results   = nexus.results.base
     axis_font = {'fontname':'Arial', 'size':'14'}    
 
 

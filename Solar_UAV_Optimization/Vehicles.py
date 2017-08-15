@@ -71,7 +71,6 @@ def base_setup():
     wing.twists.tip              = 0.0 * Units.degrees
     wing.highlift                = False  
     wing.vertical                = False 
-    wing.eta                     = 1.0
     wing.number_ribs             = 26.
     wing.number_end_ribs         = 2.
     wing.transition_x_upper      = 0.6

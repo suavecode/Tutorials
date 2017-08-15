@@ -1,6 +1,7 @@
 # Optimize.py
 # Created:  Feb 2016, M. Vegh
 # Modified: Aug 2017, E. Botero
+#           Aug 2018, T. MacDonald
 
 # ----------------------------------------------------------------------        
 #   Imports
@@ -23,19 +24,25 @@ import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
 # ----------------------------------------------------------------------  
 def main():
     problem = setup()
-    #output = problem.objective()
-    #uncomment these lines when you want to start an optimization problem from a different initial guess
-    inputs                                   = [1.28, 1.38]
-    scaling                                  = problem.optimization_problem.inputs[:,3] #have to rescale inputs to start problem from here
-    scaled_inputs                            = np.multiply(inputs,scaling)
-    problem.optimization_problem.inputs[:,1] = scaled_inputs
     
-    #optimize
-    output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    print output
+    ## Base Input Values
+    output = problem.objective()
+    
+    ## Uncomment to view contours of the design space
+    #variable_sweep(problem)
+    
+    ## Uncomment for the first optimization
+    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    #print output    
+    
+    ## Uncomment these lines when you want to start an optimization problem from a different initial guess
+    #inputs                                   = [1.28, 1.38]
+    #scaling                                  = problem.optimization_problem.inputs[:,3] #have to rescale inputs to start problem from here
+    #scaled_inputs                            = np.multiply(inputs,scaling)
+    #problem.optimization_problem.inputs[:,1] = scaled_inputs
+    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    #print output        
   
-    
-    #variable_sweep(problem)  #uncomment this to view some contours of the problem
     print 'fuel burn = ', problem.summary.base_mission_fuelburn
     print 'fuel margin = ', problem.all_constraints()
     
@@ -125,33 +132,23 @@ def setup():
     
 def variable_sweep(problem):    
     number_of_points = 5
-    outputs=carpet_plot(problem, number_of_points, 0, 0)  #run carpet plot, suppressing default plots
-    inputs =outputs.inputs
-    objective=outputs.objective
-    constraints=outputs.constraint_val
+    outputs     = carpet_plot(problem, number_of_points, 0, 0)  #run carpet plot, suppressing default plots
+    inputs      = outputs.inputs
+    objective   = outputs.objective
+    constraints = outputs.constraint_val
     plt.figure(0)
-    CS = plt.contourf(inputs[0,:],inputs[1,:], objective, 20, linewidths=2)
+    CS   = plt.contourf(inputs[0,:],inputs[1,:], objective, 20, linewidths=2)
     cbar = plt.colorbar(CS)
     
     cbar.ax.set_ylabel('fuel burn (kg)')
-    CS_const=plt.contour(inputs[0,:],inputs[1,:], constraints[0,:,:])
+    CS_const = plt.contour(inputs[0,:],inputs[1,:], constraints[0,:,:])
     plt.clabel(CS_const, inline=1, fontsize=10)
     cbar = plt.colorbar(CS_const)
     cbar.ax.set_ylabel('fuel margin')
     
-    plt.xlabel('wing area (m^2)')
-    plt.ylabel('cruise_altitude (km)')
+    plt.xlabel('Wing Area (m^2)')
+    plt.ylabel('Cruise Altitude (km)')
     
-    #now plot optimization path (note that these data points were post-processed into a plottable format)
-    '''
-    opt_1   = plt.plot(wing_1, alt_1, label='optimization path 1')
-    init_1  = plt.plot(wing_1[0], alt_1[0], 'ko')
-    final_1 = plt.plot(wing_1[-1], alt_1[-1], 'kx')
-    
-    opt_2   = plt.plot(wing_2, alt_2, 'k--', label='optimization path 2')
-    init_2  = plt.plot(wing_2[0], alt_2[0], 'ko', label= 'initial points')
-    final_2 = plt.plot(wing_2[-1], alt_2[-1], 'kx', label= 'final points')
-    '''
     plt.legend(loc='upper left')  
     plt.show(block=True)    
     
