@@ -20,7 +20,10 @@ def setup(configs):
     # build a base analysis for each config
     for tag,config in configs.items():
         analysis = base(config)
+        if tag == 'cruise_spoilers':
+            analysis.aerodynamics.settings.spoiler_drag_increment = 0.005       
         analyses[tag] = analysis
+
 
     return analyses
 

@@ -210,7 +210,7 @@ def base(analyses):
     segment.tag = "descent_2"
 
     # connect vehicle configuration
-    segment.analyses.extend( analyses.cruise )
+    segment.analyses.extend( analyses.cruise_spoilers )
 
     # segment attributes
     segment.atmosphere   = atmosphere

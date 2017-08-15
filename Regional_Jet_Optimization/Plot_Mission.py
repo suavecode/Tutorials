@@ -17,7 +17,7 @@ import pylab as plt
 # ----------------------------------------------------------------------
 
 def plot_mission(nexus,line_style='bo-'):
-    results=nexus.results
+    results   = nexus.results.base
     axis_font = {'fontname':'Arial', 'size':'14'}    
 
 
@@ -54,7 +54,7 @@ def plot_mission(nexus,line_style='bo-'):
     # ------------------------------------------------------------------
     fig = plt.figure("Drag Components",figsize=(8,10))
     axes = plt.gca()
-    for i, segment in enumerate(results.base.segments.values()):
+    for i, segment in enumerate(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
