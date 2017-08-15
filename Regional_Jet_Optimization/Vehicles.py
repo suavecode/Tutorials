@@ -44,8 +44,8 @@ def base_setup():
     vehicle.mass_properties.max_payload               = 13063. * Units.kg
     vehicle.mass_properties.max_fuel                  = 12971. * Units.kg
 
-    vehicle.mass_properties.center_of_gravity         = [18. , 0, 0]
-    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
+    vehicle.mass_properties.center_of_gravity         = [18., 0, 0]
+    #vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
 
     # envelope properties
     vehicle.envelope.ultimate_load = 3.5
