@@ -284,15 +284,15 @@ def vehicle_setup():
     segment.thickness_to_chord    = 0.10
     wing.Segments.append(segment)     
     
-    #segment = SUAVE.Components.Wings.Segment()
-    #segment.tag                   = 'section_7'
-    #segment.percent_span_location = 0.97
-    #segment.twist                 = 0. * Units.deg
-    #segment.root_chord_percent    = 0.086
-    #segment.dihedral_outboard     = 73. * Units.degrees
-    #segment.sweeps.quarter_chord  = 55. * Units.degrees
-    #segment.thickness_to_chord    = 0.10
-    #wing.Segments.append(segment)      
+    segment = SUAVE.Components.Wings.Segment()
+    segment.tag                   = 'section_7'
+    segment.percent_span_location = 0.97
+    segment.twist                 = 0. * Units.deg
+    segment.root_chord_percent    = 0.086
+    segment.dihedral_outboard     = 73. * Units.degrees
+    segment.sweeps.quarter_chord  = 55. * Units.degrees
+    segment.thickness_to_chord    = 0.10
+    wing.Segments.append(segment)      
 
     # add to vehicle
     vehicle.append_component(wing)
