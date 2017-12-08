@@ -241,7 +241,7 @@ def vehicle_setup():
     # Component 4 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor()
     motor.resistance           = 0.008
-    motor.no_load_current      = 4.5  * Units.Ampere
+    motor.no_load_current      = 4.5  * Units.ampere
     motor.speed_constant       = 120. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
     motor.propeller_radius     = prop.prop_attributes.tip_radius
     motor.propeller_Cp         = prop.prop_attributes.Cp
@@ -253,13 +253,13 @@ def vehicle_setup():
     
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()
-    payload.power_draw           = 50. * Units.Watts 
+    payload.power_draw           = 50. * Units.watts 
     payload.mass_properties.mass = 5.0 * Units.kg
     net.payload                  = payload
     
     # Component 7 the Avionics
     avionics = SUAVE.Components.Energy.Peripherals.Avionics()
-    avionics.power_draw = 50. * Units.Watts
+    avionics.power_draw = 50. * Units.watts
     net.avionics        = avionics      
 
     # Component 8 the Battery
