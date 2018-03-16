@@ -109,6 +109,8 @@ def vehicle_setup():
     wing.high_lift               = True 
     wing.dynamic_pressure_ratio  = 1.0
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected
+    wing.chords.root             = wing.areas.reference/wing.spans.projected
+    wing.chords.tip              = wing.areas.reference/wing.spans.projected
     wing.span_efficiency         = 0.98 
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
