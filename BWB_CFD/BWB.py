@@ -518,13 +518,7 @@ def configs_setup(vehicle):
     
     write(vehicle,base_config.tag) 
 
-
-    # done!
     return configs
-
-# ----------------------------------------------------------------------
-#   Sizing for the Vehicle Configs
-# ----------------------------------------------------------------------
 
 # ----------------------------------------------------------------------
 #   Plot Mission
@@ -537,8 +531,6 @@ def plot_mission(results,line_style='bo-'):
     # ------------------------------------------------------------------
     #   Aerodynamics
     # ------------------------------------------------------------------
-
-
     fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
     for segment in results.segments.values():
 
@@ -597,7 +589,7 @@ def plot_mission(results,line_style='bo-'):
         axes.grid(True)
 
     # ------------------------------------------------------------------
-    #   Aerodynamics 2
+    #   Aerodynamics 3
     # ------------------------------------------------------------------
     fig = plt.figure("Drag Components",figsize=(8,10))
     axes = plt.gca()
@@ -714,12 +706,6 @@ def simple_sizing(configs):
     # zero fuel weight
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
 
-    ## wing areas
-    #for wing in base.wings:
-        #wing.areas.wetted   = 2.0 * wing.areas.reference
-        #wing.areas.exposed  = 0.8 * wing.areas.wetted
-        #wing.areas.affected = 0.6 * wing.areas.wetted
-
     # Areas
     wetted_areas = get_vsp_areas(base.tag)
 
@@ -731,7 +717,6 @@ def simple_sizing(configs):
     # diff the new data
     base.store_diff()
 
-    # done!
     return
 
 # ----------------------------------------------------------------------
@@ -761,7 +746,7 @@ def mission_setup(analyses):
     base_segment = Segments.Segment()
 
     # ------------------------------------------------------------------
-    #   First Climb Segment: constant Mach, constant segment angle 
+    #   First Climb Segment
     # ------------------------------------------------------------------
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -782,7 +767,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Second Climb Segment: constant Speed, constant segment angle 
+    #   Second Climb Segment
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -799,7 +784,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Climb Segment: constant Mach, constant segment angle 
+    #   Third Climb Segment
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -816,7 +801,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------    
-    #   Cruise Segment: constant speed, constant altitude
+    #   Cruise Segment
     # ------------------------------------------------------------------    
 
     segment = Segments.Cruise.Constant_Mach_Constant_Altitude(base_segment)
@@ -832,7 +817,7 @@ def mission_setup(analyses):
 
 
 # ------------------------------------------------------------------
-#   First Descent Segment: consant speed, constant segment rate
+#   First Descent Segment
 # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -849,7 +834,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -866,7 +851,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Descent Segment: consant speed, constant segment rate
+    #   Third Descent Segment
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -883,7 +868,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Fourth Descent Segment: consant speed, constant segment rate
+    #   Fourth Descent Segment
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -913,7 +898,6 @@ def mission_setup(analyses):
     segment.altitude_end = 0.0   * Units.km
     segment.air_speed    = 145.0 * Units['m/s']
     segment.descent_rate = 3.0   * Units['m/s']
-
 
     # append to mission
     mission.append_segment(segment)
