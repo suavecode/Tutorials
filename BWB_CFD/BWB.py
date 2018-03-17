@@ -816,9 +816,9 @@ def mission_setup(analyses):
     mission.append_segment(segment)
 
 
-# ------------------------------------------------------------------
-#   First Descent Segment
-# ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    #   First Descent Segment
+    # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_1"
@@ -887,7 +887,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Fifth Descent Segment: consant speed, constant segment rate
+    #   Fifth Descent Segment
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -919,8 +919,6 @@ def missions_setup(base_mission):
 
     missions.base = base_mission
 
-
-    # done!
     return missions  
 
 if __name__ == '__main__': 
