@@ -241,9 +241,7 @@ def vehicle_setup():
     wing.chords.root             = 4.7  * Units.meter
     wing.chords.tip              = .955 * Units.meter
     wing.chords.mean_aerodynamic = 8.0  * Units.meter
-    wing.areas.reference         = 32.488   * Units['meters**2']  
-    wing.areas.exposed           = 199.7792 * Units['meters**2']  
-    wing.areas.wetted            = 249.724  * Units['meters**2']  
+    wing.areas.reference         = 32.488   * Units['meters**2']   
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     wing.origin                  = [32.83,0,1.14] # meters
