@@ -315,7 +315,7 @@ def vehicle_setup():
     gt_engine.nacelle_diameter  = 2.05
 
     # set the working fluid for the network
-    gt_engine.working_fluid = SUAVE.Attributes.Gases.Air
+    gt_engine.working_fluid = SUAVE.Attributes.Gases.Air()
 
     # Component 1 : ram,  to convert freestream static to stagnation quantities
     ram = SUAVE.Components.Energy.Converters.Ram()

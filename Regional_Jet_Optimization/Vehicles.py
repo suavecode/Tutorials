@@ -45,7 +45,6 @@ def base_setup():
     vehicle.mass_properties.max_fuel                  = 12971. * Units.kg
 
     vehicle.mass_properties.center_of_gravity         = [18., 0, 0]
-    #vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] # Not Correct
 
     # envelope properties
     vehicle.envelope.ultimate_load = 3.5
@@ -196,7 +195,7 @@ def base_setup():
     gt_engine.nacelle_diameter  = 2.05
 
     #set the working fluid for the network
-    gt_engine.working_fluid = SUAVE.Attributes.Gases.Air
+    gt_engine.working_fluid = SUAVE.Attributes.Gases.Air()
 
 
     #Component 1 : ram,  to convert freestream static to stagnation quantities
