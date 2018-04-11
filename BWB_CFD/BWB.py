@@ -1,7 +1,7 @@
 # BWB.py
 # 
 # Created:  Jan 2017, E. Botero
-# Modified: Aug 2017, E. Botero
+# Modified: Mar 2018, T. MacDonald
 
 # ----------------------------------------------------------------------
 #   Imports
@@ -107,13 +107,14 @@ def base_analysis(vehicle):
     aerodynamics = SUAVE.Analyses.Aerodynamics.SU2_Euler()
     aerodynamics.geometry = vehicle
     
-    #aerodynamics.process.compute.lift.inviscid.settings.parallel   = True
-    #aerodynamics.process.compute.lift.inviscid.settings.processors = 12  
-    #aerodynamics.process.compute.lift.inviscid.training_file       = 'base_data.txt'
+    #aerodynamics.process.compute.lift.inviscid.settings.parallel          = True
+    #aerodynamics.process.compute.lift.inviscid.settings.processors        = 12  
+    #aerodynamics.process.compute.lift.inviscid.training_file              = 'base_data_1500.txt'
+    aerodynamics.process.compute.lift.inviscid.settings.maximum_iterations = 1500
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     
-    aerodynamics.process.compute.lift.inviscid.training.Mach             = np.array([.3, .5, .7, .85]) 
-    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack  = np.array([0.,3.,6.]) * Units.deg    
+    aerodynamics.process.compute.lift.inviscid.training.Mach               = np.array([.3, .5, .7, .85]) 
+    aerodynamics.process.compute.lift.inviscid.training.angle_of_attack    = np.array([0.,3.,6.]) * Units.deg    
     
     wing_segments = vehicle.wings.main_wing.Segments
     wing_segments.section_1.vsp_mesh = Data()
@@ -208,20 +209,27 @@ def vehicle_setup():
     wing.thickness_to_chord      = 0.15
     wing.taper                   = 0.0138
     wing.span_efficiency         = 0.95
+    
     wing.spans.projected         = 289.0 * Units.feet    
+
     wing.chords.root             = 145.0 * Units.feet
     wing.chords.tip              = 3.5   * Units.feet
     wing.chords.mean_aerodynamic = 86.   * Units.feet
+
     wing.areas.reference         = 15680. * Units.feet**2   
     wing.sweeps.quarter_chord    = 33. * Units.degrees
+
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     wing.dihedral                = 2.5 * Units.degrees
+
     wing.origin                  = [0.,0.,0]
     wing.aerodynamic_center      = [0,0,0] 
+
     wing.vertical                = False
     wing.symmetric               = True
     wing.high_lift               = True
+
     wing.dynamic_pressure_ratio  = 1.0
 
     segment = SUAVE.Components.Wings.Segment()
@@ -484,6 +492,7 @@ def vehicle_setup():
     
     vehicle.append_component(turbofan)  
 
+
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------
@@ -510,6 +519,184 @@ def configs_setup(vehicle):
     write(vehicle,base_config.tag) 
 
     return configs
+
+# ----------------------------------------------------------------------
+#   Plot Mission
+# ----------------------------------------------------------------------
+
+def plot_mission(results,line_style='bo-'):
+
+    axis_font = {'fontname':'Arial', 'size':'14'}    
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
+    for segment in results.segments.values():
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0] / Units.lbf
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lbf
+        eta  = segment.conditions.propulsion.throttle[:,0]
+        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
+        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
+        sfc    = 3600. * mdot / 0.1019715 / thrust	
+
+
+        axes = fig.add_subplot(2,1,1)
+        axes.plot( time , Thrust , line_style )
+        axes.set_ylabel('Thrust (lbf)',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(2,1,2)
+        axes.plot( time , eta , line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Throttle',axis_font)
+        axes.grid(True)	
+
+
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
+    for segment in results.segments.values():
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
+        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+        aoa = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        l_d = CLift/CDrag
+
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , CLift , line_style )
+        axes.set_ylabel('Lift Coefficient',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , l_d , line_style )
+        axes.set_ylabel('L/D',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , aoa , 'ro-' )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('AOA (deg)',axis_font)
+        axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 3
+    # ------------------------------------------------------------------
+    fig = plt.figure("Drag Components",figsize=(8,10))
+    axes = plt.gca()
+    for i, segment in enumerate(results.segments.values()):
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
+        cdp = drag_breakdown.parasite.total[:,0]
+        cdi = drag_breakdown.induced.total[:,0]
+        cdc = drag_breakdown.compressible.total[:,0]
+        cdm = drag_breakdown.miscellaneous.total[:,0]
+        cd  = drag_breakdown.total[:,0]
+
+        if line_style == 'bo-':
+            axes.plot( time , cdp , 'ko-', label='CD parasite' )
+            axes.plot( time , cdi , 'bo-', label='CD induced' )
+            axes.plot( time , cdc , 'go-', label='CD compressibility' )
+            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
+            axes.plot( time , cd  , 'ro-', label='CD total'   )
+            if i == 0:
+                axes.legend(loc='upper center')            
+        else:
+            axes.plot( time , cdp , line_style )
+            axes.plot( time , cdi , line_style )
+            axes.plot( time , cdc , line_style )
+            axes.plot( time , cdm , line_style )
+            axes.plot( time , cd  , line_style )            
+
+    axes.set_xlabel('Time (min)')
+    axes.set_ylabel('CD')
+    axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Altitude, sfc, vehicle weight
+    # ------------------------------------------------------------------
+
+    fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
+    for segment in results.segments.values():
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
+        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+        aoa    = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+        l_d    = CLift/CDrag
+        mass   = segment.conditions.weights.total_mass[:,0] / Units.lb
+        altitude = segment.conditions.freestream.altitude[:,0] / Units.ft
+        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
+        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
+        sfc    = 3600. * mdot / 0.1019715 / thrust	
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , altitude , line_style )
+        axes.set_ylabel('Altitude (ft)',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , sfc , line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , mass , 'ro-' )
+        axes.set_ylabel('Weight (lb)',axis_font)
+        axes.grid(True)
+
+    # ------------------------------------------------------------------
+    #   Aerodynamics 2
+    # ------------------------------------------------------------------
+    fig = plt.figure("Velocities",figsize=(8,10))
+    for segment in results.segments.values():
+
+        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
+        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
+        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0] / Units.lbf
+        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lbf
+        eta  = segment.conditions.propulsion.throttle[:,0]
+        mdot   = segment.conditions.weights.vehicle_mass_rate[:,0]
+        thrust =  segment.conditions.frames.body.thrust_force_vector[:,0]
+        sfc    = 3600. * mdot / 0.1019715 / thrust
+        velocity  = segment.conditions.freestream.velocity[:,0]
+        pressure  = segment.conditions.freestream.pressure[:,0]
+        density  = segment.conditions.freestream.density[:,0]
+        EAS = velocity * np.sqrt(density/1.225)
+        mach = segment.conditions.freestream.mach_number[:,0]
+
+
+        axes = fig.add_subplot(3,1,1)
+        axes.plot( time , velocity / Units.kts, line_style )
+        axes.set_ylabel('velocity (kts)',axis_font)
+        axes.grid(True)
+
+        axes = fig.add_subplot(3,1,2)
+        axes.plot( time , EAS / Units.kts, line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Equivalent Airspeed',axis_font)
+        axes.grid(True)    
+        
+        axes = fig.add_subplot(3,1,3)
+        axes.plot( time , mach , line_style )
+        axes.set_xlabel('Time (min)',axis_font)
+        axes.set_ylabel('Mach',axis_font)
+        axes.grid(True)           
+        
+    return
 
 def simple_sizing(configs):
 
@@ -597,7 +784,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Third Climb Segment: constant Mach, constant segment angle 
+    #   Third Climb Segment
     # ------------------------------------------------------------------    
 
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
@@ -629,9 +816,9 @@ def mission_setup(analyses):
     mission.append_segment(segment)
 
 
-# ------------------------------------------------------------------
-#   First Descent Segment
-# ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    #   First Descent Segment
+    # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
     segment.tag = "descent_1"
@@ -647,7 +834,7 @@ def mission_setup(analyses):
 
 
     # ------------------------------------------------------------------
-    #   Second Descent Segment: consant speed, constant segment rate
+    #   Second Descent Segment
     # ------------------------------------------------------------------
 
     segment = Segments.Descent.Constant_Speed_Constant_Rate(base_segment)
@@ -697,6 +884,8 @@ def mission_setup(analyses):
     # add to mission
     mission.append_segment(segment)
 
+
+
     # ------------------------------------------------------------------
     #   Fifth Descent Segment
     # ------------------------------------------------------------------
@@ -731,176 +920,6 @@ def missions_setup(base_mission):
     missions.base = base_mission
 
     return missions  
-
-# ----------------------------------------------------------------------
-#   Plot Mission
-# ----------------------------------------------------------------------
-
-def plot_mission(results,line_style='bo-'):
-
-    axis_font = {'fontname':'Arial', 'size':'14'}    
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics
-    # ------------------------------------------------------------------
-
-
-    fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lbf
-        eta    = segment.conditions.propulsion.throttle[:,0]
-
-        axes = fig.add_subplot(2,1,1)
-        axes.plot( time , Thrust , line_style )
-        axes.set_ylabel('Thrust (lbf)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(2,1,2)
-        axes.plot( time , eta , line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Throttle',axis_font)
-        axes.grid(True)	
-
-        plt.savefig("B737_engine.pdf")
-        plt.savefig("B737_engine.png")
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
-        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        aoa = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        l_d = CLift/CDrag
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , CLift , line_style )
-        axes.set_ylabel('Lift Coefficient',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , l_d , line_style )
-        axes.set_ylabel('L/D',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , aoa , 'ro-' )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('AOA (deg)',axis_font)
-        axes.grid(True)
-
-        plt.savefig("B737_aero.pdf")
-        plt.savefig("B737_aero.png")
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Drag Components",figsize=(8,10))
-    axes = plt.gca()
-    for i, segment in enumerate(results.segments.values()):
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-        cdp = drag_breakdown.parasite.total[:,0]
-        cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
-        cdm = drag_breakdown.miscellaneous.total[:,0]
-        cd  = drag_breakdown.total[:,0]
-
-        if line_style == 'bo-':
-            axes.plot( time , cdp , 'ko-', label='CD parasite' )
-            axes.plot( time , cdi , 'bo-', label='CD induced' )
-            axes.plot( time , cdc , 'go-', label='CD compressibility' )
-            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-            axes.plot( time , cd  , 'ro-', label='CD total'   )
-            if i == 0:
-                axes.legend(loc='upper center')            
-        else:
-            axes.plot( time , cdp , line_style )
-            axes.plot( time , cdi , line_style )
-            axes.plot( time , cdc , line_style )
-            axes.plot( time , cdm , line_style )
-            axes.plot( time , cd  , line_style )            
-
-    axes.set_xlabel('Time (min)')
-    axes.set_ylabel('CD')
-    axes.grid(True)
-    plt.savefig("B737_drag.pdf")
-    plt.savefig("B737_drag.png")
-
-    # ------------------------------------------------------------------
-    #   Altitude, sfc, vehicle weight
-    # ------------------------------------------------------------------
-
-    fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
-    for segment in results.segments.values():
-
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        mass     = segment.conditions.weights.total_mass[:,0] / Units.lb
-        altitude = segment.conditions.freestream.altitude[:,0] / Units.ft
-        mdot     = segment.conditions.weights.vehicle_mass_rate[:,0]
-        thrust   =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc      = (mdot / Units.lb) / (thrust /Units.lbf) * Units.hr
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , altitude , line_style )
-        axes.set_ylabel('Altitude (ft)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , sfc , line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , mass , 'ro-' )
-        axes.set_ylabel('Weight (lb)',axis_font)
-        axes.grid(True)
-
-        plt.savefig("B737_mission.pdf")
-        plt.savefig("B737_mission.png")
-        
-    # ------------------------------------------------------------------
-    #   Velocities
-    # ------------------------------------------------------------------
-    fig = plt.figure("Velocities",figsize=(8,10))
-    for segment in results.segments.values():
-
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Lift     = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag     = -segment.conditions.frames.wind.drag_force_vector[:,0] / Units.lbf
-        Thrust   = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lb
-        velocity = segment.conditions.freestream.velocity[:,0]
-        pressure = segment.conditions.freestream.pressure[:,0]
-        density  = segment.conditions.freestream.density[:,0]
-        EAS      = velocity * np.sqrt(density/1.225)
-        mach     = segment.conditions.freestream.mach_number[:,0]
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , velocity / Units.kts, line_style )
-        axes.set_ylabel('velocity (kts)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , EAS / Units.kts, line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Equivalent Airspeed',axis_font)
-        axes.grid(True)    
-        
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , mach , line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Mach',axis_font)
-        axes.grid(True)           
-        
-    return
 
 if __name__ == '__main__': 
     main()    
