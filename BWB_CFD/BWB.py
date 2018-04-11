@@ -110,7 +110,7 @@ def base_analysis(vehicle):
     #aerodynamics.process.compute.lift.inviscid.settings.parallel          = True
     #aerodynamics.process.compute.lift.inviscid.settings.processors        = 12  
     #aerodynamics.process.compute.lift.inviscid.training_file              = 'base_data_1500.txt'
-    aerodynamics.process.compute.lift.inviscid.settings.maximum_iterations = 1500
+    aerodynamics.process.compute.lift.inviscid.settings.maximum_iterations = 10
     aerodynamics.settings.drag_coefficient_increment = 0.0000
     
     aerodynamics.process.compute.lift.inviscid.training.Mach               = np.array([.3, .5, .7, .85]) 
