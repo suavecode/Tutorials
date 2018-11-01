@@ -320,7 +320,7 @@ def analyses_setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
     
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base_analysis(config)
         analyses[tag] = analysis
     
@@ -483,7 +483,7 @@ def plot_mission(results):
     #   Aerodynamics
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Forces")
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -519,7 +519,7 @@ def plot_mission(results):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients")
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -674,7 +674,7 @@ def plot_mission(results):
     #   Flight Conditions
     # ------------------------------------------------------------------
     fig = plt.figure("Flight Conditions")
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time     = segment.conditions.frames.inertial.time[:,0] / Units.min
         altitude = segment.conditions.freestream.altitude[:,0] / Units.km
@@ -708,7 +708,7 @@ def plot_mission(results):
     # ------------------------------------------------------------------
     
     fig = plt.figure("Electric Outputs")
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
         
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         flux   = results.segments[i].conditions.propulsion.solar_flux[:,0] 

@@ -77,7 +77,7 @@ def analyses_setup(configs):
     analyses = SUAVE.Analyses.Analysis.Container()
 
     # build a base analysis for each config
-    for tag,config in configs.items():
+    for tag,config in list(configs.items()):
         analysis = base_analysis(config)
         analyses[tag] = analysis
 
@@ -532,7 +532,7 @@ def plot_mission(results,line_style='bo-'):
     #   Aerodynamics
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
@@ -561,7 +561,7 @@ def plot_mission(results,line_style='bo-'):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -627,7 +627,7 @@ def plot_mission(results,line_style='bo-'):
     # ------------------------------------------------------------------
 
     fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
@@ -662,7 +662,7 @@ def plot_mission(results,line_style='bo-'):
     #   Aerodynamics 2
     # ------------------------------------------------------------------
     fig = plt.figure("Velocities",figsize=(8,10))
-    for segment in results.segments.values():
+    for segment in list(results.segments.values()):
 
         time   = segment.conditions.frames.inertial.time[:,0] / Units.min
         Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]

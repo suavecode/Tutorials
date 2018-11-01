@@ -26,7 +26,7 @@ def main():
     problem = setup()
     
     ## Base Input Values
-    output = problem.objective()
+    #output = problem.objective()
     
     ## Uncomment to view contours of the design space
     #variable_sweep(problem)
@@ -40,11 +40,11 @@ def main():
     #scaling                                  = problem.optimization_problem.inputs[:,3] #have to rescale inputs to start problem from here
     #scaled_inputs                            = np.multiply(inputs,scaling)
     #problem.optimization_problem.inputs[:,1] = scaled_inputs
-    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
     #print output        
   
-    print 'fuel burn = ', problem.summary.base_mission_fuelburn
-    print 'fuel margin = ', problem.all_constraints()
+    print('fuel burn = ', problem.summary.base_mission_fuelburn)
+    print('fuel margin = ', problem.all_constraints())
     
     Plot_Mission.plot_mission(problem)
     
