@@ -43,8 +43,8 @@ def main():
     #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
     #print output        
   
-    print 'fuel burn = ', problem.summary.base_mission_fuelburn
-    print 'fuel margin = ', problem.all_constraints()
+    print('fuel burn = ', problem.summary.base_mission_fuelburn)
+    print('fuel margin = ', problem.all_constraints())
     
     Plot_Mission.plot_mission(problem)
     
