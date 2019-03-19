@@ -26,14 +26,14 @@ def main():
     problem = setup()
     
     ## Base Input Values
-    output = problem.objective()
+    #output = problem.objective()
     
     ## Uncomment to view contours of the design space
     #variable_sweep(problem)
     
     ## Uncomment for the first optimization
-    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    #print output    
+    output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    print (output)    
     
     ## Uncomment these lines when you want to start an optimization problem from a different initial guess
     #inputs                                   = [1.28, 1.38]
@@ -43,8 +43,8 @@ def main():
     #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
     #print output        
   
-    print 'fuel burn = ', problem.summary.base_mission_fuelburn
-    print 'fuel margin = ', problem.all_constraints()
+    print ('fuel burn = ', problem.summary.base_mission_fuelburn)
+    print ('fuel margin = ', problem.all_constraints())
     
     Plot_Mission.plot_mission(problem)
     
