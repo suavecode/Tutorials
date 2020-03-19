@@ -235,13 +235,34 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #   Flaps
     # ------------------------------------------------------------------
-    wing.flaps.chord      =  0.30   # 30% of the chord
-    wing.flaps.span_start =  0.10   # 10% of the span
-    wing.flaps.span_end   =  0.75
-    wing.flaps.type       = 'double_slotted'
-
+    
+    flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
+    flap.tag                   = 'flap' 
+    flap.span_fraction_start   = 0.10 
+    flap.span_fraction_end     = 0.75   
+    flap.deflection            = 0.0 * Units.degrees
+    flap.configuration_type    = 'double_slotted'
+    flap.chord_fraction        = 0.30   
+    wing.append_control_surface(flap)   
+        
+    slat                       = SUAVE.Components.Wings.Control_Surfaces.Slat() 
+    slat.tag                   = 'slat' 
+    slat.span_fraction_start   = 0.324 
+    slat.span_fraction_end     = 0.963     
+    slat.deflection            = 0.0 * Units.degrees
+    slat.chord_fraction        = 0.1  	 
+    wing.append_control_surface(slat)  
+        
+    aileron                       = SUAVE.Components.Wings.Control_Surfaces.Aileron() 
+    aileron.tag                   = 'aileron' 
+    aileron.span_fraction_start   = 0.7 
+    aileron.span_fraction_end     = 0.963 
+    aileron.deflection            = 0.0 * Units.degrees
+    aileron.chord_fraction        = 0.16    
+    wing.append_control_surface(aileron)    
+    
     # add to vehicle
-    vehicle.append_component(wing)
+    vehicle.append_component(wing)    
 
     # ------------------------------------------------------------------        
     #  Horizontal Stabilizer
@@ -547,8 +568,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
-    config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 25. * Units.deg
+    config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg
     config.max_lift_coefficient_factor    = 1.
 
     configs.append(config)
@@ -558,8 +579,8 @@ def configs_setup(vehicle):
     # ------------------------------------------------------------------
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'cutback'
-    config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection = 20. * Units.deg
     config.max_lift_coefficient_factor    = 1. #0.95
 
     configs.append(config)    
@@ -571,8 +592,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
 
-    config.wings['main_wing'].flaps.angle = 30. * Units.deg
-    config.wings['main_wing'].slats.angle = 25. * Units.deg  
+    config.wings['main_wing'].control_surfaces.flap.deflection = 30. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg  
     config.max_lift_coefficient_factor    = 1. #0.95
 
     configs.append(config)
@@ -584,8 +605,8 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'short_field_takeoff'
     
-    config.wings['main_wing'].flaps.angle = 20. * Units.deg
-    config.wings['main_wing'].slats.angle = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
+    config.wings['main_wing'].control_surfaces.slat.deflection = 20. * Units.deg
     config.max_lift_coefficient_factor    = 1. #0.95
   
     configs.append(config)
