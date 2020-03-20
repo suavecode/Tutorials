@@ -13,7 +13,6 @@ import numpy as np
 import pylab as plt
 import time
 
-from SUAVE.Plots.Mission_Plots import * 
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
@@ -225,29 +224,27 @@ def vehicle_setup():
     
     # Component 5 the Propeller
     # Design the Propeller
-    prop_attributes = Data()
-    prop_attributes.number_blades       = 2.0
-    prop_attributes.freestream_velocity = 40.0 * Units['m/s']# freestream
-    prop_attributes.angular_velocity    = 150. * Units['rpm']
-    prop_attributes.tip_radius          = 4.25 * Units.meters
-    prop_attributes.hub_radius          = 0.05 * Units.meters
-    prop_attributes.design_Cl           = 0.7
-    prop_attributes.design_altitude     = 14.0 * Units.km
-    prop_attributes.design_thrust       = 0.0 
-    prop_attributes.design_power        = 3500.0 * Units.watts
-    prop_attributes                     = propeller_design(prop_attributes)
-    
     prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.prop_attributes = prop_attributes
-    net.propeller        = prop
+    prop.number_blades       = 2.0
+    prop.freestream_velocity = 40.0 * Units['m/s']# freestream
+    prop.angular_velocity    = 150. * Units['rpm']
+    prop.tip_radius          = 4.25 * Units.meters
+    prop.hub_radius          = 0.05 * Units.meters
+    prop.design_Cl           = 0.7
+    prop.design_altitude     = 14.0 * Units.km
+    prop.design_thrust       = None
+    prop.design_power        = 3500.0 * Units.watts
+    prop                     = propeller_design(prop)
+    
+    net.propeller            = prop
 
     # Component 4 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor()
     motor.resistance           = 0.008
     motor.no_load_current      = 4.5  * Units.ampere
     motor.speed_constant       = 120. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
-    motor.propeller_radius     = prop.prop_attributes.tip_radius
-    motor.propeller_Cp         = prop.prop_attributes.Cp
+    motor.propeller_radius     = prop.tip_radius
+    motor.propeller_Cp         = prop.power_coefficient
     motor.gear_ratio           = 12. # Gear ratio
     motor.gearbox_efficiency   = .98 # Gear box efficiency
     motor.expected_current     = 160. # Expected current
@@ -397,10 +394,10 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()   
     ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.network.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.network.residuals    
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.network.propeller.prop_attributes.Cp  * ones_row(1)/15.
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.propulsor.propeller.power_coefficient  * ones_row(1)/15.
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
@@ -419,7 +416,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.propulsors.network.battery.max_energy*0.2 #Charge the battery to start
+    segment.battery_energy = vehicle.propulsors.propulsor.battery.max_energy*0.2 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
     
