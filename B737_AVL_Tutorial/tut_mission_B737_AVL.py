@@ -213,17 +213,8 @@ def vehicle_setup():
     wing.symmetric               = True
     wing.high_lift               = True
     wing.dynamic_pressure_ratio  = 1.0
-    
-    # ------------------------------------------------------------------
-    #   Flaps
-    # ------------------------------------------------------------------
-    wing.flaps.chord      =  0.30   # 30% of the chord
-    wing.flaps.span_start =  0.10   # 10% of the span
-    wing.flaps.span_end   =  0.75
-    wing.flaps.type       = 'double_slotted'
 
-    # add to vehicle
-    vehicle.append_component(wing)
+    vehicle.append_component(wing)    
 
     # ------------------------------------------------------------------        
     #  Horizontal Stabilizer
@@ -242,8 +233,6 @@ def vehicle_setup():
     wing.chords.tip              = .955 * Units.meter
     wing.chords.mean_aerodynamic = 8.0  * Units.meter
     wing.areas.reference         = 32.488   * Units['meters**2']  
-    wing.areas.exposed           = 199.7792 * Units['meters**2']  
-    wing.areas.wetted            = 249.724  * Units['meters**2']  
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
     wing.origin                  = [32.83,0,1.14] # meters
@@ -262,7 +251,7 @@ def vehicle_setup():
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
-    wing.sweeps.quarter_chord    = 40. * Units.deg
+    wing.sweeps.quarter_chord    = 25. * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
     wing.span_efficiency         = 0.9
