@@ -412,7 +412,7 @@ def mission_setup(analyses,vehicle):
     
     # segment attributes     
     segment.state.numerics.number_control_points = 64
-    segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2017", "%a, %b %d %H:%M:%S %Y",)
+    segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
