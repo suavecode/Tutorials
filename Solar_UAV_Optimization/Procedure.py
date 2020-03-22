@@ -105,8 +105,7 @@ def simple_sizing(nexus):
     
     # Resize the motor
     motor = vec.propulsors.network.motor
-    kv    = motor.speed_constant
-    motor = size_from_kv(motor, kv)    
+    motor = size_from_kv(motor)    
     
     # diff the new data
     vec.store_diff()

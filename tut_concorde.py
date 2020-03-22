@@ -154,21 +154,23 @@ def vehicle_setup():
     vehicle.mass_properties.cargo           = 1000.   * Units.kilogram   
         
     # envelope properties
-    vehicle.envelope.ultimate_load = 3.5
-    vehicle.envelope.limit_load    = 1.5
+    vehicle.envelope.ultimate_load = 3.75
+    vehicle.envelope.limit_load    = 2.5
 
     # basic parameters
-    vehicle.reference_area         = 358.25 * Units['meter**2']  
-    vehicle.passengers             = 100
-    vehicle.systems.control        = "fully powered" 
-    vehicle.systems.accessories    = "long range"
+    vehicle.reference_area               = 358.25      
+    vehicle.passengers                   = 100
+    vehicle.systems.control              = "fully powered" 
+    vehicle.systems.accessories          = "long range"
+    vehicle.maximum_cross_sectional_area = 13.9
+    vehicle.total_length                 = 61.66
     
     
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 1.83
@@ -203,7 +205,7 @@ def vehicle_setup():
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Vertical_Tail()
     wing.tag = 'vertical_stabilizer'    
     
     wing.aspect_ratio            = 0.74   
@@ -452,9 +454,6 @@ def configs_setup(vehicle):
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'takeoff'
     
-    config.wings['main_wing'].flaps.angle = 0. * Units.deg
-    config.wings['main_wing'].slats.angle = 0. * Units.deg
-    
     config.V2_VS_ratio = 1.21
     config.maximum_lift_coefficient = 2.
     
@@ -466,9 +465,6 @@ def configs_setup(vehicle):
 
     config = SUAVE.Components.Configs.Config(base_config)
     config.tag = 'landing'
-    
-    config.wings['main_wing'].flaps_angle = 0. * Units.deg
-    config.wings['main_wing'].slats_angle = 0. * Units.deg
 
     config.Vref_VS_ratio = 1.23
     config.maximum_lift_coefficient = 2.

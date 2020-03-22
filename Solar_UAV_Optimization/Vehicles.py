@@ -52,7 +52,7 @@ def base_setup():
     #   Main Wing
     # ------------------------------------------------------------------   
 
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
 
     wing.areas.reference         = vehicle.reference_area
@@ -84,7 +84,7 @@ def base_setup():
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
 
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Horizontal_Tail()
     wing.tag = 'horizontal_stabilizer'
 
     wing.aspect_ratio         = 10. 
@@ -116,7 +116,7 @@ def base_setup():
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
 
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Vertical_Tail()
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio         = 10.       
@@ -181,8 +181,8 @@ def base_setup():
     
     # Component 4 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
-    kv                         = 800. * Units['rpm/volt'] # RPM/volt is standard
-    motor                      = size_from_kv(motor, kv)    
+    motor.speed_constant       = 800. * Units['rpm/volt'] # RPM/volt is standard
+    motor                      = size_from_kv(motor)    
     motor.gear_ratio           = 1. # Gear ratio, no gearbox
     motor.gearbox_efficiency   = 1. # Gear box efficiency, no gearbox
     motor.motor_efficiency     = 0.825;

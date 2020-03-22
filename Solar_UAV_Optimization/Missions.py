@@ -57,7 +57,7 @@ def mission(analyses,vehicle):
     # segment attributes     
     segment.state.numerics.number_control_points = 50
     segment.dynamic_pressure = 115.0 * Units.pascals
-    segment.start_time       = time.strptime("Tue, Jun 21  11:00:00  2017", "%a, %b %d %H:%M:%S %Y",)
+    segment.start_time       = time.strptime("Tue, Jun 21  11:00:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude         = 1000.0 * Units.feet
     segment.distance         = 1000.0 * Units.km
     segment.charge_ratio     = 1.0
