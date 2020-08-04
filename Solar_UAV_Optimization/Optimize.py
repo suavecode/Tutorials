@@ -48,11 +48,11 @@ def setup():
 
     # [ tag , initial, [lb,ub], scaling, units ]
     problem.inputs = np.array([
-        [ 'wing_area'       ,   0.5, (  0.1,    1.5 ),    0.5, Units.meter      ],
-        [ 'aspect_ratio'    ,  10.0, (  5.0,   20.0 ),   10.0, Units.less       ], 
-        [ 'dynamic_pressure', 125.0, (  1.0, 2000.0 ),  125.0, Units.pascals    ], 
-        [ 'solar_ratio'     ,   0.0, (  0.0,    0.97),    1.0, Units.less       ], 
-        [ 'kv'              , 800.0, ( 10.0, 1500.0 ),  800.0, Units['rpm/volt']], 
+        [ 'wing_area'       ,   0.62, (  0.1,    1.5 ),    0.5, Units.meter      ],
+        [ 'aspect_ratio'    ,   13.5, (  5.0,   20.0 ),   10.0, Units.less       ], 
+        [ 'dynamic_pressure',  115.0, (  1.0, 2000.0 ),  125.0, Units.pascals    ], 
+        [ 'solar_ratio'     ,    0.0, (  0.0,    0.97),    1.0, Units.less       ], 
+        [ 'kv'              ,  900.0, ( 10.0, 1500.0 ),  800.0, Units['rpm/volt']], 
     ])
 
     # -------------------------------------------------------------------
