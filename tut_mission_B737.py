@@ -8,62 +8,58 @@
 #   Imports
 # ----------------------------------------------------------------------
 
-# Python Imports
+# General Python Imports
 import numpy as np
-import pylab as plt
+# Numpy is a commonly used mathematically computing package. It contains many frequently used
+# mathematical functions and is faster than native Python, especially when using vectorized
+# quantities.
+import matplotlib.pyplot as plt
+# Matplotlib's pyplot can be used to generate a large variety of plots. Here it is used to create
+# visualizations of the aircraft's performance throughout the mission.
 
 # SUAVE Imports
 import SUAVE
 from SUAVE.Core import Data, Units 
+# The Data import here is a native SUAVE data structure that functions similarly to a dictionary.
+#   However, iteration directly returns values, and values can be retrieved either with the 
+#   typical dictionary syntax of "entry['key']" or the more class-like "entry.key". For this to work
+#   properly, all keys must be strings.
+# The Units import is used to allow units to be specified in the vehicle setup (or elsewhere).
+#   This is because SUAVE functions generally operate using metric units, so inputs must be 
+#   converted. To use a length of 20 feet, set l = 20 * Units.ft . Additionally, to convert to SUAVE
+#   output back to a desired units, use l_ft = l_m / Units.ft
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
-from SUAVE.Input_Output.Results import  print_parasite_drag,  \
-     print_compress_drag, \
-     print_engine_data,   \
-     print_mission_breakdown, \
-     print_weight_breakdown
+# Rather than conventional sizing, this script builds the turbofan energy network. This process is
+# covered in more detail in a separate tutorial. It does not size the turbofan geometry.
+
 
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
 
 def main():
-
+    """This function gets the vehicle configuration, analysis settings, and then runs the mission.
+    Once the mission is complete, the results are plotted."""
+    
+    # Extract vehicle configurations and the analysis settings that go with them
     configs, analyses = full_setup()
 
+    # Size each of the configurations according to a given set of geometry relations
     simple_sizing(configs)
 
+    # Perform operations needed to make the configurations and analyses usable in the mission
     configs.finalize()
     analyses.finalize()
 
-    # weight analysis
+    # Determine the vehicle weight breakdown (independent of mission fuel usage)
     weights = analyses.configs.base.weights
     breakdown = weights.evaluate()      
 
-    # mission analysis
+    # Performance a mission analysis
     mission = analyses.missions.base
     results = mission.evaluate()
 
-    ## print weight breakdown
-    #print_weight_breakdown(configs.base,filename = 'B737_weight_breakdown.dat')
-
-    ## print engine data into file
-    #print_engine_data(configs.base,filename = 'B737_engine_data.dat')
-
-    ## print parasite drag data into file
-    ## define reference condition for parasite drag
-    #ref_condition = Data()
-    #ref_condition.mach_number = 0.3
-    #ref_condition.reynolds_number = 12e6     
-    #print_parasite_drag(ref_condition,configs.cruise,analyses,'B737_parasite_drag.dat')
-
-    ## print compressibility drag data into file
-    #print_compress_drag(configs.cruise,analyses,filename = 'B737_compress_drag.dat')
-
-    ## print mission breakdown
-    #print_mission_breakdown(results,filename='B737_mission_breakdown.dat')
-
-    # plt the old results
+    # Plot all mission results, including items such as altitude profile and L/D
     plot_mission(results)
 
     return
@@ -73,18 +69,21 @@ def main():
 # ----------------------------------------------------------------------
 
 def full_setup():
+    """This function gets the baseline vehicle and creates modifications for different 
+    configurations, as well as the mission and analyses to go with those configurations."""
 
-    # vehicle data
+    # Collect baseline vehicle data and changes when using different configuration settings
     vehicle  = vehicle_setup()
     configs  = configs_setup(vehicle)
 
-    # vehicle analyses
+    # Get the analyses to be used when different configurations are evaluated
     configs_analyses = analyses_setup(configs)
 
-    # mission analyses
+    # Create the mission that will be flown
     mission  = mission_setup(configs_analyses)
     missions_analyses = missions_setup(mission)
 
+    # Add the analyses to the proper containers
     analyses = SUAVE.Analyses.Analysis.Container()
     analyses.configs  = configs_analyses
     analyses.missions = missions_analyses
@@ -96,10 +95,12 @@ def full_setup():
 # ----------------------------------------------------------------------
 
 def analyses_setup(configs):
+    """Set up analyses for each of the different configurations."""
 
     analyses = SUAVE.Analyses.Analysis.Container()
 
-    # build a base analysis for each config
+    # Build a base analysis for each configuration. Here the base analysis is always used, but
+    # this can be modified if desired for other cases.
     for tag,config in configs.items():
         analysis = base_analysis(config)
         analyses[tag] = analysis
@@ -107,17 +108,13 @@ def analyses_setup(configs):
     return analyses
 
 def base_analysis(vehicle):
+    """This is the baseline set of analyses to be used with this vehicle. Of these, the most
+    commonly changed are the weights and aerodynamics methods."""
 
     # ------------------------------------------------------------------
     #   Initialize the Analyses
     # ------------------------------------------------------------------     
     analyses = SUAVE.Analyses.Vehicle()
-
-    # ------------------------------------------------------------------
-    #  Basic Geometry Relations
-    sizing = SUAVE.Analyses.Sizing.Sizing()
-    sizing.features.vehicle = vehicle
-    analyses.append(sizing)
 
     # ------------------------------------------------------------------
     #  Weights
@@ -161,6 +158,8 @@ def base_analysis(vehicle):
 # ----------------------------------------------------------------------
 
 def vehicle_setup():
+    """This is the full physical definition of the vehicle, and is designed to be independent of the
+    analyses that are selected."""
     
     # ------------------------------------------------------------------
     #   Initialize the Vehicle
@@ -173,28 +172,40 @@ def vehicle_setup():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
 
-    # mass properties
+    # Vehicle level mass properties
+    # The maximum takeoff gross weight is used by a number of methods, most notably the weight
+    # method. However, it does not directly inform mission analysis.
     vehicle.mass_properties.max_takeoff               = 79015.8 * Units.kilogram 
+    # The takeoff weight is used to determine the weight of the vehicle at the start of the mission
     vehicle.mass_properties.takeoff                   = 79015.8 * Units.kilogram   
+    # Operating empty may be used by various weight methods or other methods. Importantly, it does
+    # not constrain the mission analysis directly, meaning that the vehicle weight in a mission
+    # can drop below this value if more fuel is needed than is available.
     vehicle.mass_properties.operating_empty           = 62746.4 * Units.kilogram 
-    vehicle.mass_properties.takeoff                   = 79015.8 * Units.kilogram 
-    vehicle.mass_properties.max_zero_fuel             = 62732.0 * Units.kilogram 
+    # The maximum zero fuel weight is also used by methods such as weights
+    vehicle.mass_properties.max_zero_fuel             = 62732.0 * Units.kilogram
+    # Cargo weight typically feeds directly into weights output and does not affect the mission
     vehicle.mass_properties.cargo                     = 10000.  * Units.kilogram   
     
-    # envelope properties
-    vehicle.envelope.ultimate_load = 2.5
-    vehicle.envelope.limit_load    = 1.5
+    # Envelope properties
+    # These values are typical FAR values for a transport of this type
+    vehicle.envelope.ultimate_load = 3.75
+    vehicle.envelope.limit_load    = 2.5
 
-    # basic parameters
+    # Vehicle level parameters
+    # The vehicle reference area typically matches the main wing reference area 
     vehicle.reference_area         = 124.862 * Units['meters**2']  
+    # Number of passengers, control settings, and accessories settings are used by the weights
+    # methods
     vehicle.passengers             = 170
     vehicle.systems.control        = "fully powered" 
     vehicle.systems.accessories    = "medium range"
 
     # ------------------------------------------------------------------        
     #  Landing Gear
-    # ------------------------------------------------------------------        
-    # used for noise calculations
+    # ------------------------------------------------------------------ 
+    
+    # The settings here can be used for noise analysis, but are not used in this tutorial
     landing_gear = SUAVE.Components.Landing_Gear.Landing_Gear()
     landing_gear.tag = "main_landing_gear"
     
@@ -202,24 +213,35 @@ def vehicle_setup():
     landing_gear.nose_tire_diameter = 0.6858 * Units.m
     landing_gear.main_strut_length  = 1.8 * Units.m
     landing_gear.nose_strut_length  = 1.3 * Units.m
-    landing_gear.main_units  = 2    #number of main landing gear units
-    landing_gear.nose_units  = 1    #number of nose landing gear
-    landing_gear.main_wheels = 2    #number of wheels on the main landing gear
-    landing_gear.nose_wheels = 2    #number of wheels on the nose landing gear      
+    landing_gear.main_units  = 2    # Number of main landing gear
+    landing_gear.nose_units  = 1    # Number of nose landing gear
+    landing_gear.main_wheels = 2    # Number of wheels on the main landing gear
+    landing_gear.nose_wheels = 2    # Number of wheels on the nose landing gear      
     vehicle.landing_gear = landing_gear
 
     # ------------------------------------------------------------------        
     #   Main Wing
     # ------------------------------------------------------------------        
     
+    # This main wing is approximated as a simple trapezoid. A segmented wing can also be created if
+    # desired. Segmented wings appear in later tutorials, and a version of the 737 with segmented
+    # wings can be found in the SUAVE testing scripts.
+    
+    # SUAVE allows conflicting geometric values to be set in terms of items such as aspect ratio
+    # when compared with span and reference area. Sizing scripts may be used to enforce 
+    # consistency if desired.
+    
     wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
     wing.aspect_ratio            = 10.18
+    # Quarter chord sweep is used as the driving sweep in most of the low fidelity analysis methods.
+    # If a different known value (such as leading edge sweep) is given, it should be converted to
+    # quarter chord sweep and added here. In some cases leading edge sweep will be used directly as
+    # well, and can be entered here too.
     wing.sweeps.quarter_chord    = 25 * Units.deg
     wing.thickness_to_chord      = 0.1
     wing.taper                   = 0.1
-    wing.span_efficiency         = 0.9
     wing.spans.projected         = 34.32 * Units.meter
     wing.chords.root             = 7.760 * Units.meter
     wing.chords.tip              = 0.782 * Units.meter
@@ -230,18 +252,26 @@ def vehicle_setup():
     wing.origin                  = [13.61,0,-1.27] # meters
     wing.vertical                = False
     wing.symmetric               = True
+    # The high lift flag controls aspects of maximum lift coefficient calculations
     wing.high_lift               = True
+    # The dynamic pressure ratio is used in stability calculations
     wing.dynamic_pressure_ratio  = 1.0
     
     # ------------------------------------------------------------------
-    #   Flaps
+    #   Main Wing Control Surfaces
     # ------------------------------------------------------------------
+    
+    # Information in this section is used for high lift calculations and when conversion to AVL
+    # is desired.
+    
+    # Deflections will typically be specified separately in individual vehicle configurations.
     
     flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
     flap.tag                   = 'flap' 
     flap.span_fraction_start   = 0.10 
     flap.span_fraction_end     = 0.75   
     flap.deflection            = 0.0 * Units.degrees
+    # Flap configuration types are used in computing maximum CL and noise
     flap.configuration_type    = 'double_slotted'
     flap.chord_fraction        = 0.30   
     wing.append_control_surface(flap)   
@@ -262,14 +292,14 @@ def vehicle_setup():
     aileron.chord_fraction        = 0.16    
     wing.append_control_surface(aileron)    
     
-    # add to vehicle
+    # Add to vehicle
     vehicle.append_component(wing)    
 
     # ------------------------------------------------------------------        
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Horizontal_Tail()
     wing.tag = 'horizontal_stabilizer'
     
     wing.aspect_ratio            = 6.16     
@@ -289,14 +319,14 @@ def vehicle_setup():
     wing.symmetric               = True
     wing.dynamic_pressure_ratio  = 0.9  
     
-    # add to vehicle
+    # Add to vehicle
     vehicle.append_component(wing)
     
     # ------------------------------------------------------------------
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Vertical_Tail()
     wing.tag = 'vertical_stabilizer'    
 
     wing.aspect_ratio            = 1.91
@@ -314,10 +344,11 @@ def vehicle_setup():
     wing.origin                  = [28.79,0,1.54] # meters
     wing.vertical                = True 
     wing.symmetric               = False
+    # The t tail flag is used in weights calculations
     wing.t_tail                  = False
     wing.dynamic_pressure_ratio  = 1.0
         
-    # add to vehicle
+    # Add to vehicle
     vehicle.append_component(wing)
 
     # ------------------------------------------------------------------
@@ -327,15 +358,22 @@ def vehicle_setup():
     fuselage = SUAVE.Components.Fuselages.Fuselage()
     fuselage.tag = 'fuselage'
     
+    # Number of coach seats is used in some weights methods
     fuselage.number_coach_seats    = vehicle.passengers
+    # The seats abreast can be used along with seat pitch and the number of coach seats to
+    # determine the length of the cabin if desired.
     fuselage.seats_abreast         = 6
     fuselage.seat_pitch            = 1     * Units.meter
+    # Fineness ratios are used to determine VLM fuselage shape and sections to use in OpenVSP
+    # output
     fuselage.fineness.nose         = 1.6
     fuselage.fineness.tail         = 2.
+    # Nose and tail lengths are used in the VLM setup
     fuselage.lengths.nose          = 6.4   * Units.meter
     fuselage.lengths.tail          = 8.0   * Units.meter
-    fuselage.lengths.cabin         = 28.85 * Units.meter
     fuselage.lengths.total         = 38.02 * Units.meter
+    # Fore and aft space are added to the cabin length if the fuselage is sized based on
+    # number of seats
     fuselage.lengths.fore_space    = 6.    * Units.meter
     fuselage.lengths.aft_space     = 5.    * Units.meter
     fuselage.width                 = 3.74  * Units.meter
@@ -344,8 +382,11 @@ def vehicle_setup():
     fuselage.areas.side_projected  = 142.1948 * Units['meters**2'] 
     fuselage.areas.wetted          = 446.718  * Units['meters**2'] 
     fuselage.areas.front_projected = 12.57    * Units['meters**2'] 
-    fuselage.differential_pressure = 5.0e4 * Units.pascal # Maximum differential pressure
+    # Maximum differential pressure between the cabin and the atmosphere
+    fuselage.differential_pressure = 5.0e4 * Units.pascal
     
+    # Heights at different longitudinal locations are used in stability calculations and
+    # in output to OpenVSP
     fuselage.heights.at_quarter_length          = 3.74 * Units.meter
     fuselage.heights.at_three_quarters_length   = 3.65 * Units.meter
     fuselage.heights.at_wing_root_quarter_chord = 3.74 * Units.meter
@@ -357,28 +398,32 @@ def vehicle_setup():
     #   Turbofan Network
     # ------------------------------------------------------------------    
     
-    #instantiate the gas turbine network
     turbofan = SUAVE.Components.Energy.Networks.Turbofan()
+    # For some methods, the 'turbofan' tag is still necessary. This will be changed in the
+    # future to allow arbitrary tags.
     turbofan.tag = 'turbofan'
     
-    # setup
+    # High-level setup
     turbofan.number_of_engines = 2
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71 * Units.meter
     turbofan.nacelle_diameter  = 2.05 * Units.meter
     turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]] # meters
     
-    #compute engine areas
+    # Approximate the wetted area
     turbofan.areas.wetted      = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
     
-    # working fluid
+    # Establish the correct working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
+    
+    
+    # Components use estimated efficiencies. Estimates by technology level can be
+    # found in textbooks such as those by J.D. Mattingly
     
     # ------------------------------------------------------------------
     #   Component 1 - Ram
     
-    # to convert freestream static to stagnation quantities
-    # instantiate
+    # Converts freestream static to stagnation quantities
     ram = SUAVE.Components.Energy.Converters.Ram()
     ram.tag = 'ram'
     
@@ -388,129 +433,129 @@ def vehicle_setup():
     # ------------------------------------------------------------------
     #  Component 2 - Inlet Nozzle
     
-    # instantiate
+    # Create component
     inlet_nozzle = SUAVE.Components.Energy.Converters.Compression_Nozzle()
     inlet_nozzle.tag = 'inlet_nozzle'
     
-    # setup
+    # Specify performance
     inlet_nozzle.polytropic_efficiency = 0.98
     inlet_nozzle.pressure_ratio        = 0.98
     
-    # add to network
+    # Add to network
     turbofan.append(inlet_nozzle)
     
     # ------------------------------------------------------------------
     #  Component 3 - Low Pressure Compressor
     
-    # instantiate 
+    # Create component
     compressor = SUAVE.Components.Energy.Converters.Compressor()    
     compressor.tag = 'low_pressure_compressor'
 
-    # setup
+    # Specify performance
     compressor.polytropic_efficiency = 0.91
     compressor.pressure_ratio        = 1.14    
     
-    # add to network
+    # Add to network
     turbofan.append(compressor)
     
     # ------------------------------------------------------------------
     #  Component 4 - High Pressure Compressor
     
-    # instantiate
+    # Create component
     compressor = SUAVE.Components.Energy.Converters.Compressor()    
     compressor.tag = 'high_pressure_compressor'
     
-    # setup
+    # Specify performance
     compressor.polytropic_efficiency = 0.91
     compressor.pressure_ratio        = 13.415    
     
-    # add to network
+    # Add to network
     turbofan.append(compressor)
 
     # ------------------------------------------------------------------
     #  Component 5 - Low Pressure Turbine
     
-    # instantiate
+    # Create component
     turbine = SUAVE.Components.Energy.Converters.Turbine()   
     turbine.tag='low_pressure_turbine'
     
-    # setup
+    # Specify performance
     turbine.mechanical_efficiency = 0.99
     turbine.polytropic_efficiency = 0.93     
     
-    # add to network
+    # Add to network
     turbofan.append(turbine)
       
     # ------------------------------------------------------------------
     #  Component 6 - High Pressure Turbine
     
-    # instantiate
+    # Create component
     turbine = SUAVE.Components.Energy.Converters.Turbine()   
     turbine.tag='high_pressure_turbine'
 
-    # setup
+    # Specify performance
     turbine.mechanical_efficiency = 0.99
     turbine.polytropic_efficiency = 0.93     
     
-    # add to network
+    # Add to network
     turbofan.append(turbine)  
     
     # ------------------------------------------------------------------
     #  Component 7 - Combustor
     
-    # instantiate    
+    # Create component    
     combustor = SUAVE.Components.Energy.Converters.Combustor()   
     combustor.tag = 'combustor'
     
-    # setup
+    # Specify performance
     combustor.efficiency                = 0.99 
     combustor.turbine_inlet_temperature = 1450 # K
     combustor.pressure_ratio            = 0.95
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
     
-    # add to network
+    # Add to network
     turbofan.append(combustor)
 
     # ------------------------------------------------------------------
     #  Component 8 - Core Nozzle
     
-    # instantiate
+    # Create component
     nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
     nozzle.tag = 'core_nozzle'
     
-    # setup
+    # Specify performance
     nozzle.polytropic_efficiency = 0.95
     nozzle.pressure_ratio        = 0.99    
     
-    # add to network
+    # Add to network
     turbofan.append(nozzle)
 
     # ------------------------------------------------------------------
     #  Component 9 - Fan Nozzle
     
-    # instantiate
+    # Create component
     nozzle = SUAVE.Components.Energy.Converters.Expansion_Nozzle()   
     nozzle.tag = 'fan_nozzle'
 
-    # setup
+    # Specify performance
     nozzle.polytropic_efficiency = 0.95
     nozzle.pressure_ratio        = 0.99    
     
-    # add to network
+    # Add to network
     turbofan.append(nozzle)
     
     # ------------------------------------------------------------------
     #  Component 10 - Fan
     
-    # instantiate
+    # Create component
     fan = SUAVE.Components.Energy.Converters.Fan()   
     fan.tag = 'fan'
 
-    # setup
+    # Specify performance
     fan.polytropic_efficiency = 0.93
     fan.pressure_ratio        = 1.7    
     
-    # add to network
+    # Add to network
     turbofan.append(fan)
     
     # ------------------------------------------------------------------
@@ -518,22 +563,20 @@ def vehicle_setup():
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
  
-    #total design thrust (includes all the engines)
+    # Design thrust is used to determine mass flow at full throttle
     thrust.total_design             = 2*24000. * Units.N #Newtons
  
-    #design sizing conditions
+    # Design sizing conditions are also used to determine mass flow
     altitude      = 35000.0*Units.ft
     mach_number   = 0.78 
-    isa_deviation = 0.
     
-    #Engine setup for noise module    
-    # add to network
+    # Add to network
     turbofan.thrust = thrust
 
-    #size the turbofan
+    # Determine turbofan behavior at the design condition
     turbofan_sizing(turbofan,mach_number,altitude)   
     
-    # add  gas turbine network turbofan to the vehicle 
+    # Add turbofan network to the vehicle 
     vehicle.append_component(turbofan)      
     
     # ------------------------------------------------------------------
@@ -547,6 +590,8 @@ def vehicle_setup():
 # ---------------------------------------------------------------------
 
 def configs_setup(vehicle):
+    """This function sets up vehicle configurations for use in different parts of the mission.
+    Here, this is mostly in terms of high lift settings."""
     
     # ------------------------------------------------------------------
     #   Initialize Configurations
@@ -571,6 +616,7 @@ def configs_setup(vehicle):
     config.tag = 'takeoff'
     config.wings['main_wing'].control_surfaces.flap.deflection = 20. * Units.deg
     config.wings['main_wing'].control_surfaces.slat.deflection = 25. * Units.deg
+    # A max lift coefficient factor of 1 is the default, but it is highlighted here as an option
     config.max_lift_coefficient_factor    = 1.
 
     configs.append(config)
@@ -615,20 +661,24 @@ def configs_setup(vehicle):
     return configs
 
 def simple_sizing(configs):
+    """This function applies a few basic geometric sizing relations and modifies the landing
+    configuration."""
 
     base = configs.base
+    # Update the baseline data structure to prepare for changes
     base.pull_base()
 
-    # zero fuel weight
+    # Revise the zero fuel weight. This will only affect the base configuration. To do all
+    # configurations, this should be specified in the top level vehicle definition.
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
 
-    # wing areas
+    # Estimate wing areas
     for wing in base.wings:
         wing.areas.wetted   = 2.0 * wing.areas.reference
         wing.areas.exposed  = 0.8 * wing.areas.wetted
         wing.areas.affected = 0.6 * wing.areas.wetted
 
-    # diff the new data
+    # Store how the changes compare to the baseline configuration
     base.store_diff()
 
     # ------------------------------------------------------------------
@@ -636,13 +686,14 @@ def simple_sizing(configs):
     # ------------------------------------------------------------------
     landing = configs.landing
 
-    # make sure base data is current
+    # Make sure base data is current
     landing.pull_base()
 
-    # landing weight
+    # Add a landing weight parameter. This is used in field length estimation and in
+    # initially the landing mission segment type.
     landing.mass_properties.landing = 0.85 * base.mass_properties.takeoff
 
-    # diff the new data
+    # Store how the changes compare to the baseline configuration
     landing.store_diff()
 
     return
@@ -652,6 +703,8 @@ def simple_sizing(configs):
 # ----------------------------------------------------------------------
 
 def mission_setup(analyses):
+    """This function defines the baseline mission that will be flown by the aircraft in order
+    to compute performance."""
 
     # ------------------------------------------------------------------
     #   Initialize the Mission
@@ -660,7 +713,9 @@ def mission_setup(analyses):
     mission = SUAVE.Analyses.Mission.Sequential_Segments()
     mission.tag = 'the_mission'
 
-    #airport
+    # Airport
+    # The airport parameters are used in calculating field length and noise. They are not
+    # directly used in mission performance estimation
     airport = SUAVE.Attributes.Airports.Airport()
     airport.altitude   =  0.0  * Units.ft
     airport.delta_isa  =  0.0
@@ -668,19 +723,27 @@ def mission_setup(analyses):
 
     mission.airport = airport    
 
-    # unpack Segments module
+    # Unpack Segments module
     Segments = SUAVE.Analyses.Mission.Segments
 
-    # base segment
+    # Base segment 
     base_segment = Segments.Segment()
 
     # ------------------------------------------------------------------
     #   First Climb Segment: Constant Speed, Constant Rate
     # ------------------------------------------------------------------
 
+    # A constant speed, constant rate climb segment is used first. This means that the aircraft
+    # will maintain a constant airspeed and constant climb rate until it hits the end altitude.
+    # For this type of segment, the throttle is allowed to vary as needed to match required
+    # performance.
     segment = Segments.Climb.Constant_Speed_Constant_Rate(base_segment)
+    # It is important that all segment tags must be unique for proper evaluation. At the moment 
+    # this is not automatically enforced. 
     segment.tag = "climb_1"
 
+    # The analysis settings for mission segment are chosen here. These analyses include information
+    # on the vehicle configuration.
     segment.analyses.extend( analyses.takeoff )
 
     segment.altitude_start = 0.0   * Units.km
@@ -688,7 +751,7 @@ def mission_setup(analyses):
     segment.air_speed      = 125.0 * Units['m/s']
     segment.climb_rate     = 6.0   * Units['m/s']
 
-    # add to misison
+    # Add to misison
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
@@ -700,11 +763,14 @@ def mission_setup(analyses):
 
     segment.analyses.extend( analyses.cruise )
 
+    # A starting altitude is no longer needed as it will automatically carry over from the
+    # previous segment. However, it could be specified if desired. This would potentially cause
+    # a jump in altitude but would otherwise not cause any problems.
     segment.altitude_end   = 8.0   * Units.km
     segment.air_speed      = 190.0 * Units['m/s']
     segment.climb_rate     = 6.0   * Units['m/s']
 
-    # add to mission
+    # Add to mission
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
@@ -720,7 +786,7 @@ def mission_setup(analyses):
     segment.air_speed    = 226.0  * Units['m/s']
     segment.climb_rate   = 3.0    * Units['m/s']
 
-    # add to mission
+    # Add to mission
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------    
@@ -735,7 +801,7 @@ def mission_setup(analyses):
     segment.air_speed  = 230.412 * Units['m/s']
     segment.distance   = 2490. * Units.nautical_miles
 
-    # add to mission
+    # Add to mission
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
@@ -751,7 +817,7 @@ def mission_setup(analyses):
     segment.air_speed    = 220.0 * Units['m/s']
     segment.descent_rate = 4.5   * Units['m/s']
 
-    # add to mission
+    # Add to mission
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
@@ -767,7 +833,7 @@ def mission_setup(analyses):
     segment.air_speed    = 195.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
 
-    # add to mission
+    # Add to mission
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
@@ -778,13 +844,16 @@ def mission_setup(analyses):
     segment.tag = "descent_3"
 
     segment.analyses.extend( analyses.landing )
+    # While it is set to zero here and therefore unchanged, a drag increment can be used if
+    # desired. This can avoid negative throttle values if drag generated by the base airframe
+    # is insufficient for the desired descent speed and rate.
     analyses.landing.aerodynamics.settings.spoiler_drag_increment = 0.00
 
     segment.altitude_end = 4.0   * Units.km
     segment.air_speed    = 170.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
 
-    # add to mission
+    # Add to mission
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
@@ -801,7 +870,7 @@ def mission_setup(analyses):
     segment.air_speed    = 150.0 * Units['m/s']
     segment.descent_rate = 5.0   * Units['m/s']
 
-    # add to mission
+    # Add to mission
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
@@ -818,7 +887,7 @@ def mission_setup(analyses):
     segment.air_speed    = 145.0 * Units['m/s']
     segment.descent_rate = 3.0   * Units['m/s']
 
-    # append to mission
+    # Append to mission
     mission.append_segment(segment)
 
     # ------------------------------------------------------------------
@@ -828,14 +897,16 @@ def mission_setup(analyses):
     return mission
 
 def missions_setup(base_mission):
+    """This allows multiple missions to be incorporated if desired, but only one is used here."""
 
-    # the mission container
+    # Setup the mission container
     missions = SUAVE.Analyses.Mission.Mission.Container()
 
     # ------------------------------------------------------------------
     #   Base Mission
     # ------------------------------------------------------------------
 
+    # Only one mission (the base mission) is defined in this case
     missions.base = base_mission
 
     return missions  
@@ -845,6 +916,8 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 
 def plot_mission(results,line_style='bo-'):
+    """This function plots the results of the mission analysis and saves those results to
+    PDF and png files."""
 
     axis_font = {'fontname':'Arial', 'size':'14'}    
 
@@ -1010,6 +1083,8 @@ def plot_mission(results,line_style='bo-'):
         
     return
 
+# This section is needed to actually run the various functions in the file
 if __name__ == '__main__': 
     main()    
+    # The show commands makes the plots actually appear
     plt.show()
