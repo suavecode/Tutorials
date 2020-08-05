@@ -111,9 +111,12 @@ def base_analysis(vehicle):
     
     #aerodynamics.process.compute.lift.inviscid.settings.parallel          = True
     #aerodynamics.process.compute.lift.inviscid.settings.processors        = 12  
-    #aerodynamics.process.compute.lift.inviscid.training_file              = 'base_data_1500.txt'
+    aerodynamics.process.compute.lift.inviscid.training_file              = 'base_data_1500.txt'
     aerodynamics.process.compute.lift.inviscid.settings.maximum_iterations = 10
+    
     aerodynamics.settings.drag_coefficient_increment = 0.0000
+    aerodynamics.settings.half_mesh_flag             = False
+    aerodynamics.settings.span_efficiency            = 0.85
     
     aerodynamics.process.compute.lift.inviscid.training.Mach               = np.array([.3, .5, .7, .85]) 
     aerodynamics.process.compute.lift.inviscid.training.angle_of_attack    = np.array([0.,3.,6.]) * Units.deg    
