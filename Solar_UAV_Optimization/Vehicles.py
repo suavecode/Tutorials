@@ -201,7 +201,6 @@ def base_setup():
     bat.mass_properties.mass = 5.0  * Units.kg
     bat.specific_energy      = 250. *Units.Wh/Units.kg
     bat.resistance           = 0.003
-    bat.iters                = 0
     initialize_from_mass(bat,bat.mass_properties.mass)
     net.battery              = bat
 
