@@ -28,10 +28,17 @@ from SUAVE.Core import Data, Units
 #   This is because SUAVE functions generally operate using metric units, so inputs must be 
 #   converted. To use a length of 20 feet, set l = 20 * Units.ft . Additionally, to convert to SUAVE
 #   output back to a desired units, use l_ft = l_m / Units.ft
+from SUAVE.Plots.Mission_Plots import *
+# These are a variety of plotting routines that simplify the plotting process for commonly 
+# requested metrics. Plots of specifically desired metrics can also be manually created.
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 # Rather than conventional sizing, this script builds the turbofan energy network. This process is
 # covered in more detail in a separate tutorial. It does not size the turbofan geometry.
 
+
+# Python Imports
+import numpy as np
+import matplotlib.pyplot as plt  
 
 # ----------------------------------------------------------------------
 #   Main
@@ -118,7 +125,7 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Weights
-    weights = SUAVE.Analyses.Weights.Weights_Tube_Wing()
+    weights = SUAVE.Analyses.Weights.Weights_Transport()
     weights.vehicle = vehicle
     analyses.append(weights)
 
@@ -249,7 +256,7 @@ def vehicle_setup():
     wing.areas.reference         = 124.862 * Units['meters**2']  
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
-    wing.origin                  = [13.61,0,-1.27] # meters
+    wing.origin                  = [[13.61 * Units.meter, 0, -1.27 * Units.meter]]
     wing.vertical                = False
     wing.symmetric               = True
     # The high lift flag controls aspects of maximum lift coefficient calculations
@@ -268,8 +275,8 @@ def vehicle_setup():
     
     flap                       = SUAVE.Components.Wings.Control_Surfaces.Flap() 
     flap.tag                   = 'flap' 
-    flap.span_fraction_start   = 0.10 
-    flap.span_fraction_end     = 0.75   
+    flap.span_fraction_start   = 0.20 
+    flap.span_fraction_end     = 0.70   
     flap.deflection            = 0.0 * Units.degrees
     # Flap configuration types are used in computing maximum CL and noise
     flap.configuration_type    = 'double_slotted'
@@ -306,15 +313,14 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 40 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.2
-    wing.span_efficiency         = 0.9
     wing.spans.projected         = 14.2 * Units.meter
     wing.chords.root             = 4.7  * Units.meter
     wing.chords.tip              = .955 * Units.meter
-    wing.chords.mean_aerodynamic = 8.0  * Units.meter
+    wing.chords.mean_aerodynamic = 3.0  * Units.meter
     wing.areas.reference         = 32.488   * Units['meters**2']  
     wing.twists.root             = 3.0 * Units.degrees
     wing.twists.tip              = 3.0 * Units.degrees  
-    wing.origin                  = [32.83,0,1.14] # meters
+    wing.origin                  = [[32.83 * Units.meter, 0 , 1.14 * Units.meter]]
     wing.vertical                = False 
     wing.symmetric               = True
     wing.dynamic_pressure_ratio  = 0.9  
@@ -333,7 +339,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord    = 25. * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.25
-    wing.span_efficiency         = 0.9
     wing.spans.projected         = 7.777 * Units.meter
     wing.chords.root             = 8.19  * Units.meter
     wing.chords.tip              = 0.95  * Units.meter
@@ -341,7 +346,7 @@ def vehicle_setup():
     wing.areas.reference         = 27.316 * Units['meters**2']  
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
-    wing.origin                  = [28.79,0,1.54] # meters
+    wing.origin                  = [[28.79 * Units.meter, 0, 1.54 * Units.meter]] # meters
     wing.vertical                = True 
     wing.symmetric               = False
     # The t tail flag is used in weights calculations
@@ -408,7 +413,7 @@ def vehicle_setup():
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71 * Units.meter
     turbofan.nacelle_diameter  = 2.05 * Units.meter
-    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]] # meters
+    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
     
     # Approximate the wetted area
     turbofan.areas.wetted      = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
@@ -509,6 +514,7 @@ def vehicle_setup():
     
     # Specify performance
     combustor.efficiency                = 0.99 
+    combustor.alphac                    = 1.0   
     combustor.turbine_inlet_temperature = 1450 # K
     combustor.pressure_ratio            = 0.95
     combustor.fuel_data                 = SUAVE.Attributes.Propellants.Jet_A()    
@@ -916,170 +922,26 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 
 def plot_mission(results,line_style='bo-'):
-    """This function plots the results of the mission analysis and saves those results to
-    PDF and png files."""
+    """This function plots the results of the mission analysis and saves those results to 
+    png files."""
 
-    axis_font = {'fontname':'Arial', 'size':'14'}    
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics
-    # ------------------------------------------------------------------
-
-
-    fig = plt.figure("Aerodynamic Forces",figsize=(8,6))
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lbf
-        eta    = segment.conditions.propulsion.throttle[:,0]
-
-        axes = fig.add_subplot(2,1,1)
-        axes.plot( time , Thrust , line_style )
-        axes.set_ylabel('Thrust (lbf)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(2,1,2)
-        axes.plot( time , eta , line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Throttle',axis_font)
-        axes.grid(True)	
-
-        plt.savefig("B737_engine.pdf")
-        plt.savefig("B737_engine.png")
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aerodynamic Coefficients",figsize=(8,10))
-    for segment in results.segments.values():
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
-        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        aoa = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        l_d = CLift/CDrag
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , CLift , line_style )
-        axes.set_ylabel('Lift Coefficient',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , l_d , line_style )
-        axes.set_ylabel('L/D',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , aoa , 'ro-' )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('AOA (deg)',axis_font)
-        axes.grid(True)
-
-        plt.savefig("B737_aero.pdf")
-        plt.savefig("B737_aero.png")
-
-    # ------------------------------------------------------------------
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Drag Components",figsize=(8,10))
-    axes = plt.gca()
-    for i, segment in enumerate(results.segments.values()):
-
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-        cdp = drag_breakdown.parasite.total[:,0]
-        cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
-        cdm = drag_breakdown.miscellaneous.total[:,0]
-        cd  = drag_breakdown.total[:,0]
-
-        if line_style == 'bo-':
-            axes.plot( time , cdp , 'ko-', label='CD parasite' )
-            axes.plot( time , cdi , 'bo-', label='CD induced' )
-            axes.plot( time , cdc , 'go-', label='CD compressibility' )
-            axes.plot( time , cdm , 'yo-', label='CD miscellaneous' )
-            axes.plot( time , cd  , 'ro-', label='CD total'   )
-            if i == 0:
-                axes.legend(loc='upper center')            
-        else:
-            axes.plot( time , cdp , line_style )
-            axes.plot( time , cdi , line_style )
-            axes.plot( time , cdc , line_style )
-            axes.plot( time , cdm , line_style )
-            axes.plot( time , cd  , line_style )            
-
-    axes.set_xlabel('Time (min)')
-    axes.set_ylabel('CD')
-    axes.grid(True)
-    plt.savefig("B737_drag.pdf")
-    plt.savefig("B737_drag.png")
-
-    # ------------------------------------------------------------------
-    #   Altitude, sfc, vehicle weight
-    # ------------------------------------------------------------------
-
-    fig = plt.figure("Altitude_sfc_weight",figsize=(8,10))
-    for segment in results.segments.values():
-
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
-        mass     = segment.conditions.weights.total_mass[:,0] / Units.lb
-        altitude = segment.conditions.freestream.altitude[:,0] / Units.ft
-        mdot     = segment.conditions.weights.vehicle_mass_rate[:,0]
-        thrust   =  segment.conditions.frames.body.thrust_force_vector[:,0]
-        sfc      = (mdot / Units.lb) / (thrust /Units.lbf) * Units.hr
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , altitude , line_style )
-        axes.set_ylabel('Altitude (ft)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , sfc , line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('sfc (lb/lbf-hr)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , mass , 'ro-' )
-        axes.set_ylabel('Weight (lb)',axis_font)
-        axes.grid(True)
-
-        plt.savefig("B737_mission.pdf")
-        plt.savefig("B737_mission.png")
-        
-    # ------------------------------------------------------------------
-    #   Velocities
-    # ------------------------------------------------------------------
-    fig = plt.figure("Velocities",figsize=(8,10))
-    for segment in results.segments.values():
-
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Lift     = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag     = -segment.conditions.frames.wind.drag_force_vector[:,0] / Units.lbf
-        Thrust   = segment.conditions.frames.body.thrust_force_vector[:,0] / Units.lb
-        velocity = segment.conditions.freestream.velocity[:,0]
-        pressure = segment.conditions.freestream.pressure[:,0]
-        density  = segment.conditions.freestream.density[:,0]
-        EAS      = velocity * np.sqrt(density/1.225)
-        mach     = segment.conditions.freestream.mach_number[:,0]
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , velocity / Units.kts, line_style )
-        axes.set_ylabel('velocity (kts)',axis_font)
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , EAS / Units.kts, line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Equivalent Airspeed',axis_font)
-        axes.grid(True)    
-        
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , mach , line_style )
-        axes.set_xlabel('Time (min)',axis_font)
-        axes.set_ylabel('Mach',axis_font)
-        axes.grid(True)           
+    # Plot Flight Conditions 
+    plot_flight_conditions(results, line_style)
+    
+    # Plot Aerodynamic Forces 
+    plot_aerodynamic_forces(results, line_style)
+    
+    # Plot Aerodynamic Coefficients 
+    plot_aerodynamic_coefficients(results, line_style)
+    
+    # Drag Components
+    plot_drag_components(results, line_style)
+    
+    # Plot Altitude, sfc, vehicle weight 
+    plot_altitude_sfc_weight(results, line_style)
+    
+    # Plot Velocities 
+    plot_aircraft_velocities(results, line_style)      
         
     return
 
