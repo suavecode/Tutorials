@@ -97,14 +97,14 @@ def simple_sizing(nexus):
 
     # Size solar panel area
     wing_area                   = vec.reference_area
-    spanel                      = vec.propulsors.network.solar_panel
+    spanel                      = vec.propulsors.solar_low_fidelity.solar_panel
     sratio                      = spanel.ratio
     solar_area                  = wing_area*sratio
     spanel.area                 = solar_area
     spanel.mass_properties.mass = solar_area*(0.60 * Units.kg)    
     
     # Resize the motor
-    motor = vec.propulsors.network.motor
+    motor = vec.propulsors.solar_low_fidelity.motor
     motor = size_from_kv(motor)    
     
     # diff the new data
@@ -123,20 +123,20 @@ def weights_battery(nexus):
     config.weights.evaluate() 
     
     vec     = nexus.vehicle_configurations.base
-    payload = vec.propulsors.network.payload.mass_properties.mass  
-    msolar  = vec.propulsors.network.solar_panel.mass_properties.mass
+    payload = vec.propulsors.solar_low_fidelity.payload.mass_properties.mass  
+    msolar  = vec.propulsors.solar_low_fidelity.solar_panel.mass_properties.mass
     MTOW    = vec.mass_properties.max_takeoff
     empty   = vec.weight_breakdown.empty
-    mmotor  = vec.propulsors.network.motor.mass_properties.mass
+    mmotor  = vec.propulsors.solar_low_fidelity.motor.mass_properties.mass
     
     # Calculate battery mass
     batmass = MTOW - empty - payload - msolar -mmotor
-    bat     = vec.propulsors.network.battery
+    bat     = vec.propulsors.solar_low_fidelity.battery
     initialize_from_mass(bat,batmass)
-    vec.propulsors.network.battery.mass_properties.mass = batmass
+    vec.propulsors.solar_low_fidelity.battery.mass_properties.mass = batmass
         
     # Set Battery Charge
-    maxcharge = nexus.vehicle_configurations.base.propulsors.network.battery.max_energy
+    maxcharge = nexus.vehicle_configurations.base.propulsors.solar_low_fidelity.battery.max_energy
     charge    = maxcharge
     
     nexus.missions.mission.segments.cruise.battery_energy = charge 
@@ -165,7 +165,7 @@ def post_process(nexus):
     res = nexus.results.mission.segments.cruise.conditions
     
     # Final Energy
-    maxcharge    = vec.propulsors.network.battery.max_energy
+    maxcharge    = vec.propulsors.solar_low_fidelity.battery.max_energy
     
     # Energy constraints, the battery doesn't go to zero anywhere, using a P norm
     p                    = 8.    

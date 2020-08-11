@@ -13,6 +13,7 @@ import numpy as np
 import pylab as plt
 import time
 
+from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
@@ -81,9 +82,9 @@ def vehicle_setup():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.mass_properties.takeoff         = 200. * Units.kg
-    vehicle.mass_properties.operating_empty = 200. * Units.kg
-    vehicle.mass_properties.max_takeoff     = 200. * Units.kg 
+    vehicle.mass_properties.takeoff         = 250. * Units.kg
+    vehicle.mass_properties.operating_empty = 250. * Units.kg
+    vehicle.mass_properties.max_takeoff     = 250. * Units.kg 
     
     # basic parameters
     vehicle.reference_area                    = 80.       
@@ -95,7 +96,7 @@ def vehicle_setup():
     #   Main Wing
     # ------------------------------------------------------------------   
 
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Main_Wing()
     wing.tag = 'main_wing'
     
     wing.areas.reference         = vehicle.reference_area
@@ -111,7 +112,6 @@ def vehicle_setup():
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
-    wing.span_efficiency         = 0.98 
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
     wing.highlift                = False  
@@ -120,8 +120,8 @@ def vehicle_setup():
     wing.number_end_ribs         = 2.
     wing.transition_x_upper      = 0.6
     wing.transition_x_lower      = 1.0
-    wing.origin                  = [3.0,0.0,0.0] # meters
-    wing.aerodynamic_center      = [3.0,0.0,0.0] # meters
+    wing.origin                  = [[3.0,0.0,0.0]] # meters
+    wing.aerodynamic_center      = [1.0,0.0,0.0] # meters
     
     # add to vehicle
     vehicle.append_component(wing)
@@ -130,14 +130,13 @@ def vehicle_setup():
     #  Horizontal Stabilizer
     # ------------------------------------------------------------------        
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Horizontal_Tail()
     wing.tag = 'horizontal_stabilizer'
     
     wing.aspect_ratio         = 20. 
     wing.sweeps.quarter_chord = 0 * Units.deg
     wing.thickness_to_chord   = 0.12
     wing.taper                = 1.0
-    wing.span_efficiency      = 0.95 
     wing.areas.reference      = vehicle.reference_area * .15
     wing.areas.wetted         = 2.0 * wing.areas.reference
     wing.areas.exposed        = 0.8 * wing.areas.wetted
@@ -153,7 +152,7 @@ def vehicle_setup():
     wing.chords.root             = wing.areas.reference/wing.spans.projected
     wing.chords.tip              = wing.areas.reference/wing.spans.projected
     wing.chords.mean_aerodynamic = wing.areas.reference/wing.spans.projected  
-    wing.origin                  = [10.,0.0,0.0] # meters
+    wing.origin                  = [[10.,0.0,0.0]] # meters
     wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
   
     # add to vehicle
@@ -163,7 +162,7 @@ def vehicle_setup():
     #   Vertical Stabilizer
     # ------------------------------------------------------------------
     
-    wing = SUAVE.Components.Wings.Wing()
+    wing = SUAVE.Components.Wings.Vertical_Tail()
     wing.tag = 'vertical_stabilizer'    
     
     
@@ -171,7 +170,6 @@ def vehicle_setup():
     wing.sweeps.quarter_chord = 0 * Units.deg
     wing.thickness_to_chord   = 0.12
     wing.taper                = 1.0
-    wing.span_efficiency      = 0.97
     wing.areas.reference      = vehicle.reference_area * 0.1
     wing.spans.projected      = np.sqrt(wing.aspect_ratio*wing.areas.reference)
 
@@ -183,7 +181,7 @@ def vehicle_setup():
     wing.areas.affected          = 0.6 * wing.areas.wetted    
     wing.twists.root             = 0.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees  
-    wing.origin                  = [10.,0.0,0.0] # meters
+    wing.origin                  = [[10.,0.0,0.0]] # meters
     wing.aerodynamic_center      = [0.5,0.0,0.0] # meters
     wing.symmetric               = True          
     wing.vertical                = True 
@@ -264,9 +262,10 @@ def vehicle_setup():
 
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 55.0 * Units.kg
-    bat.specific_energy      = 450. * Units.Wh/Units.kg
+    bat.mass_properties.mass = 90.0 * Units.kg
+    bat.specific_energy      = 600. * Units.Wh/Units.kg
     bat.resistance           = 0.05
+    bat.max_voltage          = 45.0
     initialize_from_mass(bat,bat.mass_properties.mass)
     net.battery              = bat
    
@@ -340,7 +339,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Weights
     weights = SUAVE.Analyses.Weights.Weights_UAV()
-    weights.settings.empty_weight_method = \
+    weights.settings.empty = \
         SUAVE.Methods.Weights.Correlations.Human_Powered.empty
     weights.vehicle = vehicle
     analyses.append(weights)
@@ -394,10 +393,10 @@ def mission_setup(analyses,vehicle):
     # base segment
     base_segment = Segments.Segment()   
     ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.propulsor.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.propulsor.residuals    
+    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
+    base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.propulsor.propeller.power_coefficient  * ones_row(1)/15.
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.power_coefficient  * ones_row(1)/15.
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
@@ -408,7 +407,7 @@ def mission_setup(analyses,vehicle):
     segment.tag = "cruise1"
     
     # connect vehicle configuration
-    segment.analyses.extend( analyses.cruise)
+    segment.analyses.extend(analyses.cruise)
     
     # segment attributes     
     segment.state.numerics.number_control_points = 64
@@ -416,7 +415,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.propulsors.propulsor.battery.max_energy*0.2 #Charge the battery to start
+    segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.2 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
     
@@ -447,287 +446,27 @@ def missions_setup(base_mission):
 # ----------------------------------------------------------------------
 def plot_mission(results):
 
-    # ------------------------------------------------------------------    
-    #   Throttle
-    # ------------------------------------------------------------------
-    plt.figure("Throttle History")
-    axes = plt.gca()
-    for i in range(len(results.segments)):
-        time = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        eta  = results.segments[i].conditions.propulsion.throttle[:,0]
-        
-        axes.plot(time, eta, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Throttle')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)
-    plt.ylim((0,1))
-    axes.grid(True)         
+    # Plot Flight Conditions 
+    plot_flight_conditions(results) 
+    
+    # Plot Solar Conditions 
+    plot_solar_flux(results)
 
-    # ------------------------------------------------------------------    
-    #   Altitude
-    # ------------------------------------------------------------------
-    plt.figure("Altitude")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        altitude = results.segments[i].conditions.freestream.altitude[:,0] / Units.km
-        axes.plot(time, altitude, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Altitude (km)')
-    axes.grid(True)    
-    
-    # ------------------------------------------------------------------    
-    #   Aerodynamics
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aerodynamic Forces")
-    for segment in results.segments.values():
-        
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        Lift   = -segment.conditions.frames.wind.lift_force_vector[:,2]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+    # Plot Aerodynamic Coefficients
+    plot_aerodynamic_coefficients(results)  
 
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , Lift , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Lift (N)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
-        axes.grid(True)
-        
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , Drag , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Drag (N)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
-        axes.grid(True)
-        
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , Thrust , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Thrust (N)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)  
-        plt.ylim((0,50))
-        axes.grid(True)
-        
-    # ------------------------------------------------------------------    
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Aerodynamic Coefficients")
-    for segment in results.segments.values():
-        
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        CLift  = segment.conditions.aerodynamics.lift_coefficient[:,0]
-        CDrag  = segment.conditions.aerodynamics.drag_coefficient[:,0]
-        Drag   = -segment.conditions.frames.wind.drag_force_vector[:,0]
-        Thrust = segment.conditions.frames.body.thrust_force_vector[:,0]
+    # Plot Aircraft Flight Speed
+    plot_aircraft_velocities(results)
 
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , CLift , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('CL')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
-        axes.grid(True)
-        
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , CDrag , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('CD')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
-        axes.grid(True)
-        
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , Drag   , 'bo-' )
-        axes.plot( time , Thrust , 'ro-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Drag and Thrust (N)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)  
-        axes.grid(True)
-        
-    
-    # ------------------------------------------------------------------    
-    #   Aerodynamics 2
-    # ------------------------------------------------------------------
-    fig = plt.figure("Drag Components")
-    axes = plt.gca()    
-    for i, segment in enumerate(results.segments.values()):
-        
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        drag_breakdown = segment.conditions.aerodynamics.drag_breakdown
-        cdp = drag_breakdown.parasite.total[:,0]
-        cdi = drag_breakdown.induced.total[:,0]
-        cdc = drag_breakdown.compressible.total[:,0]
-        cdm = drag_breakdown.miscellaneous.total[:,0]
-        cd  = drag_breakdown.total[:,0]
-        
-        axes.plot( time , cdp , 'ko-', label='CD_P' )
-        axes.plot( time , cdi , 'bo-', label='CD_I' )
-        axes.plot( time , cdc , 'go-', label='CD_C' )
-        axes.plot( time , cdm , 'yo-', label='CD_M' )
-        axes.plot( time , cd  , 'ro-', label='CD'   )
-        
-        if i == 0:
-            axes.legend(loc='upper center')
-        
-    axes.set_xlabel('Time (min)')
-    axes.set_ylabel('CD')
-    axes.grid(True)
-    
-    # ------------------------------------------------------------------    
-    #   Battery Energy
-    # ------------------------------------------------------------------
-    plt.figure("Battery Energy")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.segments[i].conditions.propulsion.battery_energy[:,0] 
-        axes.plot(time, energy, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Battery Energy (J)')
-    axes.grid(True)   
-    
-    # ------------------------------------------------------------------    
-    #   Solar Flux
-    # ------------------------------------------------------------------
-    plt.figure("Solar Flux")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.segments[i].conditions.propulsion.solar_flux[:,0] 
-        axes.plot(time, energy, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Solar Flux ($W/m^{2}$)')
-    axes.grid(True)      
-    
-    # ------------------------------------------------------------------    
-    #   Current Draw
-    # ------------------------------------------------------------------
-    plt.figure("Current Draw")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.segments[i].conditions.propulsion.current[:,0] 
-        axes.plot(time, energy, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Current Draw (Amps)')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)   
-    plt.ylim((0,200))
-    axes.grid(True)  
-    
-    # ------------------------------------------------------------------    
-    #   Motor RPM
-    # ------------------------------------------------------------------
-    plt.figure("Motor RPM")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.segments[i].conditions.propulsion.rpm[:,0] 
-        axes.plot(time, energy, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Motor RPM')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False) 
-    plt.ylim((0,200))
-    axes.grid(True)
-    
-    # ------------------------------------------------------------------    
-    #   Battery Draw
-    # ------------------------------------------------------------------
-    plt.figure("Battery Charging")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        energy = results.segments[i].conditions.propulsion.battery_draw[:,0] 
-        axes.plot(time, energy, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Battery Charging (Watts)')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)     
-    axes.grid(True)    
-    
-    # ------------------------------------------------------------------    
-    #   Propulsive efficiency
-    # ------------------------------------------------------------------
-    plt.figure("Propeller Efficiency")
-    axes = plt.gca()    
-    for i in range(len(results.segments)):     
-        time     = results.segments[i].conditions.frames.inertial.time[:,0] / Units.min
-        etap = results.segments[i].conditions.propulsion.etap[:,0] 
-        axes.plot(time, etap, 'bo-')
-    axes.set_xlabel('Time (mins)')
-    axes.set_ylabel('Etap')
-    axes.get_yaxis().get_major_formatter().set_scientific(False)
-    axes.get_yaxis().get_major_formatter().set_useOffset(False)      
-    axes.grid(True)      
-    plt.ylim((0,1))
+    # Plot Aircraft Electronics
+    plot_electronic_conditions(results)
 
-    # ------------------------------------------------------------------
-    #   Flight Conditions
-    # ------------------------------------------------------------------
-    fig = plt.figure("Flight Conditions")
-    for segment in results.segments.values():
+    # Plot Propeller Conditions 
+    plot_propeller_conditions(results) 
 
-        time     = segment.conditions.frames.inertial.time[:,0] / Units.min
-        altitude = segment.conditions.freestream.altitude[:,0] / Units.km
-        mach     = segment.conditions.freestream.mach_number[:,0]
-        aoa      = segment.conditions.aerodynamics.angle_of_attack[:,0] / Units.deg
+    # Plot Electric Motor and Propeller Efficiencies 
+    plot_eMotor_Prop_efficiencies(results)
 
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , aoa , 'bo-' )
-        axes.set_ylabel('Angle of Attack (deg)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , altitude , 'bo-' )
-        axes.set_ylabel('Altitude (km)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
-        axes.grid(True)
-
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , mach, 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Mach Number (-)')
-        axes.get_yaxis().get_major_formatter().set_scientific(False)
-        axes.get_yaxis().get_major_formatter().set_useOffset(False)          
-        axes.grid(True)    
-    
-    # ------------------------------------------------------------------    
-    #  Solar Flux, Charging Power, Battery Energy
-    # ------------------------------------------------------------------
-    
-    fig = plt.figure("Electric Outputs")
-    for segment in results.segments.values():
-        
-        time   = segment.conditions.frames.inertial.time[:,0] / Units.min
-        flux   = results.segments[i].conditions.propulsion.solar_flux[:,0] 
-        charge = results.segments[i].conditions.propulsion.battery_draw[:,0] 
-        energy = results.segments[i].conditions.propulsion.battery_energy[:,0] / Units.MJ
-
-        axes = fig.add_subplot(3,1,1)
-        axes.plot( time , flux , 'bo-' )
-        axes.set_ylabel('Solar Flux (W/m$^2$)')
-        axes.grid(True)
-        
-        axes = fig.add_subplot(3,1,2)
-        axes.plot( time , charge , 'bo-' )
-        axes.set_ylabel('Charging Power (W)')
-        axes.grid(True)
-        
-        axes = fig.add_subplot(3,1,3)
-        axes.plot( time , energy , 'bo-' )
-        axes.set_xlabel('Time (min)')
-        axes.set_ylabel('Battery Energy (MJ)')
-        axes.grid(True)        
     
     return 
 
