@@ -113,7 +113,7 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
-    aerodynamics.settings.drag_coefficient_increment = 0.0050
+    aerodynamics.settings.drag_coefficient_increment = 0.000
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------

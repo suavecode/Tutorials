@@ -36,10 +36,6 @@ from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 # covered in more detail in a separate tutorial. It does not size the turbofan geometry.
 
 
-# Python Imports
-import numpy as np
-import matplotlib.pyplot as plt  
-
 # ----------------------------------------------------------------------
 #   Main
 # ----------------------------------------------------------------------
@@ -256,7 +252,7 @@ def vehicle_setup():
     wing.areas.reference         = 124.862 * Units['meters**2']  
     wing.twists.root             = 4.0 * Units.degrees
     wing.twists.tip              = 0.0 * Units.degrees
-    wing.origin                  = [[13.61 * Units.meter, 0, -1.27 * Units.meter]]
+    wing.origin                  = [[13.61, 0, -1.27]] * Units.meter
     wing.vertical                = False
     wing.symmetric               = True
     # The high lift flag controls aspects of maximum lift coefficient calculations
@@ -310,12 +306,12 @@ def vehicle_setup():
     wing.tag = 'horizontal_stabilizer'
     
     wing.aspect_ratio            = 6.16     
-    wing.sweeps.quarter_chord    = 40 * Units.deg
+    wing.sweeps.quarter_chord    = 40.0 * Units.deg
     wing.thickness_to_chord      = 0.08
     wing.taper                   = 0.2
     wing.spans.projected         = 14.2 * Units.meter
     wing.chords.root             = 4.7  * Units.meter
-    wing.chords.tip              = .955 * Units.meter
+    wing.chords.tip              = 0.955 * Units.meter
     wing.chords.mean_aerodynamic = 3.0  * Units.meter
     wing.areas.reference         = 32.488   * Units['meters**2']  
     wing.twists.root             = 3.0 * Units.degrees
@@ -413,7 +409,7 @@ def vehicle_setup():
     turbofan.bypass_ratio      = 5.4
     turbofan.engine_length     = 2.71 * Units.meter
     turbofan.nacelle_diameter  = 2.05 * Units.meter
-    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
+    turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]] * Units.meter
     
     # Approximate the wetted area
     turbofan.areas.wetted      = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
@@ -565,19 +561,20 @@ def vehicle_setup():
     turbofan.append(fan)
     
     # ------------------------------------------------------------------
-    #Component 10 : thrust (to compute the thrust)
+    #  Component 11 - thrust (to compute the thrust)
+    
     thrust = SUAVE.Components.Energy.Processes.Thrust()       
     thrust.tag ='compute_thrust'
  
     # Design thrust is used to determine mass flow at full throttle
     thrust.total_design             = 2*24000. * Units.N #Newtons
- 
-    # Design sizing conditions are also used to determine mass flow
-    altitude      = 35000.0*Units.ft
-    mach_number   = 0.78 
     
     # Add to network
     turbofan.thrust = thrust
+    
+    # Design sizing conditions are also used to determine mass flow
+    altitude      = 35000.0*Units.ft
+    mach_number   = 0.78     
 
     # Determine turbofan behavior at the design condition
     turbofan_sizing(turbofan,mach_number,altitude)   

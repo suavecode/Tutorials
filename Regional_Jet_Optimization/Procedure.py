@@ -198,12 +198,12 @@ def weight(nexus):
     vehicle=nexus.vehicle_configurations.base
 
     # weight analysis
-    weights = nexus.analyses.base.weights.evaluate()
-    weights = nexus.analyses.cruise.weights.evaluate()
+    weights = nexus.analyses.base.weights.evaluate(method="SUAVE")
+    weights = nexus.analyses.cruise.weights.evaluate(method="SUAVE")
     vehicle.mass_properties.breakdown = weights
-    weights = nexus.analyses.landing.weights.evaluate()
-    weights = nexus.analyses.takeoff.weights.evaluate()
-    weights = nexus.analyses.short_field_takeoff.weights.evaluate()
+    weights = nexus.analyses.landing.weights.evaluate(method="SUAVE")
+    weights = nexus.analyses.takeoff.weights.evaluate(method="SUAVE")
+    weights = nexus.analyses.short_field_takeoff.weights.evaluate(method="SUAVE")
     
     for config in nexus.vehicle_configurations:
         config.mass_properties.zero_fuel_center_of_gravity  = vehicle.mass_properties.zero_fuel_center_of_gravity

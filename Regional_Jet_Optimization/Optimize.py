@@ -27,13 +27,17 @@ def main():
     
     ## Base Input Values
     #output = problem.objective()
+    import time
+    t = time.time()
     
-    ## Uncomment to view contours of the design space
-    #variable_sweep(problem)
+    # Uncomment to view contours of the design space
+    variable_sweep(problem)
+    
+    t_elapsed = time.time() - t
     
     ## Uncomment for the first optimization
-    output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    print (output)    
+    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    #print (output)    
     
     ## Uncomment these lines when you want to start an optimization problem from a different initial guess
     #inputs                                   = [1.28, 1.38]
@@ -64,10 +68,10 @@ def setup():
     # Inputs
     # -------------------------------------------------------------------
 
-    #   [ tag                            , initial, (lb,ub)             , scaling , units ]
+    #   [ tag                   , initial,        lb,ub)        , scaling , units ]
     problem.inputs = np.array([
-        [ 'wing_area'                    ,  100    , (   90. ,   130.   ) ,   100. , Units.meter**2],
-        [ 'cruise_altitude'              ,  11    , (   9   ,    14.   ) ,   10.  , Units.km],
+        [ 'wing_area'           ,  100   , (   90. ,   130.   ) ,   100.  , Units.meter**2],
+        [ 'cruise_altitude'     ,  11    , (   9   ,    14.   ) ,   10.   , Units.km],
     ])
 
     # -------------------------------------------------------------------
@@ -137,11 +141,11 @@ def variable_sweep(problem):
     objective   = outputs.objective
     constraints = outputs.constraint_val
     plt.figure(0)
-    CS   = plt.contourf(inputs[0,:],inputs[1,:], objective, 20, linewidths=2)
+    CS   = plt.contourf(inputs[0,:],inputs[1,:], objective, 20, linewidths=2,cmap='jet')
     cbar = plt.colorbar(CS)
     
     cbar.ax.set_ylabel('fuel burn (kg)')
-    CS_const = plt.contour(inputs[0,:],inputs[1,:], constraints[0,:,:])
+    CS_const = plt.contour(inputs[0,:],inputs[1,:], constraints[0,:,:],cmap='jet')
     plt.clabel(CS_const, inline=1, fontsize=10)
     cbar = plt.colorbar(CS_const)
     cbar.ax.set_ylabel('fuel margin')
@@ -149,7 +153,6 @@ def variable_sweep(problem):
     plt.xlabel('Wing Area (m^2)')
     plt.ylabel('Cruise Altitude (km)')
     
-    plt.legend(loc='upper left')  
     plt.show(block=True)    
     
     return
