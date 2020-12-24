@@ -23,22 +23,22 @@ import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
 #   Run the whole thing
 # ----------------------------------------------------------------------  
 def main():
+    import time
+    t = time.time()
+    
     problem = setup()
     
     ## Base Input Values
     #output = problem.objective()
-    import time
-    t = time.time()
     
-    # Uncomment to view contours of the design space
-    variable_sweep(problem)
+    ## Uncomment to view contours of the design space
+    #variable_sweep(problem)
+    
+    # Uncomment for the first optimization
+    output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    print (output)    
     
     t_elapsed = time.time() - t
-    
-    ## Uncomment for the first optimization
-    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    #print (output)    
-    
     ## Uncomment these lines when you want to start an optimization problem from a different initial guess
     #inputs                                   = [1.28, 1.38]
     #scaling                                  = problem.optimization_problem.inputs[:,3] #have to rescale inputs to start problem from here
@@ -70,8 +70,8 @@ def setup():
 
     #   [ tag                   , initial,        lb,ub)        , scaling , units ]
     problem.inputs = np.array([
-        [ 'wing_area'           ,  100   , (   90. ,   130.   ) ,   100.  , Units.meter**2],
-        [ 'cruise_altitude'     ,  11    , (   9   ,    14.   ) ,   10.   , Units.km],
+        [ 'wing_area'           ,  90   , (   90. ,   130.   ) ,   100.  , Units.meter**2],
+        [ 'cruise_altitude'     ,  10    , (   9   ,    14.   ) ,   10.   , Units.km],
     ])
 
     # -------------------------------------------------------------------

@@ -171,12 +171,12 @@ def base_setup():
     esc.efficiency = 0.95 # Gundlach for brushless motors
     net.esc        = esc
 
-    # Component 5 the Propeller
+    # Component 4 the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller_Lo_Fid()
     prop.propulsive_efficiency = 0.825
     net.propeller        = prop
     
-    # Component 4 the Motor
+    # Component 5 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
     motor.speed_constant       = 800. * Units['rpm/volt'] # RPM/volt is standard
     motor                      = size_from_kv(motor)    

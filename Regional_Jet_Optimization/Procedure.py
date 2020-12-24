@@ -253,11 +253,11 @@ def post_process(nexus):
     
     # Fuel margin and base fuel calculations
     operating_empty          = vehicle.mass_properties.operating_empty
-    payload                  = vehicle.mass_properties.breakdown.payload
+    payload                  = vehicle.mass_properties.breakdown.payload_breakdown
     design_landing_weight    = results.base.segments[-1].conditions.weights.total_mass[-1]
     design_takeoff_weight    = vehicle.mass_properties.takeoff
     max_takeoff_weight       = nexus.vehicle_configurations.takeoff.mass_properties.max_takeoff
-    zero_fuel_weight         = payload+operating_empty
+    zero_fuel_weight         = vehicle.mass_properties.breakdown.zero_fuel_weight
     
     summary.max_zero_fuel_margin    = (design_landing_weight - zero_fuel_weight)/zero_fuel_weight
     summary.base_mission_fuelburn   = design_takeoff_weight - results.base.segments['descent_3'].conditions.weights.total_mass[-1]
