@@ -37,20 +37,19 @@ def main():
     # Uncomment for the first optimization
     output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
     print (output)    
-    
-    t_elapsed = time.time() - t
+
     ## Uncomment these lines when you want to start an optimization problem from a different initial guess
     #inputs                                   = [1.28, 1.38]
     #scaling                                  = problem.optimization_problem.inputs[:,3] #have to rescale inputs to start problem from here
     #scaled_inputs                            = np.multiply(inputs,scaling)
     #problem.optimization_problem.inputs[:,1] = scaled_inputs
     #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    #print output        
+    #print(output)
   
-    print('fuel burn = ', problem.summary.base_mission_fuelburn)
-    print('fuel margin = ', problem.all_constraints())
+    #print('fuel burn = ', problem.summary.base_mission_fuelburn)
+    #print('fuel margin = ', problem.all_constraints())
     
-    Plot_Mission.plot_mission(problem)
+    #Plot_Mission.plot_mission(problem)
     
     return
 
@@ -70,8 +69,8 @@ def setup():
 
     #   [ tag                   , initial,        lb,ub)        , scaling , units ]
     problem.inputs = np.array([
-        [ 'wing_area'           ,  90   , (   90. ,   130.   ) ,   100.  , Units.meter**2],
-        [ 'cruise_altitude'     ,  10    , (   9   ,    14.   ) ,   10.   , Units.km],
+        [ 'wing_area'           ,  90   , (   50. ,   130.   ) ,   100.  , Units.meter**2],
+        [ 'cruise_altitude'     ,  10    , (   6. ,    12.   ) ,   10.   , Units.km],
     ])
 
     # -------------------------------------------------------------------

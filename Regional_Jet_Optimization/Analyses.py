@@ -8,6 +8,9 @@
 # ----------------------------------------------------------------------    
 
 import SUAVE
+from SUAVE.Core import Units
+
+import numpy as np
 
 # ----------------------------------------------------------------------        
 #   Setup Analyses
@@ -55,6 +58,10 @@ def base(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.Fidelity_Zero()
     aerodynamics.geometry = vehicle
+    aerodynamics.settings.number_spanwise_vortices  = 5 
+    aerodynamics.settings.number_chordwise_vortices = 1
+    aerodynamics.process.compute.lift.inviscid_wings.training.angle_of_attack = np.array([[-5., 0.0, 5.0, 10.0, 75.]]).T * Units.deg 
+    aerodynamics.process.compute.lift.inviscid_wings.training.Mach            = np.array([[0.0, 0.2, 0.5, 0.70, 0.80, 0.9, 1.3, 1.35, 1.5, 2.0]]).T         
     analyses.append(aerodynamics)
 
     # ------------------------------------------------------------------

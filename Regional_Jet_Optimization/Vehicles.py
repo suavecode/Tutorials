@@ -320,7 +320,7 @@ def base_setup():
     #design sizing conditions
     altitude         = 35000.0*Units.ft
     mach_number      = 0.78 
-    isa_deviation    = 0.
+
     # add thrust to the network
     gt_engine.thrust = thrust
 

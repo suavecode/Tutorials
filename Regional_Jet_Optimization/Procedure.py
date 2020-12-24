@@ -54,7 +54,6 @@ def setup():
 def find_target_range(nexus,mission):
     
     segments = mission.segments
-    cruise_altitude = mission.segments['climb_5'].altitude_end
     climb_1  = segments['climb_1']
     climb_2  = segments['climb_2']
     climb_3  = segments['climb_3']
@@ -231,8 +230,8 @@ def post_process(nexus):
     vehicle                           = nexus.vehicle_configurations.base
     results                           = nexus.results
     summary                           = nexus.summary
-    missions                          = nexus.missions  
     nexus.total_number_of_iterations +=1
+    
     # Static stability calculations
     CMA = -10.
     for segment in results.base.segments.values():
@@ -252,11 +251,8 @@ def post_process(nexus):
     summary.max_throttle = max_throttle
     
     # Fuel margin and base fuel calculations
-    operating_empty          = vehicle.mass_properties.operating_empty
-    payload                  = vehicle.mass_properties.breakdown.payload_breakdown
     design_landing_weight    = results.base.segments[-1].conditions.weights.total_mass[-1]
     design_takeoff_weight    = vehicle.mass_properties.takeoff
-    max_takeoff_weight       = nexus.vehicle_configurations.takeoff.mass_properties.max_takeoff
     zero_fuel_weight         = vehicle.mass_properties.breakdown.zero_fuel_weight
     
     summary.max_zero_fuel_margin    = (design_landing_weight - zero_fuel_weight)/zero_fuel_weight
