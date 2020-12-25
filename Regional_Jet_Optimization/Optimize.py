@@ -67,10 +67,10 @@ def setup():
     # Inputs
     # -------------------------------------------------------------------
 
-    #   [ tag                   , initial,        lb,ub)        , scaling , units ]
+    #   [ tag                   , initial,     (lb , ub)        , scaling , units ]
     problem.inputs = np.array([
-        [ 'wing_area'           ,  90   , (   50. ,   130.   ) ,   100.  , Units.meter**2],
-        [ 'cruise_altitude'     ,  10    , (   6. ,    12.   ) ,   10.   , Units.km],
+        [ 'wing_area'           ,  80    , (   50. ,   130.   ) ,   100.  , Units.meter**2],
+        [ 'cruise_altitude'     ,   8    , (    6. ,    12.   ) ,   10.   , Units.km],
     ])
 
     # -------------------------------------------------------------------
