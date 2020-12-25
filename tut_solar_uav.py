@@ -16,7 +16,7 @@ import time
 from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
+from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 
 # ----------------------------------------------------------------------
 #   Main
