@@ -138,55 +138,6 @@ def simple_sizing(nexus):
         turbofan_sizing(config.propulsors['turbofan'], mach_number = mach_number, altitude = altitude)
         compute_turbofan_geometry(config.propulsors['turbofan'], conditions)
 
-
-    # ------------------------------------------------------------------
-    #   Landing Configuration
-    # ------------------------------------------------------------------
-    landing = nexus.vehicle_configurations.landing
-    state = Data()
-    state.conditions = Data()
-    state.conditions.freestream = Data()
-
-    # landing weight
-    landing.mass_properties.landing = 0.85 * config.mass_properties.takeoff
-    
-    # Landing CL_max
-    altitude                                      = nexus.missions.base.segments[-1].altitude_end
-    atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu                              = atmosphere.compute_values(altitude)
-    state.conditions.freestream.velocity          = nexus.missions.base.segments['descent_3'].air_speed
-    state.conditions.freestream.density           = rho
-    state.conditions.freestream.dynamic_viscosity = mu/rho
-    settings                                      = Data()
-    settings.maximum_lift_coefficient_factor      = 1.0
-    CL_max_landing, CDi                           = compute_max_lift_coeff(state,settings,landing)
-    landing.maximum_lift_coefficient              = CL_max_landing
-    
-    
-    #Takeoff CL_max
-    takeoff                                       = nexus.vehicle_configurations.takeoff
-    altitude                                      = nexus.missions.base.airport.altitude
-    atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu                              = atmosphere.compute_values(altitude)
-    state.conditions.freestream.velocity          = nexus.missions.base.segments.climb_1.air_speed
-    state.conditions.freestream.density           = rho
-    state.conditions.freestream.dynamic_viscosity = mu/rho 
-    settings.maximum_lift_coefficient_factor      = 1.0    
-    max_CL_takeoff,CDi                            = compute_max_lift_coeff(state,settings,takeoff)
-    takeoff.maximum_lift_coefficient              = max_CL_takeoff
-
-    #Base config CL_max
-    base                                          = nexus.vehicle_configurations.base
-    altitude                                      = nexus.missions.base.airport.altitude
-    atmosphere                                    = SUAVE.Analyses.Atmospheric.US_Standard_1976()
-    p, T, rho, a, mu                              = atmosphere.compute_values(altitude)
-    state.conditions.freestream.velocity          = nexus.missions.base.segments.climb_1.air_speed
-    state.conditions.freestream.density           = rho
-    state.conditions.freestream.dynamic_viscosity = mu/rho 
-    settings.maximum_lift_coefficient_factor      = 1.0       
-    max_CL_base,CDi                               = compute_max_lift_coeff(state,settings,landing)
-    base.maximum_lift_coefficient                 = max_CL_base    
-    
     return nexus
 
 # ----------------------------------------------------------------------        
@@ -203,11 +154,7 @@ def weight(nexus):
     weights = nexus.analyses.landing.weights.evaluate(method="SUAVE")
     weights = nexus.analyses.takeoff.weights.evaluate(method="SUAVE")
     weights = nexus.analyses.short_field_takeoff.weights.evaluate(method="SUAVE")
-    
-    for config in nexus.vehicle_configurations:
-        config.mass_properties.zero_fuel_center_of_gravity  = vehicle.mass_properties.zero_fuel_center_of_gravity
-        config.fuel                                         = vehicle.fuel
-       
+
     return nexus
 
 # ----------------------------------------------------------------------
@@ -232,15 +179,6 @@ def post_process(nexus):
     summary                           = nexus.summary
     nexus.total_number_of_iterations +=1
     
-    # Static stability calculations
-    CMA = -10.
-    for segment in results.base.segments.values():
-        max_CMA = np.max(segment.conditions.stability.static.Cm_alpha[:,0])
-        if max_CMA > CMA:
-            CMA = max_CMA
-            
-    summary.static_stability = CMA
-    
     #throttle in design mission
     max_throttle = 0
     for segment in results.base.segments.values():
@@ -255,11 +193,11 @@ def post_process(nexus):
     design_takeoff_weight    = vehicle.mass_properties.takeoff
     zero_fuel_weight         = vehicle.mass_properties.breakdown.zero_fuel_weight
     
-    summary.max_zero_fuel_margin    = (design_landing_weight - zero_fuel_weight)/zero_fuel_weight
-    summary.base_mission_fuelburn   = design_takeoff_weight - results.base.segments['descent_3'].conditions.weights.total_mass[-1]
+    summary.max_zero_fuel_margin  = (design_landing_weight - zero_fuel_weight)/zero_fuel_weight
+    summary.base_mission_fuelburn = design_takeoff_weight - results.base.segments['descent_3'].conditions.weights.total_mass[-1]
     
     #when you run want to output results to a file
     filename = 'results.txt'
     write_optimization_outputs(nexus, filename)
-    
+   
     return nexus    

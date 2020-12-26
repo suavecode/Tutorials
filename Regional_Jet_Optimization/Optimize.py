@@ -23,8 +23,6 @@ import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
 #   Run the whole thing
 # ----------------------------------------------------------------------  
 def main():
-    import time
-    t = time.time()
     
     problem = setup()
     
@@ -32,11 +30,11 @@ def main():
     #output = problem.objective()
     
     ## Uncomment to view contours of the design space
-    #variable_sweep(problem)
+    variable_sweep(problem)
     
     # Uncomment for the first optimization
-    output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    print (output)    
+    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    #print (output)    
 
     ## Uncomment these lines when you want to start an optimization problem from a different initial guess
     #inputs                                   = [1.28, 1.38]
@@ -69,7 +67,7 @@ def setup():
 
     #   [ tag                   , initial,     (lb , ub)        , scaling , units ]
     problem.inputs = np.array([
-        [ 'wing_area'           ,  80    , (   50. ,   130.   ) ,   100.  , Units.meter**2],
+        [ 'wing_area'           ,  92    , (   50. ,   130.   ) ,   100.  , Units.meter**2],
         [ 'cruise_altitude'     ,   8    , (    6. ,    12.   ) ,   10.   , Units.km],
     ])
 
@@ -77,7 +75,6 @@ def setup():
     # Objective
     # -------------------------------------------------------------------
 
-    # throw an error if the user isn't specific about wildcards
     # [ tag, scaling, units ]
     problem.objective = np.array([
         [ 'fuel_burn', 10000, Units.kg ]
