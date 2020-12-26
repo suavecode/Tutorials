@@ -36,14 +36,6 @@ def main():
     #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
     #print (output)    
 
-    ## Uncomment these lines when you want to start an optimization problem from a different initial guess
-    #inputs                                   = [1.28, 1.38]
-    #scaling                                  = problem.optimization_problem.inputs[:,3] #have to rescale inputs to start problem from here
-    #scaled_inputs                            = np.multiply(inputs,scaling)
-    #problem.optimization_problem.inputs[:,1] = scaled_inputs
-    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    #print(output)
-  
     #print('fuel burn = ', problem.summary.base_mission_fuelburn)
     #print('fuel margin = ', problem.all_constraints())
     
@@ -131,7 +123,7 @@ def setup():
     return nexus
     
 def variable_sweep(problem):    
-    number_of_points = 5
+    number_of_points = 20
     outputs     = carpet_plot(problem, number_of_points, 0, 0)  #run carpet plot, suppressing default plots
     inputs      = outputs.inputs
     objective   = outputs.objective

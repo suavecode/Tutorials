@@ -17,6 +17,8 @@ import Plot_Mission
 import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
 import SUAVE.Optimization.Package_Setups.pyopt_setup as pyopt_setup
 from SUAVE.Optimization.Nexus import Nexus
+import pylab as plt
+
 
 # ----------------------------------------------------------------------        
 #   Run the whole thing
@@ -121,3 +123,4 @@ def setup():
 
 if __name__ == '__main__':
     main()
+    plt.show()
