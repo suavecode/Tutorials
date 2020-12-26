@@ -27,19 +27,19 @@ def main():
     problem = setup()
     
     ## Base Input Values
-    #output = problem.objective()
+    output = problem.objective()
     
     ## Uncomment to view contours of the design space
-    variable_sweep(problem)
+    #variable_sweep(problem)
     
     # Uncomment for the first optimization
-    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    #print (output)    
+    output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
+    print (output)    
 
-    #print('fuel burn = ', problem.summary.base_mission_fuelburn)
-    #print('fuel margin = ', problem.all_constraints())
+    print('fuel burn = ', problem.summary.base_mission_fuelburn)
+    print('fuel margin = ', problem.all_constraints())
     
-    #Plot_Mission.plot_mission(problem)
+    Plot_Mission.plot_mission(problem)
     
     return
 
@@ -123,7 +123,7 @@ def setup():
     return nexus
     
 def variable_sweep(problem):    
-    number_of_points = 20
+    number_of_points = 5
     outputs     = carpet_plot(problem, number_of_points, 0, 0)  #run carpet plot, suppressing default plots
     inputs      = outputs.inputs
     objective   = outputs.objective
