@@ -38,9 +38,9 @@ def base_setup():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------    
     # mass properties
-    vehicle.mass_properties.takeoff         = 6.75 * Units.kg
-    vehicle.mass_properties.operating_empty = 6.75 * Units.kg
-    vehicle.mass_properties.max_takeoff     = 6.75 * Units.kg 
+    vehicle.mass_properties.takeoff         = 4.00 * Units.kg
+    vehicle.mass_properties.operating_empty = 4.00 * Units.kg
+    vehicle.mass_properties.max_takeoff     = 4.00 * Units.kg 
 
     # basic parameters
     vehicle.reference_area                    = 1.0       
@@ -171,24 +171,24 @@ def base_setup():
     esc.efficiency = 0.95 # Gundlach for brushless motors
     net.esc        = esc
 
-    # Component 5 the Propeller
+    # Component 4 the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller_Lo_Fid()
     prop.propulsive_efficiency = 0.825
     net.propeller        = prop
     
-    # Component 4 the Motor
+    # Component 5 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor_Lo_Fid()
-    motor.speed_constant       = 800. * Units['rpm/volt'] # RPM/volt is standard
+    motor.speed_constant       = 900. * Units['rpm/volt'] # RPM/volt is standard
     motor                      = size_from_kv(motor)    
     motor.gear_ratio           = 1. # Gear ratio, no gearbox
     motor.gearbox_efficiency   = 1. # Gear box efficiency, no gearbox
-    motor.motor_efficiency     = 0.825;
+    motor.motor_efficiency     = 0.8;
     net.motor                  = motor    
 
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()
     payload.power_draw           = 0. #Watts 
-    payload.mass_properties.mass = 0.0 * Units.kg
+    payload.mass_properties.mass = 1.0 * Units.kg
     net.payload                  = payload
 
     # Component 7 the Avionics
@@ -198,8 +198,8 @@ def base_setup():
 
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 5.0  * Units.kg
-    bat.specific_energy      = 250. *Units.Wh/Units.kg
+    bat.mass_properties.mass = 3.0  * Units.kg
+    bat.specific_energy      = 200. *Units.Wh/Units.kg
     bat.resistance           = 0.003
     initialize_from_mass(bat,bat.mass_properties.mass)
     net.battery              = bat

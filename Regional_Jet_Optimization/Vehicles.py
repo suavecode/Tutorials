@@ -38,7 +38,6 @@ def base_setup():
     #   Vehicle-level Properties
     # ------------------------------------------------------------------
 
-    # mass properties (http://www.embraercommercialaviation.com/AircraftPDF/E190_Weights.pdf)
     vehicle.mass_properties.max_takeoff               = 51800.   # kg
     vehicle.mass_properties.operating_empty           = 27837.   # kg
     vehicle.mass_properties.takeoff                   = 51800.   # kg
@@ -46,9 +45,6 @@ def base_setup():
     vehicle.mass_properties.max_payload               = 13063.   # kg
     vehicle.mass_properties.max_fuel                  = 12971.   # kg
     vehicle.mass_properties.cargo                     =     0.0  # kg
-
-    vehicle.mass_properties.center_of_gravity         = [[16.8, 0, 1.6]]
-    vehicle.mass_properties.moments_of_inertia.tensor = [[10 ** 5, 0, 0],[0, 10 ** 6, 0,],[0,0, 10 ** 7]] 
 
     # envelope properties
     vehicle.envelope.ultimate_load = 3.5
@@ -217,10 +213,11 @@ def base_setup():
     gt_engine.inlet_diameter    = 2.0
 
     #compute engine areas)
-    Amax                        = (np.pi/4.)*gt_engine.nacelle_diameter**2.
     Awet                        = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # 1.1 is simple coefficient
+    
     #Assign engine area
     gt_engine.areas.wetted      = Awet
+    
     #set the working fluid for the network
     working_fluid               = SUAVE.Attributes.Gases.Air()
 
@@ -320,7 +317,7 @@ def base_setup():
     #design sizing conditions
     altitude         = 35000.0*Units.ft
     mach_number      = 0.78 
-    isa_deviation    = 0.
+
     # add thrust to the network
     gt_engine.thrust = thrust
 

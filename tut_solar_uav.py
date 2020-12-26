@@ -16,7 +16,7 @@ import time
 from SUAVE.Plots.Mission_Plots import *
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
-from SUAVE.Methods.Power.Battery.Sizing import initialize_from_energy_and_power, initialize_from_mass
+from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
 
 # ----------------------------------------------------------------------
 #   Main
@@ -242,7 +242,7 @@ def vehicle_setup():
     motor.no_load_current      = 4.5  * Units.ampere
     motor.speed_constant       = 120. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
     motor.propeller_radius     = prop.tip_radius
-    motor.propeller_Cp         = prop.power_coefficient
+    motor.propeller_Cp         = prop.design_power_coefficient
     motor.gear_ratio           = 12. # Gear ratio
     motor.gearbox_efficiency   = .98 # Gear box efficiency
     motor.expected_current     = 160. # Expected current
@@ -396,7 +396,7 @@ def mission_setup(analyses,vehicle):
     base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
     base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
     base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.power_coefficient  * ones_row(1)/15.
+    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/15.
     base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    

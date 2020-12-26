@@ -23,26 +23,19 @@ import SUAVE.Optimization.Package_Setups.scipy_setup as scipy_setup
 #   Run the whole thing
 # ----------------------------------------------------------------------  
 def main():
+    
     problem = setup()
     
     ## Base Input Values
-    #output = problem.objective()
+    output = problem.objective()
     
     ## Uncomment to view contours of the design space
     #variable_sweep(problem)
     
-    ## Uncomment for the first optimization
+    # Uncomment for the first optimization
     output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
     print (output)    
-    
-    ## Uncomment these lines when you want to start an optimization problem from a different initial guess
-    #inputs                                   = [1.28, 1.38]
-    #scaling                                  = problem.optimization_problem.inputs[:,3] #have to rescale inputs to start problem from here
-    #scaled_inputs                            = np.multiply(inputs,scaling)
-    #problem.optimization_problem.inputs[:,1] = scaled_inputs
-    #output = scipy_setup.SciPy_Solve(problem,solver='SLSQP')
-    #print output        
-  
+
     print('fuel burn = ', problem.summary.base_mission_fuelburn)
     print('fuel margin = ', problem.all_constraints())
     
@@ -64,17 +57,16 @@ def setup():
     # Inputs
     # -------------------------------------------------------------------
 
-    #   [ tag                            , initial, (lb,ub)             , scaling , units ]
+    #   [ tag                   , initial,     (lb , ub)        , scaling , units ]
     problem.inputs = np.array([
-        [ 'wing_area'                    ,  100    , (   90. ,   130.   ) ,   100. , Units.meter**2],
-        [ 'cruise_altitude'              ,  11    , (   9   ,    14.   ) ,   10.  , Units.km],
+        [ 'wing_area'           ,  92    , (   50. ,   130.   ) ,   100.  , Units.meter**2],
+        [ 'cruise_altitude'     ,   8    , (    6. ,    12.   ) ,   10.   , Units.km],
     ])
 
     # -------------------------------------------------------------------
     # Objective
     # -------------------------------------------------------------------
 
-    # throw an error if the user isn't specific about wildcards
     # [ tag, scaling, units ]
     problem.objective = np.array([
         [ 'fuel_burn', 10000, Units.kg ]
@@ -137,11 +129,11 @@ def variable_sweep(problem):
     objective   = outputs.objective
     constraints = outputs.constraint_val
     plt.figure(0)
-    CS   = plt.contourf(inputs[0,:],inputs[1,:], objective, 20, linewidths=2)
+    CS   = plt.contourf(inputs[0,:],inputs[1,:], objective, 20, linewidths=2,cmap='jet')
     cbar = plt.colorbar(CS)
     
     cbar.ax.set_ylabel('fuel burn (kg)')
-    CS_const = plt.contour(inputs[0,:],inputs[1,:], constraints[0,:,:])
+    CS_const = plt.contour(inputs[0,:],inputs[1,:], constraints[0,:,:],cmap='jet')
     plt.clabel(CS_const, inline=1, fontsize=10)
     cbar = plt.colorbar(CS_const)
     cbar.ax.set_ylabel('fuel margin')
@@ -149,7 +141,6 @@ def variable_sweep(problem):
     plt.xlabel('Wing Area (m^2)')
     plt.ylabel('Cruise Altitude (km)')
     
-    plt.legend(loc='upper left')  
     plt.show(block=True)    
     
     return
