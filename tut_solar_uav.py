@@ -223,7 +223,7 @@ def vehicle_setup():
     # Component 5 the Propeller
     # Design the Propeller
     prop = SUAVE.Components.Energy.Converters.Propeller()
-    prop.number_blades       = 2.0
+    prop.number_of_blades    = 2.0
     prop.freestream_velocity = 40.0 * Units['m/s']# freestream
     prop.angular_velocity    = 150. * Units['rpm']
     prop.tip_radius          = 4.25 * Units.meters
@@ -263,7 +263,7 @@ def vehicle_setup():
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 90.0 * Units.kg
-    bat.specific_energy      = 600. * Units.Wh/Units.kg
+    bat.specific_energy      = 700. * Units.Wh/Units.kg
     bat.resistance           = 0.05
     bat.max_voltage          = 45.0
     initialize_from_mass(bat,bat.mass_properties.mass)
