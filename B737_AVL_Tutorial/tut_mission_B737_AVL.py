@@ -213,7 +213,7 @@ def vehicle_setup():
     wing.origin                  = [[13.61 * Units.meter, 0, -1.27 * Units.meter]]
     wing.vertical                = False
     wing.symmetric               = True
-    wing.high_lift               = True
+    wing.high_lift               = False
     wing.dynamic_pressure_ratio  = 1.0
 
     # add to vehicle
