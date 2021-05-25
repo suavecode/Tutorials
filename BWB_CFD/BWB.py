@@ -15,7 +15,7 @@ import pylab as plt
 from SUAVE.Core import Data, Units
 
 from SUAVE.Input_Output.OpenVSP import write
-from SUAVE.Input_Output.OpenVSP.get_vsp_areas import get_vsp_areas
+from SUAVE.Input_Output.OpenVSP import get_vsp_measurements
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
@@ -555,7 +555,7 @@ def simple_sizing(configs):
     base.mass_properties.max_zero_fuel = 0.9 * base.mass_properties.max_takeoff 
 
     # Areas
-    wetted_areas = get_vsp_areas(base.tag)
+    wetted_areas = get_vsp_measurements(base.tag)
 
     for wing in base.wings:
         wing.areas.wetted   = wetted_areas[wing.tag]
