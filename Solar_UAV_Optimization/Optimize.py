@@ -50,7 +50,7 @@ def setup():
 
     # [ tag , initial, [lb,ub], scaling, units ]
     problem.inputs = np.array([
-        [ 'wing_area'       ,    0.5,   0.1,      1.5 ,    0.5, 1*Units.meter      ],
+        [ 'wing_area'       ,    0.5,   0.1,      1.5 ,    0.5, 1*Units.meter**2   ],
         [ 'aspect_ratio'    ,   10.0,   5.0,     20.0 ,   10.0, 1*Units.less       ], 
         [ 'dynamic_pressure',  125.0,   1.0,   2000.0 ,  125.0, 1*Units.pascals    ], 
         [ 'solar_ratio'     ,    0.0,   0.0,      0.97,    1.0, 1*Units.less       ], 
