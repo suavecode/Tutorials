@@ -66,7 +66,7 @@ def simple_sizing(nexus):
     # Pull out the vehicle
     vec = nexus.vehicle_configurations.base
     
-    # Change the dynamic pressure based on the, add a factor of safety   
+    # Change the dynamic pressure, add a factor of safety   
     vec.envelope.maximum_dynamic_pressure = nexus.missions.mission.segments.cruise.dynamic_pressure*1.2
     
     # Scale the horizontal and vertical tails based on the main wing area

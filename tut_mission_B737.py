@@ -58,7 +58,7 @@ def main():
     weights = analyses.configs.base.weights
     breakdown = weights.evaluate()      
 
-    # Performance a mission analysis
+    # Perform a mission analysis
     mission = analyses.missions.base
     results = mission.evaluate()
 
