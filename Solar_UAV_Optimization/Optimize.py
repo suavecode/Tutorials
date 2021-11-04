@@ -7,6 +7,10 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
+import SUAVE
+if not SUAVE.__version__=='2.5.0':
+    assert('These tutorials only work with the SUAVE 2.5.0 release')
+
 from SUAVE.Core import Units, Data
 import numpy as np
 import Vehicles

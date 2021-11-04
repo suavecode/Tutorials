@@ -8,6 +8,8 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
+if not SUAVE.__version__=='2.5.0':
+    assert('These tutorials only work with the SUAVE 2.5.0 release')
 
 import numpy as np
 import pylab as plt
@@ -20,7 +22,11 @@ from SUAVE.Input_Output.OpenVSP import get_vsp_measurements
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
 
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
+
+if not SUAVE.__version__=='2.5.0':
+    assert('These tutorials only work with the SUAVE 2.5.0 release')
+
 
 # ----------------------------------------------------------------------
 #   Main

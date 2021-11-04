@@ -7,16 +7,19 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
+if not SUAVE.__version__=='2.5.0':
+    assert('These tutorials only work with the SUAVE 2.5.0 release')
 from SUAVE.Core import Units, Data
 
 import numpy as np
 import pylab as plt
 import time
 
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
 from SUAVE.Components.Energy.Networks.Solar import Solar
 from SUAVE.Methods.Propulsion import propeller_design
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
+
 
 # ----------------------------------------------------------------------
 #   Main

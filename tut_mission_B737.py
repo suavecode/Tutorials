@@ -19,6 +19,8 @@ import matplotlib.pyplot as plt
 
 # SUAVE Imports
 import SUAVE
+if not SUAVE.__version__=='2.5.0':
+    assert('These tutorials only work with the SUAVE 2.5.0 release')
 from SUAVE.Core import Data, Units 
 # The Data import here is a native SUAVE data structure that functions similarly to a dictionary.
 #   However, iteration directly returns values, and values can be retrieved either with the 
@@ -28,7 +30,7 @@ from SUAVE.Core import Data, Units
 #   This is because SUAVE functions generally operate using metric units, so inputs must be 
 #   converted. To use a length of 20 feet, set l = 20 * Units.ft . Additionally, to convert to SUAVE
 #   output back to a desired units, use l_ft = l_m / Units.ft
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
 # These are a variety of plotting routines that simplify the plotting process for commonly 
 # requested metrics. Plots of specifically desired metrics can also be manually created.
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
@@ -139,8 +141,8 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy = SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------

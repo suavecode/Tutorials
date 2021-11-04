@@ -7,7 +7,7 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
 from SUAVE.Core import Units
 import pylab as plt
 
