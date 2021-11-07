@@ -24,8 +24,7 @@ from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import comp
 
 from SUAVE.Plots.Performance.Mission_Plots import *
 
-if not SUAVE.__version__=='2.5.0':
-    assert('These tutorials only work with the SUAVE 2.5.0 release')
+from copy import deepcopy
 
 
 # ----------------------------------------------------------------------
@@ -334,6 +333,29 @@ def vehicle_setup():
 
     # add to vehicle
     vehicle.append_component(wing)
+    
+    # ------------------------------------------------------------------
+    #   Nacelle  
+    # ------------------------------------------------------------------
+    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter              = 3.96 * Units.meters 
+    nacelle.length                = 289. * Units.inches
+    nacelle.tag                   = 'nacelle' 
+    nacelle.origin                = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet]]
+    nacelle.areas.wetted          =  nacelle.length *(2*np.pi*nacelle.diameter/2.) 
+
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2' 
+    nacelle_2.origin              = [[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet]]     
+     
+    nacelle_3                     = deepcopy(nacelle)
+    nacelle_3.tag                 = 'nacelle_3'
+    nacelle_3.origin              = [[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]   
+    
+    vehicle.append_component(nacelle) 
+    vehicle.append_component(nacelle_2) 
+    vehicle.append_component(nacelle_3) 
+        
 
     # ------------------------------------------------------------------
     #   Turbofan Network
@@ -345,9 +367,6 @@ def vehicle_setup():
     # setup
     turbofan.number_of_engines = 3.0
     turbofan.bypass_ratio      = 8.1
-    turbofan.engine_length     = 289. * Units.inches
-    turbofan.nacelle_diameter  = 3.96 * Units.meters
-    #turbofan.cooling_ratio     = 1.0
     turbofan.origin            = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet],[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet],[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]
     
     # working fluid

@@ -7,8 +7,8 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
-if not SUAVE.__version__=='2.5.0':
-    assert('These tutorials only work with the SUAVE 2.5.0 release')
+#if not SUAVE.__version__=='2.5.0':
+    #assert('These tutorials only work with the SUAVE 2.5.0 release')
 from SUAVE.Core import Units, Data
 
 import numpy as np
@@ -195,6 +195,18 @@ def vehicle_setup():
     # add to vehicle
     vehicle.append_component(wing)  
     
+    
+    # ------------------------------------------------------------------
+    #   Nacelle  
+    # ------------------------------------------------------------------
+    nacelle              = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter     = 0.2 * Units.meters
+    nacelle.length       = 0.01 * Units.meters
+    nacelle.tag          = 'nacelle' 
+    nacelle.areas.wetted =  nacelle.length *(2*np.pi*nacelle.diameter/2.)
+    vehicle.append_component(nacelle) 
+        
+    
     #------------------------------------------------------------------
     # Propulsor
     #------------------------------------------------------------------
@@ -202,11 +214,7 @@ def vehicle_setup():
     # build network
     net = Solar()
     net.number_of_engines = 1.
-    net.nacelle_diameter  = 0.2 * Units.meters
-    net.engine_length     = 0.01 * Units.meters
-    net.areas             = Data()
-    net.areas.wetted      = 0.01*(2*np.pi*0.01/2.)
-    
+
     # Component 1 the Sun?
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()
     net.solar_flux = sun
@@ -237,7 +245,7 @@ def vehicle_setup():
     prop.design_power        = 3500.0 * Units.watts
     prop                     = propeller_design(prop)
     
-    net.propeller            = prop
+    net.propellers.append(prop)
 
     # Component 4 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor()
@@ -250,7 +258,7 @@ def vehicle_setup():
     motor.gearbox_efficiency   = .98 # Gear box efficiency
     motor.expected_current     = 160. # Expected current
     motor.mass_properties.mass = 2.0  * Units.kg
-    net.motor                  = motor    
+    net.motors.append(motor)
     
     # Component 6 the Payload
     payload = SUAVE.Components.Energy.Peripherals.Payload()
@@ -357,7 +365,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy = SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors #what is called throughout the mission (at every time step))
+    energy.network = vehicle.networks #what is called throughout the mission (at every time step))
     analyses.append(energy)
     
     # ------------------------------------------------------------------
@@ -395,12 +403,6 @@ def mission_setup(analyses,vehicle):
     
     # base segment
     base_segment = Segments.Segment()   
-    ones_row     = base_segment.state.ones_row
-    base_segment.process.iterate.unknowns.network            = vehicle.propulsors.solar.unpack_unknowns
-    base_segment.process.iterate.residuals.network           = vehicle.propulsors.solar.residuals    
-    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
-    base_segment.state.unknowns.propeller_power_coefficient  = vehicle.propulsors.solar.propeller.design_power_coefficient  * ones_row(1)/15.
-    base_segment.state.residuals.network                     = 0. * ones_row(1)      
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
@@ -414,13 +416,15 @@ def mission_setup(analyses,vehicle):
     
     # segment attributes     
     segment.state.numerics.number_control_points = 64
-    segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2020", "%a, %b %d %H:%M:%S %Y",)
+    segment.start_time     = time.strptime("Tue, Jun 21 11:30:00  2022", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.propulsors.solar.battery.max_energy*0.2 #Charge the battery to start
+    segment.battery_energy = vehicle.networks.solar.battery.max_energy*0.2 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
+    
+    segment = vehicle.networks.solar.add_unknowns_and_residuals_to_segment(segment,initial_power_coefficient = 0.05)   
     
     mission.append_segment(segment)    
 
@@ -462,7 +466,7 @@ def plot_mission(results):
     plot_aircraft_velocities(results)
 
     # Plot Aircraft Electronics
-    plot_electronic_conditions(results)
+    plot_battery_pack_conditions(results)
 
     # Plot Propeller Conditions 
     plot_propeller_conditions(results) 

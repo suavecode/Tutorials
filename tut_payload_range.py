@@ -9,8 +9,8 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-if not SUAVE.__version__=='2.5.0':
-    assert('These tutorials only work with the SUAVE 2.5.0 release')
+#if not SUAVE.__version__=='2.5.0':
+    #assert('These tutorials only work with the SUAVE 2.5.0 release')
 from SUAVE.Core import Units, Data 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Performance  import payload_range
@@ -129,7 +129,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Propulsion Analysis
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -335,21 +335,9 @@ def vehicle_setup():
     gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
-    gt_engine.engine_length     = 2.71
-    gt_engine.nacelle_diameter  = 2.05
-    gt_engine.inlet_diameter    = 2.0
-
-    #compute engine areas)
-    Amax                        = (np.pi/4.)*gt_engine.nacelle_diameter**2.
-    Awet                        = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # 1.1 is simple coefficient
-    #Assign engine area
-    gt_engine.areas.wetted      = Awet
-    #set the working fluid for the network
-    working_fluid               = SUAVE.Attributes.Gases.Air()
 
     #add working fluid to the network
-    gt_engine.working_fluid     = working_fluid
-
+    gt_engine.working_fluid     = SUAVE.Attributes.Gases.Air()
 
     #Component 1 : ram,  to convert freestream static to stagnation quantities
     ram           = SUAVE.Components.Energy.Converters.Ram()
