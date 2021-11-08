@@ -113,7 +113,8 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.AVL()
-    aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
+    #aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
+    aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name = '/Users/emiliobotero/Research/avl3.35'
     #aerodynamics.process.compute.lift.inviscid.settings.spanwise_vortex_density    = 3 
     aerodynamics.geometry = vehicle
     analyses.append(aerodynamics)
@@ -121,7 +122,9 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Stability Analysis
     stability = SUAVE.Analyses.Stability.AVL()
-    stability.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
+    #stability.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
+    stability.settings.filenames.avl_bin_name = '/Users/emiliobotero/Research/avl3.35'
+    
     #stability.settings.spanwise_vortex_density                  = 3
     stability.geometry = vehicle
     analyses.append(stability)
@@ -129,7 +132,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -346,9 +349,6 @@ def vehicle_setup():
     turbofan.number_of_engines = 2
     turbofan.bypass_ratio      = 5.4
     turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
-    
-    #compute engine areas
-    turbofan.areas.wetted      = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
     
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()

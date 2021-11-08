@@ -21,6 +21,7 @@ from SUAVE.Input_Output.OpenVSP import get_vsp_measurements
 
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
+from SUAVE.Methods.Geometry.Two_Dimensional.Planform import segment_properties
 
 from SUAVE.Plots.Performance.Mission_Plots import *
 
@@ -156,7 +157,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -330,6 +331,9 @@ def vehicle_setup():
     segment.sweeps.quarter_chord  = 0. * Units.degrees
     segment.thickness_to_chord    = 0.10
     wing.Segments.append(segment)  
+    
+    # Fill out more segment properties automatically
+    wing = segment_properties(wing)         
 
     # add to vehicle
     vehicle.append_component(wing)
@@ -341,20 +345,8 @@ def vehicle_setup():
     nacelle.diameter              = 3.96 * Units.meters 
     nacelle.length                = 289. * Units.inches
     nacelle.tag                   = 'nacelle' 
-    nacelle.origin                = [[133.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet]]
-    nacelle.areas.wetted          =  nacelle.length *(2*np.pi*nacelle.diameter/2.) 
-
-    nacelle_2                     = deepcopy(nacelle)
-    nacelle_2.tag                 = 'nacelle_2' 
-    nacelle_2.origin              = [[145.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet]]     
-     
-    nacelle_3                     = deepcopy(nacelle)
-    nacelle_3.tag                 = 'nacelle_3'
-    nacelle_3.origin              = [[133.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]   
-    
-    vehicle.append_component(nacelle) 
-    vehicle.append_component(nacelle_2) 
-    vehicle.append_component(nacelle_3) 
+    nacelle.origin                = [[123.0 *Units.feet, 25.0*Units.feet, 6.5*Units.feet]]
+    nacelle.Airfoil.naca_4_series_airfoil = '0012'
         
 
     # ------------------------------------------------------------------
@@ -506,19 +498,31 @@ def vehicle_setup():
     #design sizing conditions
     altitude      = 0. * Units.km
     mach_number   = 0.01
-    isa_deviation = 0.
     
     # add to network
     turbofan.thrust = thrust
     
     #size the turbofan
     turbofan_sizing(turbofan,mach_number,altitude)
-    #turbofan.size(mach_number,altitude)
     
     #computing the engine length and diameter
-    compute_turbofan_geometry(turbofan,None)
+    compute_turbofan_geometry(turbofan,nacelle)
     
     vehicle.append_component(turbofan)  
+    
+    # Finish adding all the nacelles
+    
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2' 
+    nacelle_2.origin              = [[135.0 *Units.feet, 0.0*Units.feet, 6.5*Units.feet]]     
+     
+    nacelle_3                     = deepcopy(nacelle)
+    nacelle_3.tag                 = 'nacelle_3'
+    nacelle_3.origin              = [[123.0 *Units.feet, -25.0*Units.feet, 6.5*Units.feet]]   
+    
+    vehicle.append_component(nacelle) 
+    vehicle.append_component(nacelle_2) 
+    vehicle.append_component(nacelle_3)     
 
 
     # ------------------------------------------------------------------

@@ -9,7 +9,7 @@
 import SUAVE
 #if not SUAVE.__version__=='2.5.0':
     #assert('These tutorials only work with the SUAVE 2.5.0 release')
-from SUAVE.Core import Units, Data
+from SUAVE.Core import Units
 
 import numpy as np
 import pylab as plt
@@ -240,23 +240,23 @@ def vehicle_setup():
     prop.tip_radius          = 4.25 * Units.meters
     prop.hub_radius          = 0.05 * Units.meters
     prop.design_Cl           = 0.7
-    prop.design_altitude     = 14.0 * Units.km
-    prop.design_thrust       = None
-    prop.design_power        = 3500.0 * Units.watts
+    prop.design_altitude     = 15.0 * Units.km
+    prop.design_power        = None
+    prop.design_thrust       = 120.
     prop                     = propeller_design(prop)
     
     net.propellers.append(prop)
 
     # Component 4 the Motor
     motor = SUAVE.Components.Energy.Converters.Motor()
-    motor.resistance           = 0.008
-    motor.no_load_current      = 4.5  * Units.ampere
-    motor.speed_constant       = 120. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
+    motor.resistance           = 0.006
+    motor.no_load_current      = 2.5  * Units.ampere
+    motor.speed_constant       = 30. * Units['rpm'] # RPM/volt converted to (rad/s)/volt    
     motor.propeller_radius     = prop.tip_radius
     motor.propeller_Cp         = prop.design_power_coefficient
     motor.gear_ratio           = 12. # Gear ratio
     motor.gearbox_efficiency   = .98 # Gear box efficiency
-    motor.expected_current     = 160. # Expected current
+    motor.expected_current     = 60. # Expected current
     motor.mass_properties.mass = 2.0  * Units.kg
     net.motors.append(motor)
     
@@ -274,15 +274,14 @@ def vehicle_setup():
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 90.0 * Units.kg
-    bat.specific_energy      = 700. * Units.Wh/Units.kg
-    bat.resistance           = 0.05
-    bat.max_voltage          = 45.0
-    initialize_from_mass(bat,bat.mass_properties.mass)
+    bat.specific_energy      = 600. * Units.Wh/Units.kg
+    bat.max_voltage          = 130.0
+    initialize_from_mass(bat)
     net.battery              = bat
    
     #Component 9 the system logic controller and MPPT
     logic = SUAVE.Components.Energy.Distributors.Solar_Logic()
-    logic.system_voltage  = 40.0
+    logic.system_voltage  = 120.0
     logic.MPPT_efficiency = 0.95
     net.solar_logic       = logic
     
@@ -403,6 +402,7 @@ def mission_setup(analyses,vehicle):
     
     # base segment
     base_segment = Segments.Segment()   
+    base_segment.process.iterate.initials.initialize_battery = SUAVE.Methods.Missions.Segments.Common.Energy.initialize_battery
     
     # ------------------------------------------------------------------    
     #   Cruise Segment: constant speed, constant altitude
@@ -420,7 +420,7 @@ def mission_setup(analyses,vehicle):
     segment.altitude       = 15.0  * Units.km 
     segment.mach           = 0.12
     segment.distance       = 3050.0 * Units.km
-    segment.battery_energy = vehicle.networks.solar.battery.max_energy*0.2 #Charge the battery to start
+    segment.battery_energy = vehicle.networks.solar.battery.max_energy*0.3 #Charge the battery to start
     segment.latitude       = 37.4300   # this defaults to degrees (do not use Units.degrees)
     segment.longitude      = -122.1700 # this defaults to degrees
     
@@ -461,6 +461,9 @@ def plot_mission(results):
 
     # Plot Aerodynamic Coefficients
     plot_aerodynamic_coefficients(results)  
+    
+    # Drag Components
+    plot_drag_components(results)    
 
     # Plot Aircraft Flight Speed
     plot_aircraft_velocities(results)
