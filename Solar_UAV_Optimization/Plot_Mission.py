@@ -20,7 +20,7 @@ def plot_mission(results,line_style='bo-'):
     plot_solar_flux(results)
     
     # Plot Aircraft Electronics
-    plot_electronic_conditions(results)
+    plot_battery_pack_conditions(results)
 
     return
 

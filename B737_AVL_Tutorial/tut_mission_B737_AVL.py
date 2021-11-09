@@ -113,8 +113,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.AVL()
-    #aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
-    aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name = '/Users/emiliobotero/Research/avl3.35'
+    aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
     #aerodynamics.process.compute.lift.inviscid.settings.spanwise_vortex_density    = 3 
     aerodynamics.geometry = vehicle
     analyses.append(aerodynamics)
@@ -122,9 +121,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Stability Analysis
     stability = SUAVE.Analyses.Stability.AVL()
-    #stability.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
-    stability.settings.filenames.avl_bin_name = '/Users/emiliobotero/Research/avl3.35'
-    
+    stability.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'    
     #stability.settings.spanwise_vortex_density                  = 3
     stability.geometry = vehicle
     analyses.append(stability)
