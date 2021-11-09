@@ -138,6 +138,7 @@ def weights_battery(nexus):
     vec.networks.solar_low_fidelity.battery.mass_properties.mass = batmass
         
     # Set Battery Charge
+    segment.battery_energy = bat.max_energy
     append_initial_battery_conditions(segment, bat)
 
     return nexus
