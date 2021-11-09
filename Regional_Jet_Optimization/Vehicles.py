@@ -14,6 +14,8 @@ from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 
+from copy import deepcopy
+
 # ----------------------------------------------------------------------
 #   Define the Vehicle
 # ----------------------------------------------------------------------
@@ -196,11 +198,35 @@ def base_setup():
 
     # add to vehicle
     vehicle.append_component(fuselage)
+    
+    
+
+    # -----------------------------------------------------------------
+    # Design the Nacelle
+    # ----------------------------------------------------------------- 
+    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter              = 2.05
+    nacelle.length                = 2.71
+    nacelle.tag                   = 'nacelle_1'
+    nacelle.inlet_diameter        = 2.0
+    nacelle.origin                = [[12.0,4.38,-2.1]]
+    Awet                          = 1.1*np.pi*nacelle.diameter*nacelle.length # 1.1 is simple coefficient
+    nacelle.areas.wetted          = Awet 
+    nacelle_airfoil               = SUAVE.Components.Airfoils.Airfoil() 
+    nacelle_airfoil.naca_4_series_airfoil = '2410'
+    nacelle.append_airfoil(nacelle_airfoil) 
+
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2'
+    nacelle_2.origin              = [[12.0,-4.38,-2.1]]
+    
+    vehicle.append_component(nacelle)   
+    vehicle.append_component(nacelle_2)       
+    
 
     # ------------------------------------------------------------------
     #  Turbofan Network
     # ------------------------------------------------------------------    
-
 
     #initialize the gas turbine network
     gt_engine                   = SUAVE.Components.Energy.Networks.Turbofan()
@@ -208,21 +234,9 @@ def base_setup():
     gt_engine.origin            = [[12.0,4.38,-2.1],[12.0,-4.38,-2.1]]
     gt_engine.number_of_engines = 2.0
     gt_engine.bypass_ratio      = 5.4
-    gt_engine.engine_length     = 2.71
-    gt_engine.nacelle_diameter  = 2.05
-    gt_engine.inlet_diameter    = 2.0
-
-    #compute engine areas)
-    Awet                        = 1.1*np.pi*gt_engine.nacelle_diameter*gt_engine.engine_length # 1.1 is simple coefficient
-    
-    #Assign engine area
-    gt_engine.areas.wetted      = Awet
-    
-    #set the working fluid for the network
-    working_fluid               = SUAVE.Attributes.Gases.Air()
 
     #add working fluid to the network
-    gt_engine.working_fluid     = working_fluid
+    gt_engine.working_fluid     = SUAVE.Attributes.Gases.Air()
 
 
     #Component 1 : ram,  to convert freestream static to stagnation quantities
@@ -332,6 +346,7 @@ def base_setup():
     fuel.mass_properties.mass             = vehicle.mass_properties.max_takeoff-vehicle.mass_properties.max_fuel
     fuel.origin                           = vehicle.wings.main_wing.mass_properties.center_of_gravity     
     fuel.mass_properties.center_of_gravity= vehicle.wings.main_wing.aerodynamic_center
+    
     # ------------------------------------------------------------------
     #   Vehicle Definition Complete
     # ------------------------------------------------------------------

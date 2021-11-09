@@ -8,8 +8,11 @@
 
 # SUAVE Imports
 import SUAVE
+if not SUAVE.__version__=='2.5.0':
+    assert('These tutorials only work with the SUAVE 2.5.0 release')
+
 from SUAVE.Core import Data, Units
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
 from SUAVE.Input_Output.Results import  print_parasite_drag,  \
@@ -21,6 +24,8 @@ from SUAVE.Input_Output.Results import  print_parasite_drag,  \
 # Python Imports
 import numpy as np
 import pylab as plt
+
+from copy import deepcopy
 
 # ----------------------------------------------------------------------
 #   Main
@@ -116,7 +121,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Stability Analysis
     stability = SUAVE.Analyses.Stability.AVL()
-    stability.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
+    stability.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'    
     #stability.settings.spanwise_vortex_density                  = 3
     stability.geometry = vehicle
     analyses.append(stability)
@@ -124,7 +129,7 @@ def base_analysis(vehicle):
     # ------------------------------------------------------------------
     #  Energy
     energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -304,6 +309,30 @@ def vehicle_setup():
     
     # add to vehicle
     vehicle.append_component(fuselage)
+    
+    
+    # ------------------------------------------------------------------
+    #   Nacelles
+    # ------------------------------------------------------------------ 
+    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.tag                   = 'nacelle_1'
+    nacelle.length                = 2.71
+    nacelle.inlet_diameter        = 1.90
+    nacelle.diameter              = 2.05
+    nacelle.areas.wetted          = 1.1*np.pi*nacelle.diameter*nacelle.length
+    nacelle.origin                = [[13.72, -4.86,-1.9]]
+    nacelle.flow_through          = True  
+    nacelle_airfoil               = SUAVE.Components.Airfoils.Airfoil() 
+    nacelle_airfoil.naca_4_series_airfoil = '2410'
+    nacelle.append_airfoil(nacelle_airfoil)
+
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2'
+    nacelle_2.origin              = [[13.72, 4.86,-1.9]]
+    
+    vehicle.append_component(nacelle)  
+    vehicle.append_component(nacelle_2)     
+        
 
     # ------------------------------------------------------------------
     #   Turbofan Network
@@ -316,12 +345,7 @@ def vehicle_setup():
     # setup
     turbofan.number_of_engines = 2
     turbofan.bypass_ratio      = 5.4
-    turbofan.engine_length     = 2.71 * Units.meter
-    turbofan.nacelle_diameter  = 2.05 * Units.meter
     turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]]
-    
-    #compute engine areas
-    turbofan.areas.wetted      = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
     
     # working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()

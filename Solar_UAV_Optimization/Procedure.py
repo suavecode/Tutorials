@@ -12,6 +12,7 @@ import numpy as np
 from SUAVE.Core import Units
 from SUAVE.Analyses.Process import Process
 from SUAVE.Methods.Power.Battery.Sizing import initialize_from_mass
+from SUAVE.Methods.Power.Battery import append_initial_battery_conditions
 from SUAVE.Methods.Propulsion.electric_motor_sizing import size_from_kv
 
 # ----------------------------------------------------------------------        
@@ -97,14 +98,14 @@ def simple_sizing(nexus):
 
     # Size solar panel area
     wing_area                   = vec.reference_area
-    spanel                      = vec.propulsors.solar_low_fidelity.solar_panel
+    spanel                      = vec.networks.solar_low_fidelity.solar_panel
     sratio                      = spanel.ratio
     solar_area                  = wing_area*sratio
     spanel.area                 = solar_area
     spanel.mass_properties.mass = solar_area*(0.60 * Units.kg)    
     
     # Resize the motor
-    motor = vec.propulsors.solar_low_fidelity.motor
+    motor = vec.networks.solar_low_fidelity.motor
     motor = size_from_kv(motor)    
     
     # diff the new data
@@ -123,23 +124,22 @@ def weights_battery(nexus):
     config.weights.evaluate() 
     
     vec     = nexus.vehicle_configurations.base
-    payload = vec.propulsors.solar_low_fidelity.payload.mass_properties.mass  
-    msolar  = vec.propulsors.solar_low_fidelity.solar_panel.mass_properties.mass
+    payload = vec.networks.solar_low_fidelity.payload.mass_properties.mass  
+    msolar  = vec.networks.solar_low_fidelity.solar_panel.mass_properties.mass
     MTOW    = vec.mass_properties.max_takeoff
     empty   = vec.weight_breakdown.empty
-    mmotor  = vec.propulsors.solar_low_fidelity.motor.mass_properties.mass
+    mmotor  = vec.networks.solar_low_fidelity.motor.mass_properties.mass
+    segment = nexus.missions.mission.segments.cruise
     
     # Calculate battery mass
     batmass = MTOW - empty - payload - msolar -mmotor
-    bat     = vec.propulsors.solar_low_fidelity.battery
+    bat     = vec.networks.solar_low_fidelity.battery
     initialize_from_mass(bat,batmass)
-    vec.propulsors.solar_low_fidelity.battery.mass_properties.mass = batmass
+    vec.networks.solar_low_fidelity.battery.mass_properties.mass = batmass
         
     # Set Battery Charge
-    maxcharge = nexus.vehicle_configurations.base.propulsors.solar_low_fidelity.battery.max_energy
-    charge    = maxcharge
-    
-    nexus.missions.mission.segments.cruise.battery_energy = charge 
+    segment.battery_energy = bat.max_energy
+    append_initial_battery_conditions(segment, bat)
 
     return nexus
     
@@ -165,7 +165,7 @@ def post_process(nexus):
     res = nexus.results.mission.segments.cruise.conditions
     
     # Final Energy
-    maxcharge    = vec.propulsors.solar_low_fidelity.battery.max_energy
+    maxcharge    = vec.networks.solar_low_fidelity.battery.max_energy
     
     # Energy constraints, the battery doesn't go to zero anywhere, using a P norm
     p                    = 8.    

@@ -141,6 +141,16 @@ def base_setup():
 
     # add to vehicle
     vehicle.append_component(wing)  
+    
+    # ------------------------------------------------------------------
+    #   Nacelle  
+    # ------------------------------------------------------------------
+    nacelle              = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.diameter     = 0.05 * Units.meters
+    nacelle.length       = 0.01 * Units.meters
+    nacelle.tag          = 'nacelle' 
+    nacelle.areas.wetted =  nacelle.length *(2*np.pi*nacelle.diameter/2.)
+    vehicle.append_component(nacelle)     
 
     #------------------------------------------------------------------
     # Propulsor
@@ -149,10 +159,6 @@ def base_setup():
     # build network
     net = Solar_Low_Fidelity()
     net.number_of_engines = 1.
-    net.nacelle_diameter  = 0.05
-    net.areas             = Data()
-    net.areas.wetted      = 0.01*(2*np.pi*0.01/2)
-    net.engine_length     = 0.01
 
     # Component 1 the Sun
     sun = SUAVE.Components.Energy.Processes.Solar_Radiation()

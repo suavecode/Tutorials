@@ -19,6 +19,8 @@ import matplotlib.pyplot as plt
 
 # SUAVE Imports
 import SUAVE
+if not SUAVE.__version__=='2.5.0':
+    assert('These tutorials only work with the SUAVE 2.5.0 release')
 from SUAVE.Core import Data, Units 
 # The Data import here is a native SUAVE data structure that functions similarly to a dictionary.
 #   However, iteration directly returns values, and values can be retrieved either with the 
@@ -28,13 +30,14 @@ from SUAVE.Core import Data, Units
 #   This is because SUAVE functions generally operate using metric units, so inputs must be 
 #   converted. To use a length of 20 feet, set l = 20 * Units.ft . Additionally, to convert to SUAVE
 #   output back to a desired units, use l_ft = l_m / Units.ft
-from SUAVE.Plots.Mission_Plots import *
+from SUAVE.Plots.Performance.Mission_Plots import *
 # These are a variety of plotting routines that simplify the plotting process for commonly 
 # requested metrics. Plots of specifically desired metrics can also be manually created.
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 # Rather than conventional sizing, this script builds the turbofan energy network. This process is
 # covered in more detail in a separate tutorial. It does not size the turbofan geometry.
 
+from copy import deepcopy
 
 # ----------------------------------------------------------------------
 #   Main
@@ -139,8 +142,8 @@ def base_analysis(vehicle):
 
     # ------------------------------------------------------------------
     #  Energy
-    energy= SUAVE.Analyses.Energy.Energy()
-    energy.network = vehicle.propulsors 
+    energy = SUAVE.Analyses.Energy.Energy()
+    energy.network = vehicle.networks
     analyses.append(energy)
 
     # ------------------------------------------------------------------
@@ -394,6 +397,30 @@ def vehicle_setup():
     
     # add to vehicle
     vehicle.append_component(fuselage)
+    
+    
+    # ------------------------------------------------------------------
+    #   Nacelles
+    # ------------------------------------------------------------------ 
+    nacelle                       = SUAVE.Components.Nacelles.Nacelle()
+    nacelle.tag                   = 'nacelle_1'
+    nacelle.length                = 2.71
+    nacelle.inlet_diameter        = 1.90
+    nacelle.diameter              = 2.05
+    nacelle.areas.wetted          = 1.1*np.pi*nacelle.diameter*nacelle.length
+    nacelle.origin                = [[13.72, -4.86,-1.9]]
+    nacelle.flow_through          = True  
+    nacelle_airfoil               = SUAVE.Components.Airfoils.Airfoil() 
+    nacelle_airfoil.naca_4_series_airfoil = '2410'
+    nacelle.append_airfoil(nacelle_airfoil)
+
+    nacelle_2                     = deepcopy(nacelle)
+    nacelle_2.tag                 = 'nacelle_2'
+    nacelle_2.origin              = [[13.72, 4.86,-1.9]]
+    
+    vehicle.append_component(nacelle)  
+    vehicle.append_component(nacelle_2)     
+        
 
     # ------------------------------------------------------------------
     #   Turbofan Network
@@ -407,16 +434,10 @@ def vehicle_setup():
     # High-level setup
     turbofan.number_of_engines = 2
     turbofan.bypass_ratio      = 5.4
-    turbofan.engine_length     = 2.71 * Units.meter
-    turbofan.nacelle_diameter  = 2.05 * Units.meter
     turbofan.origin            = [[13.72, 4.86,-1.9],[13.72, -4.86,-1.9]] * Units.meter
-    
-    # Approximate the wetted area
-    turbofan.areas.wetted      = 1.1*np.pi*turbofan.nacelle_diameter*turbofan.engine_length
-    
+
     # Establish the correct working fluid
     turbofan.working_fluid = SUAVE.Attributes.Gases.Air()
-    
     
     # Components use estimated efficiencies. Estimates by technology level can be
     # found in textbooks such as those by J.D. Mattingly

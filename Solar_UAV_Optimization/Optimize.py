@@ -7,6 +7,10 @@
 #   Imports
 # ----------------------------------------------------------------------    
 
+import SUAVE
+if not SUAVE.__version__=='2.5.0':
+    assert('These tutorials only work with the SUAVE 2.5.0 release')
+
 from SUAVE.Core import Units, Data
 import numpy as np
 import Vehicles
@@ -88,9 +92,9 @@ def setup():
         [ 'wing_area'        ,['vehicle_configurations.*.wings.main_wing.areas.reference',
                                'vehicle_configurations.base.reference_area']                                ], 
         [ 'aspect_ratio'     , 'vehicle_configurations.*.wings.main_wing.aspect_ratio'                      ],
-        [ 'kv'               , 'vehicle_configurations.*.propulsors.solar_low_fidelity.motor.speed_constant'           ], 
-        [ 'battery_mass'     , 'vehicle_configurations.base.propulsors.solar_low_fidelity.battery.mass_properties.mass'],
-        [ 'solar_ratio'      , 'vehicle_configurations.*.propulsors.solar_low_fidelity.solar_panel.ratio'              ],
+        [ 'kv'               , 'vehicle_configurations.*.networks.solar_low_fidelity.motor.speed_constant'           ], 
+        [ 'battery_mass'     , 'vehicle_configurations.base.networks.solar_low_fidelity.battery.mass_properties.mass'],
+        [ 'solar_ratio'      , 'vehicle_configurations.*.networks.solar_low_fidelity.solar_panel.ratio'              ],
         [ 'dynamic_pressure' , 'missions.mission.segments.cruise.dynamic_pressure'                          ],  
         [ 'Nothing'          , 'summary.nothing'                                                            ],
         [ 'energy_constraint', 'summary.energy_constraint'                                                  ],

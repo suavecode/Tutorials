@@ -55,7 +55,7 @@ def mission(analyses,vehicle):
     segment.analyses.extend(analyses.base)
     
     # segment attributes
-    segment.state.numerics.number_control_points = 50
+    segment.state.numerics.number_control_points = 32
     segment.dynamic_pressure = 115.0 * Units.pascals
     segment.start_time       = time.strptime("Tue, Jun 21  11:00:00  2020", "%a, %b %d %H:%M:%S %Y",)
     segment.altitude         = 1000.0 * Units.feet
@@ -63,6 +63,7 @@ def mission(analyses,vehicle):
     segment.charge_ratio     = 1.0
     segment.latitude         = 37.4
     segment.longitude        = -122.15
+    segment.battery_energy   = vehicle.base.networks.solar_low_fidelity.battery.max_energy
     segment.state.conditions.frames.wind.body_rotations[:,2] = 125.* Units.degrees 
     
     mission.append_segment(segment)   
