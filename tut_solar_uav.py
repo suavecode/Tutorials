@@ -7,8 +7,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
-if not SUAVE.__version__=='2.5.0':
-    assert('These tutorials only work with the SUAVE 2.5.0 release')
+assert SUAVE.__version__=='2.5.0', 'These tutorials only work with the SUAVE 2.5.0 release'
 from SUAVE.Core import Units
 
 import numpy as np
