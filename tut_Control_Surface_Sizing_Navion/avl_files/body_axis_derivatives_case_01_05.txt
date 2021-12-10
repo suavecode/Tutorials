@@ -1,0 +1,51 @@
+ ---------------------------------------------------------------
+ Vortex Lattice Output -- Total Forces
+
+ Configuration: base                                                        
+     # Surfaces =  11
+     # Strips   = 180
+     # Vortices =1800
+
+  Sref = 0.92903       Cref = 0.38755       Bref =  2.4291    
+  Xref = 0.20000       Yref =  0.0000       Zref =  0.0000    
+
+ Standard axis orientation,  X fwd, Z down         
+
+ Run case: case_01_05                              
+
+  Alpha =   7.00000     pb/2V =   0.00000     p'b/2V =   0.00000
+  Beta  =   0.00000     qc/2V =   0.00000
+  Mach  =     0.050     rb/2V =   0.00000     r'b/2V =   0.00000
+
+  CXtot =       NaN     Cltot =       NaN     Cl'tot =       NaN
+  CYtot =       NaN     Cmtot =       NaN
+  CZtot =       NaN     Cntot =       NaN     Cn'tot =       NaN
+
+  CLtot =       NaN
+  CDtot =       NaN
+  CDvis =       NaN     CDind =       NaN
+  CLff  =       NaN     CDff  =       NaN    | Trefftz
+  CYff  =       NaN         e =       NaN    | Plane  
+ 
+ 
+ ---------------------------------------------------------------
+
+ Geometry-axis derivatives...
+
+                    axial   vel. u     sideslip vel. v      normal  vel. w
+                  ----------------    ----------------    ----------------
+ x force CX  |    CXu =        NaN    CXv =        NaN    CXw =        NaN
+ y force CY  |    CYu =        NaN    CYv =        NaN    CYw =        NaN
+ z force CZ  |    CZu =        NaN    CZv =        NaN    CZw =        NaN
+ x mom.  Cl  |    Clu =        NaN    Clv =        NaN    Clw =        NaN
+ y mom.  Cm  |    Cmu =        NaN    Cmv =        NaN    Cmw =        NaN
+ z mom.  Cn  |    Cnu =        NaN    Cnv =        NaN    Cnw =        NaN
+
+                      roll rate  p       pitch rate  q         yaw rate  r
+                  ----------------    ----------------    ----------------
+ x force CX  |    CXp =        NaN    CXq =        NaN    CXr =        NaN
+ y force CY  |    CYp =        NaN    CYq =        NaN    CYr =        NaN
+ z force CZ  |    CZp =        NaN    CZq =        NaN    CZr =        NaN
+ x mom.  Cl  |    Clp =        NaN    Clq =        NaN    Clr =        NaN
+ y mom.  Cm  |    Cmp =        NaN    Cmq =        NaN    Cmr =        NaN
+ z mom.  Cn  |    Cnp =        NaN    Cnq =        NaN    Cnr =        NaN

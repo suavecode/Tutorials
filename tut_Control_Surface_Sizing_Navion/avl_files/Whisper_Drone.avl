@@ -1,0 +1,301 @@
+base
+
+#Mach
+ 0.0
+ 
+#Iysym   IZsym   Zsym
+  0      0     0.0
+  
+#Sref    Cref    Bref 	<meters>
+0.929030400000002      0.3875547628787364     2.4291211518269122
+
+#Xref    Yref    Zref   <meters>
+0.2      0.0     0.0
+
+
+
+#---------------------------------------------------------
+SURFACE
+propulsor_pylon
+#Nchordwise  Cspace   Nspanwise  Sspace
+10         1.0         20      -1.1 
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1219  0.0    -0.0732    0.1334    0.0     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1787  0.0    0.0253    0.1143    0.0     
+
+
+#---------------------------------------------------------
+SURFACE
+012m_htailnosubsurfaces
+#Nchordwise  Cspace   Nspanwise  Sspace
+10         1.0         20      1.0
+
+YDUPLICATE
+0.0
+
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.6477  1.2192    0.0945    0.3048    0.0     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.8028  1.8288    0.4464    0.1143    0.0     
+
+
+#---------------------------------------------------------
+SURFACE
+012m_vtailnosubsurfaces_1
+#Nchordwise  Cspace   Nspanwise  Sspace
+10         1.0         20      -1.1 
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.6477  -1.2192    0.0792    0.3048    0.0     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.7454  -1.2192    0.2012    0.1524    0.0     
+
+
+#---------------------------------------------------------
+SURFACE
+012m_vtailnosubsurfaces_2
+#Nchordwise  Cspace   Nspanwise  Sspace
+10         1.0         20      -1.1 
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.6477  1.2192    0.0792    0.3048    0.0     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.7454  1.2192    0.2012    0.1524    0.0     
+
+
+#---------------------------------------------------------
+SURFACE
+main_wing
+#Nchordwise  Cspace   Nspanwise  Sspace
+10         1.0         20      1.0
+
+YDUPLICATE
+0.0
+
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.277  0.0    0.0    0.4589    0.0     
+
+SECTION
+#Xle    Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.0628  1.2146    0.1707    0.306    0.0     
+
+
+#---------------------------------------------------------
+SURFACE
+Booms_1_horizontal
+#Nchordwise  Cspace   Nspanwise  Sspace
+10           1.0      
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.2734    1.1811     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1761    1.1887     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0967    1.1963     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0252    1.204     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.039    1.2116     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.0914    1.2192     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.039    1.2268     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0252    1.2344     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0967    1.2421     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1761    1.2497     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.2734    1.2573     0.093     nan     0.0      1        0
+
+
+#---------------------------------------------------------
+SURFACE
+Booms_1_vertical
+#Nchordwise  Cspace   Nspanwise  Sspace
+10           1.0      
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.2734    1.2192     0.0549     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1761    1.2192     0.0625     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0967    1.2192     0.0701     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0252    1.2192     0.0777     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.039    1.2192     0.0853     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.0914    1.2192     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.039    1.2192     0.1006     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0252    1.2192     0.1082     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0967    1.2192     0.1158     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1761    1.2192     0.1234     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.2734    1.2192     0.1311     nan     0.0      1        0
+
+
+#---------------------------------------------------------
+SURFACE
+Booms_2_horizontal
+#Nchordwise  Cspace   Nspanwise  Sspace
+10           1.0      
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.2734    -1.2573     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1761    -1.2497     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0967    -1.2421     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0252    -1.2344     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.039    -1.2268     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.0914    -1.2192     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.039    -1.2116     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0252    -1.204     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0967    -1.1963     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1761    -1.1887     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.2734    -1.1811     0.093     nan     0.0      1        0
+
+
+#---------------------------------------------------------
+SURFACE
+Booms_2_vertical
+#Nchordwise  Cspace   Nspanwise  Sspace
+10           1.0      
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.2734    -1.2192     0.0549     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1761    -1.2192     0.0625     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0967    -1.2192     0.0701     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0252    -1.2192     0.0777     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.039    -1.2192     0.0853     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.0914    -1.2192     0.093     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+-0.039    -1.2192     0.1006     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0252    -1.2192     0.1082     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.0967    -1.2192     0.1158     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.1761    -1.2192     0.1234     nan     0.0      1        0
+
+SECTION
+#Xle     Yle      Zle      Chord     Ainc  Nspanwise  Sspace
+0.2734    -1.2192     0.1311     nan     0.0      1        0

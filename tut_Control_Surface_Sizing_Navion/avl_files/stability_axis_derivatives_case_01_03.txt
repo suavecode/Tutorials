@@ -1,0 +1,51 @@
+ ---------------------------------------------------------------
+ Vortex Lattice Output -- Total Forces
+
+ Configuration: base                                                        
+     # Surfaces =  11
+     # Strips   = 180
+     # Vortices =1800
+
+  Sref = 0.92903       Cref = 0.38755       Bref =  2.4291    
+  Xref = 0.20000       Yref =  0.0000       Zref =  0.0000    
+
+ Standard axis orientation,  X fwd, Z down         
+
+ Run case: case_01_03                              
+
+  Alpha =   2.00000     pb/2V =   0.00000     p'b/2V =   0.00000
+  Beta  =   0.00000     qc/2V =   0.00000
+  Mach  =     0.050     rb/2V =   0.00000     r'b/2V =   0.00000
+
+  CXtot =       NaN     Cltot =       NaN     Cl'tot =       NaN
+  CYtot =       NaN     Cmtot =       NaN
+  CZtot =       NaN     Cntot =       NaN     Cn'tot =       NaN
+
+  CLtot =       NaN
+  CDtot =       NaN
+  CDvis =       NaN     CDind =       NaN
+  CLff  =       NaN     CDff  =       NaN    | Trefftz
+  CYff  =       NaN         e =       NaN    | Plane  
+ 
+ 
+ ---------------------------------------------------------------
+
+ Stability-axis derivatives...
+
+                             alpha                beta
+                  ----------------    ----------------
+ z' force CL |    CLa =        NaN    CLb =        NaN
+ y  force CY |    CYa =        NaN    CYb =        NaN
+ x' mom.  Cl'|    Cla =        NaN    Clb =        NaN
+ y  mom.  Cm |    Cma =        NaN    Cmb =        NaN
+ z' mom.  Cn'|    Cna =        NaN    Cnb =        NaN
+
+                     roll rate  p'      pitch rate  q'        yaw rate  r'
+                  ----------------    ----------------    ----------------
+ z' force CL |    CLp =        NaN    CLq =        NaN    CLr =        NaN
+ y  force CY |    CYp =        NaN    CYq =        NaN    CYr =        NaN
+ x' mom.  Cl'|    Clp =        NaN    Clq =        NaN    Clr =        NaN
+ y  mom.  Cm |    Cmp =        NaN    Cmq =        NaN    Cmr =        NaN
+ z' mom.  Cn'|    Cnp =        NaN    Cnq =        NaN    Cnr =        NaN
+
+ Neutral point  Xnp =        NaN

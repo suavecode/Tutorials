@@ -1,0 +1,35 @@
+ ---------------------------------------------------------------
+ Surface Forces (referred to Sref,Cref,Bref about Xref,Yref,Zref)
+ Standard axis orientation,  X fwd, Z down         
+
+     Sref =  0.9290       Cref =    0.3876   Bref =    2.4291
+     Xref =      0.2000   Yref =    0.0000   Zref =    0.0000
+
+ n      Area      CL      CD      Cm      CY      Cn      Cl     CDi     CDv
+ 1     0.012     NaN     NaN     NaN     NaN     NaN     NaN     NaN  0.0000   propulsor_pylon
+ 2     0.147     NaN     NaN     NaN     NaN     NaN     NaN     NaN  0.0000   012m_htailnosubsurfaces
+ 3     0.147     NaN     NaN     NaN     NaN     NaN     NaN     NaN  0.0000   012m_htailnosubsurfaces (YDUP)
+ 4     0.028     NaN     NaN     NaN     NaN     NaN     NaN     NaN  0.0000   012m_vtailnosubsurfaces_1
+ 5     0.028     NaN     NaN     NaN     NaN     NaN     NaN     NaN  0.0000   012m_vtailnosubsurfaces_2
+ 6     0.469     NaN     NaN     NaN     NaN     NaN     NaN     NaN  0.0000   main_wing
+ 7     0.469     NaN     NaN     NaN     NaN     NaN     NaN     NaN  0.0000   main_wing (YDUP)
+ 8       NaN     NaN     NaN     NaN     NaN     NaN     NaN     NaN     NaN   Booms_1_horizontal
+ 9       NaN     NaN     NaN     NaN     NaN     NaN     NaN     NaN     NaN   Booms_1_vertical
+10       NaN     NaN     NaN     NaN     NaN     NaN     NaN     NaN     NaN   Booms_2_horizontal
+11       NaN     NaN     NaN     NaN     NaN     NaN     NaN     NaN     NaN   Booms_2_vertical
+
+ Surface Forces (referred to Ssurf, Cave about root LE on hinge axis)
+
+   n     Ssurf      Cave       cl       cd      cdv    cm_LE
+   1     0.012     0.124      NaN      NaN   0.0000   0.0000  propulsor_pylon
+   2     0.147     0.210      NaN      NaN   0.0000   0.0000  012m_htailnosubsurfaces
+   3     0.147     0.210      NaN      NaN   0.0000   0.0000  012m_htailnosubsurfaces (YDUP)
+   4     0.028     0.229      NaN      NaN   0.0000   0.0000  012m_vtailnosubsurfaces_1
+   5     0.028     0.229      NaN      NaN   0.0000   0.0000  012m_vtailnosubsurfaces_2
+   6     0.469     0.382      NaN      NaN   0.0000   0.0000  main_wing
+   7     0.469     0.382      NaN      NaN   0.0000   0.0000  main_wing (YDUP)
+   8       NaN       NaN      NaN      NaN      NaN   0.0000  Booms_1_horizontal
+   9       NaN       NaN      NaN      NaN      NaN   0.0000  Booms_1_vertical
+  10       NaN       NaN      NaN      NaN      NaN   0.0000  Booms_2_horizontal
+  11       NaN       NaN      NaN      NaN      NaN   0.0000  Booms_2_vertical
+ ---------------------------------------------------------------
