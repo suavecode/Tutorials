@@ -135,8 +135,8 @@ def simple_sizing(nexus):
         fuselage              = config.fuselages['fuselage']
         fuselage.differential_pressure = diff_pressure 
         
-        turbofan_sizing(config.propulsors['turbofan'], mach_number = mach_number, altitude = altitude)
-        compute_turbofan_geometry(config.propulsors['turbofan'], conditions)
+        turbofan_sizing(config.networks['turbofan'], mach_number = mach_number, altitude = altitude)
+        compute_turbofan_geometry(config.networks['turbofan'], config.nacelles.nacelle_1)
 
     return nexus
 
