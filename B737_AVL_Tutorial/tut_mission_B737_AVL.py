@@ -8,17 +8,11 @@
 
 # SUAVE Imports
 import SUAVE
-assert SUAVE.__version__=='2.5.0', 'These tutorials only work with the SUAVE 2.5.0 release'
+assert SUAVE.__version__=='2.5.2', 'These tutorials only work with the SUAVE 2.5.2 release'
 
-from SUAVE.Core import Data, Units
+from SUAVE.Core import Units
 from SUAVE.Plots.Performance.Mission_Plots import *
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
-from SUAVE.Methods.Geometry.Two_Dimensional.Cross_Section.Propulsion import compute_turbofan_geometry
-from SUAVE.Input_Output.Results import  print_parasite_drag,  \
-     print_compress_drag, \
-     print_engine_data,   \
-     print_mission_breakdown, \
-     print_weight_breakdown
 
 # Python Imports
 import numpy as np
@@ -113,7 +107,8 @@ def base_analysis(vehicle):
     #  Aerodynamics Analysis
     aerodynamics = SUAVE.Analyses.Aerodynamics.AVL()
     aerodynamics.process.compute.lift.inviscid.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'
-    #aerodynamics.process.compute.lift.inviscid.settings.spanwise_vortex_density    = 3 
+    #aerodynamics.settings.number_spanwise_vortices  = 5
+    #aerodynamics.settings.number_chordwise_vortices = 3
     aerodynamics.geometry = vehicle
     analyses.append(aerodynamics)
 
@@ -121,7 +116,7 @@ def base_analysis(vehicle):
     #  Stability Analysis
     stability = SUAVE.Analyses.Stability.AVL()
     stability.settings.filenames.avl_bin_name = 'CHANGE ME TO YOUR DIRECTORY'    
-    #stability.settings.spanwise_vortex_density                  = 3
+    
     stability.geometry = vehicle
     analyses.append(stability)
 
@@ -179,22 +174,6 @@ def vehicle_setup():
     vehicle.systems.control        = "fully powered" 
     vehicle.systems.accessories    = "medium range"
 
-    # ------------------------------------------------------------------        
-    #  Landing Gear
-    # ------------------------------------------------------------------        
-    # used for noise calculations
-    landing_gear = SUAVE.Components.Landing_Gear.Landing_Gear()
-    landing_gear.tag = "main_landing_gear"
-    
-    landing_gear.main_tire_diameter = 1.12000 * Units.m
-    landing_gear.nose_tire_diameter = 0.6858 * Units.m
-    landing_gear.main_strut_length  = 1.8 * Units.m
-    landing_gear.nose_strut_length  = 1.3 * Units.m
-    landing_gear.main_units  = 2    #number of main landing gear units
-    landing_gear.nose_units  = 1    #number of nose landing gear
-    landing_gear.main_wheels = 2    #number of wheels on the main landing gear
-    landing_gear.nose_wheels = 2    #number of wheels on the nose landing gear      
-    vehicle.landing_gear = landing_gear
 
     # ------------------------------------------------------------------        
     #   Main Wing
