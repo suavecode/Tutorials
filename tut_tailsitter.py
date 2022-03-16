@@ -7,6 +7,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
+assert SUAVE.__version__=='2.5.2', 'These tutorials only work with the SUAVE 2.5.2 release'
 from SUAVE.Core import Units
 
 import pylab as plt
