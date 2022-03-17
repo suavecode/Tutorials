@@ -7,7 +7,7 @@
 #   Imports
 # ----------------------------------------------------------------------
 import SUAVE
-assert SUAVE.__version__=='2.5.0', 'These tutorials only work with the SUAVE 2.5.0 release'
+assert SUAVE.__version__=='2.5.2', 'These tutorials only work with the SUAVE 2.5.2 release'
 from SUAVE.Core import Units
 
 import numpy as np
@@ -272,8 +272,8 @@ def vehicle_setup():
 
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
-    bat.mass_properties.mass = 90.0 * Units.kg
-    bat.specific_energy      = 600. * Units.Wh/Units.kg
+    bat.mass_properties.mass = 95.0 * Units.kg
+    bat.specific_energy      = 800. * Units.Wh/Units.kg
     bat.max_voltage          = 130.0
     initialize_from_mass(bat)
     net.battery              = bat

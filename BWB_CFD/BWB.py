@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-assert SUAVE.__version__=='2.5.0', 'These tutorials only work with the SUAVE 2.5.0 release'
+assert SUAVE.__version__=='2.5.2', 'These tutorials only work with the SUAVE 2.5.2 release'
 
 import numpy as np
 import pylab as plt

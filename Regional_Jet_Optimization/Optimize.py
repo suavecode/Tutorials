@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------    
 
 import SUAVE
-assert SUAVE.__version__=='2.5.0', 'These tutorials only work with the SUAVE 2.5.0 release'
+assert SUAVE.__version__=='2.5.2', 'These tutorials only work with the SUAVE 2.5.2 release'
 from SUAVE.Core import Units, Data
 import numpy as np
 import Vehicles
@@ -30,7 +30,7 @@ def main():
     ## Base Input Values
     output = problem.objective()
     
-    ## Uncomment to view contours of the design space
+    # Uncomment to view contours of the design space
     #variable_sweep(problem)
     
     # Uncomment for the first optimization

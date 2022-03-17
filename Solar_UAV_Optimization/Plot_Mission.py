@@ -19,11 +19,13 @@ def plot_mission(results,line_style='bo-'):
     # Plot Solar Conditions 
     plot_solar_flux(results)
     
-    # Plot Aircraft Electronics
-    plot_battery_pack_conditions(results)
+    # Plot Aerodynamic Forces 
+    plot_aerodynamic_forces(results, line_style)
+    
+    # Plot Aerodynamic Coefficients 
+    plot_aerodynamic_coefficients(results, line_style)
 
     return
 
 if __name__ == '__main__': 
-    main()    
     plt.show()

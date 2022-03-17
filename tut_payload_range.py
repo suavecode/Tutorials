@@ -9,14 +9,13 @@
 # ----------------------------------------------------------------------
 
 import SUAVE
-assert SUAVE.__version__=='2.5.0', 'These tutorials only work with the SUAVE 2.5.0 release'
-from SUAVE.Core import Units, Data 
+assert SUAVE.__version__=='2.5.2', 'These tutorials only work with the SUAVE 2.5.2 release'
+from SUAVE.Core import Units
 from SUAVE.Methods.Propulsion.turbofan_sizing import turbofan_sizing
 from SUAVE.Methods.Performance  import payload_range
 from SUAVE.Methods.Geometry.Two_Dimensional.Planform import wing_planform
 from SUAVE.Plots.Performance.Mission_Plots import *
 
-import numpy as np
 import pylab as plt
 
 

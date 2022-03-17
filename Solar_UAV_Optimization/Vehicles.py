@@ -205,7 +205,7 @@ def base_setup():
     # Component 8 the Battery
     bat = SUAVE.Components.Energy.Storages.Batteries.Constant_Mass.Lithium_Ion()
     bat.mass_properties.mass = 3.0  * Units.kg
-    bat.specific_energy      = 200. *Units.Wh/Units.kg
+    bat.specific_energy      = 400. *Units.Wh/Units.kg
     bat.resistance           = 0.003
     initialize_from_mass(bat,bat.mass_properties.mass)
     net.battery              = bat
